@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+spec:
+  selector:
+    matchLabels:
+      app: mlflow-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mlflow-server
+    spec:
+      containers:
+      - name: mlflow-server
+        image: karlsonav/call-miner-mlflow:v1.0
+        ports:
+        - containerPort: 5002
+        env:
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: callminer-secrets
+              key: AZURE_STORAGE_CONNECTION_STRING
+        - name: AZURE_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: callminer-secrets
+              key: AZURE_STORAGE_ACCESS_KEY
+        command: ["mlflow", "server", "--backend-store-uri", "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@mlflow-postgres:5432/$(POSTGRES_DB)", "--default-artifact-root", "$(MLFLOW_ARTIFACT_PATH)", "--host", "0.0.0.0", "--port", "5002"]
+        envFrom:
+        - secretRef:
+            name: callminer-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-server
+spec:
+  type: NodePort
+  selector:
+    app: mlflow-server
+  ports:
+  - protocol: TCP
+    port: 5002
+    targetPort: 5002
+    nodePort: 30200

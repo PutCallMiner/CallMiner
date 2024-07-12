@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ner-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ner
+  template:
+    metadata:
+      labels:
+        app: ner
+    spec:
+      containers:
+        - name: ner
+          image: callminerput/ner-model:v1.0
+          ports:
+            - containerPort: 1234
+          env:
+            - name: MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: NER_MODEL
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: MLFLOW_TRACKING_URI
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_STORAGE_CONNECTION_STRING
+            - name: AZURE_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_STORAGE_ACCESS_KEY
+          envFrom:
+            - secretRef:
+                name: callminer-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ner-service
+spec:
+  type: NodePort
+  selector:
+    app: ner
+  ports:
+    - protocol: TCP
+      port: 1234
+      targetPort: 1234
+      nodePort: 31234

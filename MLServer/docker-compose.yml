@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  ner:
+    restart: always
+    image: ner_model
+    container_name: ner_model
+    build:
+      context: ./Models/NER
+    ports:
+      - "1234:1234"
+    env_file:
+      - .env
+    environment:
+      - MODEL=${NER_MODEL}
+
+  gpt_summarizer:
+    restart: always
+    image: gpt_summarizer
+    container_name: gpt_summarizer
+    build:
+      context: ./Models/gpt_summarizer
+    ports:
+      - "1235:1234"
+    env_file:
+      - .env
+    environment:
+      - MODEL=${GPT_SUMMARIZER_MODEL}
+      - OPENAI_API_TYPE=${OPENAI_API_TYPE}
+      - OPENAI_API_BASE=${AZURE_API_BASE}
+      - OPENAI_API_KEY=${AZURE_API_KEY}
+      - OPENAI_API_VERSION=${AZURE_API_VERSION}
+      - OPENAI_DEPLOYMENT_NAME=${AZURE_GPT_35_TURBO_ENDPOINT}
+      
+  asr:
+    restart: always
+    image: asr_model
+    container_name: asr_model
+    build:
+      context: ./Models/ASR
+    ports:
+      - "1236:1234"
+    env_file:
+      - .env
+    environment:
+      - MODEL=${ASR_MODEL}
+      - TIMEOUT=3000

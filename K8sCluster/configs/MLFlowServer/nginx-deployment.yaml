@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-nginx
+spec:
+  selector:
+    matchLabels:
+      app: mlflow-nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mlflow-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.17.6
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-nginx
+spec:
+  selector:
+    app: mlflow-nginx
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpt-summarizer-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpt-summarizer
+  template:
+    metadata:
+      labels:
+        app: gpt-summarizer
+    spec:
+      containers:
+        - name: gpt-summarizer
+          image: callminerput/gpt-summarizer-model:v1.0
+          ports:
+            - containerPort: 1234
+          env:
+            - name: MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: GPT_SUMMARIZER_MODEL
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: MLFLOW_TRACKING_URI
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_STORAGE_CONNECTION_STRING
+            - name: AZURE_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_STORAGE_ACCESS_KEY
+            - name: OPENAI_API_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: OPENAI_API_TYPE
+            - name: OPENAI_API_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_API_BASE
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_API_KEY
+            - name: OPENAI_API_VERSION
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_API_VERSION
+            - name: OPENAI_DEPLOYMENT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: callminer-secrets
+                  key: AZURE_GPT_35_TURBO_ENDPOINT
+          envFrom:
+            - secretRef:
+                name: callminer-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpt-summarizer-service
+spec:
+  type: NodePort
+  selector:
+    app: gpt-summarizer
+  ports:
+    - protocol: TCP
+      port: 1235
+      targetPort: 1234
+      nodePort: 31235
