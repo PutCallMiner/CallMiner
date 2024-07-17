@@ -1,0 +1,64 @@
+package views
+
+const (
+	defaultTitle = "CallMiner"
+)
+
+type NavLink struct {
+	Title string
+	URL   string
+}
+
+var navLinks = []NavLink{
+	{"Dashboard", "/"},
+	{"Transcripts", "/transcripts"},
+}
+
+templ Page(child templ.Component, current, title, description string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<title>{ getTitle(title) }</title>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			@getDescription(description)
+			<link rel="stylesheet" href="/public/css/styles.css"/>
+		</head>
+		<body>
+			<header>
+				<a href="/" title="Go to Dashboard" id="site-logo">
+					<img src="/public/assets/logo.svg" alt="CallMiner"/>
+					<h3>CallMiner</h3>
+				</a>
+				@navigation(current)
+				<div id="toolbar"></div>
+			</header>
+			<main>
+				if child != nil {
+					@child
+				}
+			</main>
+		</body>
+	</html>
+}
+
+func getTitle(title string) string {
+	if title == "" {
+		return defaultTitle
+	}
+	return defaultTitle + " | " + title
+}
+
+templ getDescription(description string) {
+	if description != "" {
+		<meta name="description" content={ description }/>
+	}
+}
+
+templ navigation(current string) {
+	<nav>
+		for _, link := range navLinks {
+			<a href={ templ.URL(link.URL) } class={ templ.KV("active", link.URL == current) }>{ link.Title }</a>
+		}
+	</nav>
+}
