@@ -9,14 +9,17 @@ import (
 	"github.com/PutCallMiner/CallMiner/views"
 )
 
-type TranscriptHandler struct{}
+type TranscriptHandler struct {
+	idx      int
+	NavLinks []views.NavLink
+}
 
-func NewTranscriptHandler() *TranscriptHandler {
-	return &TranscriptHandler{}
+func NewTranscriptHandler(idx int, navLinks []views.NavLink) *TranscriptHandler {
+	return &TranscriptHandler{idx, navLinks}
 }
 
 func (h *TranscriptHandler) get(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(views.Page(nil, "/transcripts", "Transcripts", "")).ServeHTTP(w, r)
+	templ.Handler(views.Page(nil, h.NavLinks, h.idx)).ServeHTTP(w, r)
 }
 
 func (h *TranscriptHandler) Register() chi.Router {

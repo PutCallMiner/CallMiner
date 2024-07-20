@@ -9,14 +9,17 @@ import (
 	"github.com/PutCallMiner/CallMiner/views"
 )
 
-type DashboardHandler struct{}
+type DashboardHandler struct {
+	idx      int
+	NavLinks []views.NavLink
+}
 
-func NewDashboardHandler() *DashboardHandler {
-	return &DashboardHandler{}
+func NewDashboardHandler(idx int, navLinks []views.NavLink) *DashboardHandler {
+	return &DashboardHandler{idx, navLinks}
 }
 
 func (h *DashboardHandler) get(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(views.Page(nil, "/", "Dashboard", "")).ServeHTTP(w, r)
+	templ.Handler(views.Page(nil, h.NavLinks, h.idx)).ServeHTTP(w, r)
 }
 
 func (h *DashboardHandler) Register() chi.Router {
