@@ -12,10 +12,11 @@
 
 :root {
   --text: #040507;
-  --background: #f4f8fb;
-  --primary: #39aafb;
-  --secondary: #7dbeed;
-  --accent: #02233a;
+  --background: #f8f8ff;
+  --primary: #022759;
+  --secondary: #8fc0ff;
+  --tertiary: #e7ecf1;
+  --accent: #ff6294;
 }
 
 body {
@@ -75,7 +76,7 @@ body > header {
   display: flex;
   align-items: center;
 
-  border-bottom: 1px solid var(--accent);
+  border-bottom: 1px solid var(--text);
 
   #site-logo {
     display: flex;
@@ -114,18 +115,18 @@ body > header {
       text-transform: uppercase;
       text-align: center;
       color: var(--text);
+    }
 
-      &.active {
-        color: var(--primary);
-        font-weight: 700;
-        border-bottom: 1px solid var(--primary);
-      }
+    a.active {
+      color: var(--secondary);
+      font-weight: 700;
+      border-bottom: 1px solid var(--secondary);
     }
 
     a:hover {
       color: var(--text);
       font-weight: 700;
-      border-bottom: 1px solid var(--accent);
+      border-bottom: 1px solid var(--text);
     }
   }
 
