@@ -1,0 +1,55 @@
+version: '3.3'
+
+services:
+    db:
+        restart: always
+        image: postgres:12
+        container_name: mlflow_db
+        ports:
+            - "5432:5432"
+        networks:
+            - backend
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - dbdata:/var/lib/postgresql/data
+
+    web:
+        restart: always
+        build: ./MLFlow
+        image: mlflow_server
+        container_name: mlflow_server
+        ports:
+            - "5002:5002"
+        networks:
+            - frontend
+            - backend
+        environment:
+            - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+            - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
+        command: mlflow server --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB} --default-artifact-root ${MLFLOW_ARTIFACT_PATH} --host 0.0.0.0 --port 5002
+        depends_on:
+            - db
+
+    nginx:
+        restart: always
+        build: ./Nginx
+        image: mlflow_nginx
+        container_name: mlflow_nginx
+        ports:
+            - "80:80"
+        networks:
+            - frontend
+        depends_on:
+            - web
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge
+
+volumes:
+    dbdata:
