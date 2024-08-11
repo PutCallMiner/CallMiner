@@ -1,14 +1,51 @@
 #!/bin/bash
 
 # Usage:
-# ./register_model.sh model_name model_folder env_file        # Creates new resources, uploads model, and cleans up after execution
-# ./register_model.sh model_name model_folder env_file --keep # Creates new resources, uploads model, does not clean up
+# ./register_model.sh [OPTIONAL_ARGS] model_name model_folder env_file  # Creates new resources, uploads model, and cleans up after execution
+# Optional args:
+#   -k true # Keep resources (don't clean up)
+#   -i BASE_IMAGE # Creates new resources, uploads model, does not clean up
+
+getopts_get_optional_argument() {
+  eval next_token=\${$OPTIND}
+  if [[ -n $next_token && $next_token != -* ]]; then
+    OPTIND=$((OPTIND + 1))
+    OPTARG=$next_token
+  else
+    OPTARG=""
+  fi
+}
+
+KEEP_RESOURCES="false"
+DEFAULT_BASE_IMAGE="python:3.9-slim"
+BASE_IMAGE=""
+while getopts "ik" opt; do
+  case $opt in
+    i) 
+        getopts_get_optional_argument $@
+        BASE_IMAGE="$OPTARG"
+        ;;
+    k)
+        getopts_get_optional_argument $@
+        KEEP_RESOURCES="$OPTARG"
+        ;;
+    \?) 
+        echo "Invalid option -$OPTARG" >&2
+        exit 1
+        ;;
+    :) 
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
+  esac
+done
+shift $((OPTIND-1))
+BASE_IMAGE=${BASE_IMAGE:-$DEFAULT_BASE_IMAGE}
 
 # Required arguments
 MODEL_NAME=$1
 MODEL_FOLDER=$2
 ENV_FILE=$3
-KEEP_RESOURCES=$4
 
 # Check if all required arguments are provided
 if [ -z "$MODEL_NAME" ] || [ -z "$MODEL_FOLDER" ] || [ -z "$ENV_FILE" ]; then
@@ -25,11 +62,22 @@ DOCKERFILE="Dockerfile.${MODEL_NAME}"
 
 # Generate a Dockerfile for the model registration environment
 generate_dockerfile () {
+    if [ -f "$MODEL_FOLDER/container_setup.sh" ]; then
+        CONTAINER_SETUP_RUN=$(cat <<-END
+RUN ["chmod", "+x", "/app/container_setup.sh"]
+RUN /app/container_setup.sh
+END
+        )
+    else
+        CONTAINER_SETUP_RUN=""
+    fi
+
     cat > $DOCKERFILE <<EOF
-FROM python:3.9-slim
+FROM $BASE_IMAGE
 WORKDIR /app
 COPY $MODEL_FOLDER /app/
 RUN apt-get update && apt-get install -y git
+$CONTAINER_SETUP_RUN
 RUN pip install --no-cache-dir -r /app/requirements.txt
 CMD ["python", "/app/register_model.py"]
 EOF
@@ -64,6 +112,6 @@ generate_dockerfile
 setup_container
 register_model
 
-if [ "$KEEP_RESOURCES" != "--keep" ]; then
+if [ "$KEEP_RESOURCES" != "true" ]; then
     cleanup
 fi
