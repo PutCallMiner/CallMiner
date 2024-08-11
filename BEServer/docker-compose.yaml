@@ -1,0 +1,25 @@
+services:
+  be:
+    build:
+      context: .
+    restart: always
+    network_mode: host
+    volumes:
+      - ./be:/app/be
+    env_file: ./.env
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - ${MONGO_PORT}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+volumes:
+  mongo_data:
+
+
