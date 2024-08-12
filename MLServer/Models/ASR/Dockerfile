@@ -1,7 +1,7 @@
 # Use Python 3.10 base image
 FROM python:3.10-slim
 
-COPY ./container_setup.sh /container_setup.sh
+COPY container_setup.sh /container_setup.sh
 RUN chmod +x /container_setup.sh
 RUN /container_setup.sh
 
