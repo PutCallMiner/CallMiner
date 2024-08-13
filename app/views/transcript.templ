@@ -1,0 +1,93 @@
+package views
+
+import (
+	"fmt"
+	"github.com/PutCallMiner/CallMiner/models"
+	"strconv"
+	"time"
+)
+
+templ Transcripts(transcripts []models.Transcript) {
+	<div id="controls">
+		<input type="search" placeholder="Search"/>
+	</div>
+	<div class="table">
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Topic</th>
+					<th>Agent</th>
+					<th>Score</th>
+					<th>Duration</th>
+					<th>Tags</th>
+					<th>Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, transcript := range transcripts {
+					<tr>
+						<td>
+							<a href={ templ.URL("/transcripts/" + strconv.Itoa(transcript.ID)) } title="Go to Details">
+								#{ strconv.Itoa(transcript.ID) }<span class="icon">north_east</span>
+							</a>
+						</td>
+						<td>
+							<a href={ templ.URL("/transcripts?topic=" + templ.EscapeString(transcript.Topic)) }>
+								{ transcript.Topic }<span class=" icon">search</span>
+							</a>
+						</td>
+						<td>
+							<button class="chip">
+								<object type="image/jpeg"></object>
+								{ transcript.Agent }
+							</button>
+						</td>
+						<td>
+							<div class={ "rating" , rating(transcript.Score) }>
+								<span>{ strconv.Itoa(transcript.Score) }</span>
+							</div>
+						</td>
+						<td>{ formatDuration(transcript.DurationSecs) }</td>
+						<td>
+							for _, tag := range transcript.Tags {
+								<button class="chip">
+									{ tag }
+								</button>
+							}
+						</td>
+						<td>{ transcript.Timestamp.Format("Jan 7, 2006") }</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<div class="pagination"></div>
+	</div>
+}
+
+css rating(score int) {
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("conic-gradient(%s %d%%, transparent 0 100%%)", getColor(score),
+score)) };
+}
+
+func formatDuration(seconds int) string {
+	d, err := time.ParseDuration(strconv.Itoa(seconds) + "s")
+
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%d min", int(d.Minutes()))
+}
+
+func getColor(rating int) string {
+	var color string
+	if rating < 33 {
+		color = "#fd8a8a"
+	} else if rating < 66 {
+		color = "#f3d17c"
+	} else {
+		color = "#b8d8be"
+	}
+	return color
+}
