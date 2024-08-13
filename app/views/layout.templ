@@ -10,7 +10,7 @@ type NavLink struct {
 	Description string
 }
 
-templ Page(child templ.Component, navLinks []NavLink, current int) {
+templ Page(child templ.Component, navLinks []NavLink, current int, mainId string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -29,7 +29,7 @@ templ Page(child templ.Component, navLinks []NavLink, current int) {
 				@navigation(navLinks, current)
 				<div id="toolbar"></div>
 			</header>
-			<main>
+			<main id={ mainId }>
 				if child != nil {
 					@child
 				}
@@ -54,7 +54,7 @@ templ getDescription(description string) {
 templ navigation(navLinks []NavLink, current int) {
 	<nav>
 		for i, link := range navLinks {
-			<a href={ templ.URL(link.URL) } class={ templ.KV("active", i == current) }>{ link.Title }</a>
+			<a href={ templ.URL("/" + link.URL) } class={ templ.KV("active", i == current) }>{ link.Title }</a>
 		}
 	</nav>
 }
