@@ -4,28 +4,37 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
-	"github.com/go-chi/chi/v5"
 
+	"github.com/PutCallMiner/CallMiner/models"
 	"github.com/PutCallMiner/CallMiner/views"
 )
 
 type TranscriptHandler struct {
 	idx      int
-	NavLinks []views.NavLink
+	service  *models.TranscriptService
+	navLinks []views.NavLink
 }
 
-func NewTranscriptHandler(idx int, navLinks []views.NavLink) *TranscriptHandler {
-	return &TranscriptHandler{idx, navLinks}
+func NewTranscriptHandler(idx int, service *models.TranscriptService, navLinks []views.NavLink) *TranscriptHandler {
+	return &TranscriptHandler{idx, service, navLinks}
 }
 
-func (h *TranscriptHandler) get(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(views.Page(nil, h.NavLinks, h.idx)).ServeHTTP(w, r)
+func (h TranscriptHandler) get(w http.ResponseWriter, r *http.Request) {
+	arr, err := h.service.List()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	main := views.Transcripts(arr)
+	page := views.Page(main, h.navLinks, h.idx, "transcripts")
+
+	templ.Handler(page).ServeHTTP(w, r)
 }
 
-func (h *TranscriptHandler) Register() chi.Router {
-	r := chi.NewRouter()
+func (h TranscriptHandler) Register() http.Handler {
+	r := http.NewServeMux()
 
-	r.Get("/", h.get)
+	r.HandleFunc("GET /", h.get)
 
 	return r
 }
