@@ -1,22 +1,33 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from beanie import init_beanie
 
-from be.models import PersonDB
+from be.config import MONGO_DB_NAME, MONGO_ROOT_PASSWORD, MONGO_ROOT_USERNAME
 from be.schemas import Person
 
 
-async def connect():
-    client = AsyncIOMotorClient("mongodb://root:example@localhost:27017")
-    await init_beanie(database=client["test"], document_models=[PersonDB])
+class MongoCollection:
+    def __init__(
+        self, username: str, password: str, db_name: str, collection_name: str
+    ):
+        self.client = AsyncIOMotorClient(
+            f"mongodb://{username}:{password}@localhost:27017", connect=True
+        )
+        self.db = self.client[db_name]
+        self.collection = self.db[collection_name]
 
-def _person_to_db(p: Person) -> PersonDB:
-    return PersonDB(fname=p.fname, lname=p.lname)
 
-async def add_person(person: Person):
-    p = _person_to_db(person)
-    await p.insert()
-    return True
+class PersonsCollection(MongoCollection):
+    async def add_person(self, person: Person):
+        result = await self.collection.insert_one(person.model_dump())
+        return result.inserted_id
 
-async def find_persons_by_fname(fname: str):
-    res = await PersonDB.find_many(PersonDB.fname == fname).to_list()
-    return res
+    async def find_persons_by_fname(self, fname: str) -> list[Person]:
+        person_docs = await self.collection.find({"fname": fname}).to_list(None)
+        return [Person.model_validate(person_doc) for person_doc in person_docs]
+
+
+persons_db = PersonsCollection(
+    username=MONGO_ROOT_USERNAME,
+    password=MONGO_ROOT_PASSWORD,
+    db_name=MONGO_DB_NAME,
+    collection_name="persons",
+)

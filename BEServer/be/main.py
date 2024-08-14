@@ -1,27 +1,13 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from be import db
-from be.db import Person, connect
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await connect()
-    yield
+from be.routers.persons import router as persons_router
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
+
+app.include_router(persons_router)
 
 
 @app.get("/")
 async def read_root():
     return {"message": "Hello, World!"}
-
-@app.post("/person")
-async def add_person(person: Person):
-    await db.add_person(person)
-    return {"success": True}
-
-@app.get("/person")
-async def get_people(fname: str) -> list[Person]:
-    return await db.find_persons_by_fname(fname)
