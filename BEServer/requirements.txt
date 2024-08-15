@@ -4,3 +4,4 @@ pydantic==2.8.2
 motor==3.5.1
 redis==5.0.8
 celery==5.4.0
+azure-storage-blob==12.22.0

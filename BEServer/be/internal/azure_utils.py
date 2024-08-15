@@ -1,9 +1,7 @@
-import os
 import logging
 
 from azure.storage.blob import BlobServiceClient, ContainerClient, BlobClient
 from urllib.parse import urlparse, ParseResult
-from typing import Optional, List
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -11,7 +9,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 class BlobUrlParser:
     @staticmethod
-    def parse(url: str) -> List[str]:
+    def parse(url: str) -> list[str] | None:
         """
         Parses the blob URL and returns a list containing the container and blob names.
 
@@ -19,7 +17,7 @@ class BlobUrlParser:
         :return: List of container and blob names
         """
         parsed_url: ParseResult = urlparse(url)
-        container_and_blob_names: List[str] = parsed_url.path.lstrip('/').split('/', 1)
+        container_and_blob_names: list[str] = parsed_url.path.lstrip('/').split('/', 1)
 
         if len(container_and_blob_names) != 2:
             raise ValueError("Invalid URL format. Cannot determine container and blob names.")
@@ -36,7 +34,7 @@ class AzureBlobDownloader:
         """
         self.blob_service_client = blob_service_client
 
-    def download_blob_from_url(self, url: str) -> Optional[bytes]:
+    def download_blob_from_url(self, url: str) -> bytes | None:
         """
         Downloads a blob from Azure Blob Storage using a URL and returns the content as bytes.
 
