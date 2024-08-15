@@ -1,17 +1,18 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-from be.config import MONGO_DB_NAME, MONGO_ROOT_PASSWORD, MONGO_ROOT_USERNAME
+from be.config import (
+    MONGO_DB_NAME,
+    MONGO_HOST,
+    MONGO_PORT,
+    MONGO_ROOT_PASSWORD,
+    MONGO_ROOT_USERNAME,
+)
 from be.schemas import Person
 
 
 class MongoCollection:
-    def __init__(
-        self, username: str, password: str, db_name: str, collection_name: str
-    ):
-        self.client = AsyncIOMotorClient(
-            f"mongodb://{username}:{password}@localhost:27017", connect=True
-        )
-        self.db = self.client[db_name]
+    def __init__(self, db: AsyncIOMotorDatabase, collection_name: str):
+        self.db = db
         self.collection = self.db[collection_name]
 
 
@@ -25,9 +26,10 @@ class PersonsCollection(MongoCollection):
         return [Person.model_validate(person_doc) for person_doc in person_docs]
 
 
-persons_db = PersonsCollection(
-    username=MONGO_ROOT_USERNAME,
-    password=MONGO_ROOT_PASSWORD,
-    db_name=MONGO_DB_NAME,
-    collection_name="persons",
+motor_client: AsyncIOMotorClient = AsyncIOMotorClient(
+    f"mongodb://{MONGO_ROOT_USERNAME}:{MONGO_ROOT_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}",
+    connect=True,
 )
+mongo_db = motor_client[MONGO_DB_NAME]
+
+persons = PersonsCollection(db=mongo_db, collection_name="persons")
