@@ -7,25 +7,17 @@
 _________________________________________________________
 ### Prerequisites
 _________________________________________________________
-- Python 3.9
+- Python >=3.9
 - Docker and Docker Compose
 - Bash shell
-- jq (commandline JSON processor)
 _________________________________________________________
 ### Start the server
 _________________________________________________________
 Follow these steps to start the ML Server:
-1. **Set Environment Variables for HCP Vault**:
-- ``export HCP_CLIENT_ID=<your_client_id>``
-- ``export HCP_CLIENT_SECRET=<your_client_secret>``
+1. **Create `.env` file with Environment Variables**:
+- You can find required Environment Variables in `.env_example` 
 
-2. **Fetch Environment Variables from HCP Vault**:
-- Make script executable: 
-  ``chmod +x fetch_env.sh``
-- Execute script: 
-  ``bash fetch_env.sh``
-
-3. **Start Server**:
+2. **Start Server**:
 ``docker-compose up --build -d``
 _________________________________________________________
 ### API Documentation
