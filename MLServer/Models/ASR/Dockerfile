@@ -1,13 +1,9 @@
 # Use Python 3.10 base image
 FROM python:3.10-slim
 
-# Set the working directory in the container
-RUN apt update \
-    && apt install -y ffmpeg \
-    && apt install -y cython3 \
-    && apt install -y git \
-    && apt install -y g++ \
-    && pip install Cython 
+COPY container_setup.sh /container_setup.sh
+RUN chmod +x /container_setup.sh
+RUN /container_setup.sh
 
 WORKDIR /app
 

@@ -7,6 +7,10 @@ services:
     volumes:
       - ./be:/app/be
     env_file: ./.env
+    depends_on:
+      - redis
+      - mongo
+      - celery_worker
 
   mongo:
     image: mongo
@@ -19,7 +23,25 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
 
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - ${REDIS_PORT}:6379
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: host
+    command: [ 'celery', '-A', 'be.celery_app', 'worker', '-l', 'info' ]
+    depends_on:
+      - redis
+    volumes:
+      - ./be:/app/be
+    env_file: ./.env
+    restart: always
+    scale: 3
+
 volumes:
   mongo_data:
-
-
