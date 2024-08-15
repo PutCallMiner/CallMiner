@@ -33,10 +33,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    network_mode: host
     command: [ 'celery', '-A', 'be.celery_app', 'worker', '-l', 'info' ]
     depends_on:
       - redis
-      - mongo
     volumes:
       - ./be:/app/be
     env_file: ./.env
