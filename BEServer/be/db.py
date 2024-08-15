@@ -26,10 +26,10 @@ class PersonsCollection(MongoCollection):
         return [Person.model_validate(person_doc) for person_doc in person_docs]
 
 
-client = AsyncIOMotorClient(
+motor_client: AsyncIOMotorClient = AsyncIOMotorClient(
     f"mongodb://{MONGO_ROOT_USERNAME}:{MONGO_ROOT_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}",
     connect=True,
 )
-mongo_db = client[MONGO_DB_NAME]
+mongo_db = motor_client[MONGO_DB_NAME]
 
 persons = PersonsCollection(db=mongo_db, collection_name="persons")
