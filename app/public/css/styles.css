@@ -165,6 +165,10 @@ input {
         text-decoration: none;
         color: var(--text);
 
+        &.disabled {
+          visibility: hidden;
+        }
+
         span:not(.icon) {
           text-decoration: underline;
         }
@@ -210,7 +214,6 @@ input {
       height: 24px;
       width: 24px;
       margin-right: 4px;
-      border-radius: 50%;
       background: url("../assets/account.svg") no-repeat center;
     }
   }
@@ -225,8 +228,8 @@ button.chip {
 }
 
 .rating {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   position: relative;
   display: flex;
   justify-content: center;
@@ -243,7 +246,7 @@ button.chip {
     position: absolute;
     inset: 0px;
     border-radius: inherit;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     z-index: -1;
   }
 
@@ -252,7 +255,7 @@ button.chip {
     position: absolute;
     inset: 4px;
     background: var(--background);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: inherit;
     z-index: 1;
   }
@@ -370,44 +373,39 @@ body > main {
       td {
         padding: 1.5rem;
       }
+
+      th:first-child,
+      td:first-child {
+        min-width: 200px;
+      }
+
       td {
-        &:first-child {
-          min-width: 100px;
+        &:nth-child(1) {
+          padding: 0;
         }
 
-        &:nth-child(2) {
-          min-width: 300px;
-          a {
-            text-decoration: none;
-          }
-        }
-
-        &:nth-child(6) {
+        &:nth-child(5) {
           .chip {
             margin: 2px 2px;
           }
         }
 
-        &:has(a) {
-          padding: 0;
+        a {
+          width: 100%;
+          padding: 1.5rem;
+          display: flow;
+          color: var(--text);
 
-          a {
-            width: 100%;
-            padding: 1.5rem;
-            display: flow;
-            color: var(--text);
+          span.icon {
+            display: none;
+            font-size: 0.75rem;
+          }
+
+          &:hover {
+            font-weight: 700;
 
             span.icon {
-              display: none;
-              font-size: 0.75rem;
-            }
-
-            &:hover {
-              font-weight: 700;
-
-              span.icon {
-                display: inline-block;
-              }
+              display: inline-block;
             }
           }
         }
