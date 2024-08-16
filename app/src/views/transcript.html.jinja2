@@ -10,7 +10,6 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Topic</th>
           <th>Agent</th>
           <th>Score</th>
@@ -23,18 +22,13 @@
         {% for transcript in transcripts %}
         <tr>
           <td>
-            <a href="{{ '/transcripts/' ~ transcript.id  }}" title="Go to Details">
-              #{{ transcript.id }}<span class="icon">north_east</span>
-            </a>
-          </td>
-          <td>
-            <a href="{{ '/transcripts/' ~ transcript.id ~ '/quick' }}" title="See Summary">
-              {{ transcript.topic }}<span class="icon">search</span>
+            <a href="{{ '/transcripts/' ~ transcript.id }}" title="Go to Details">
+              {{ transcript.topic }}<span class="icon">north_east</span>
             </a>
           </td>
           <td>
             <button class="chip">
-              <object type="image/jpeg"></object>
+              <object></object>
               {{ transcript.agent }}
             </button>
           </td>
@@ -68,22 +62,18 @@
         <span>results</span>
       </div>
       <div>
-        {% if skip > 0 %}
-          <a href="{{ '/transcripts?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}">
-            <span class="icon">chevron_left</span><span>Previous</span>
-          </a>
-        {% endif %}
+        <a href="{{ '/transcripts?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}" class="{% if skip <= 0 %}disabled{% endif %}">
+          <span class="icon">chevron_left</span><span>Previous</span>
+        </a>
         <select>
           {% for s in range(0, total + 1, take) %}
             <option value="{{ s }}" {% if s == skip %}selected{% endif %}>{{ s // take + 1 }}</option>
           {% endfor %} 
         </select>
         <span>of {{ total // take + 1 }}</span>
-        {% if skip + take < total %}
-          <a href="{{ '/transcripts?skip=' ~ (skip + take + 1, total)|min ~ '&take=' ~ take  }}">
-            <span>Next</span><span class="icon">chevron_right</span>
-          </a>
-        {% endif %}
+        <a href="{{ '/transcripts?skip=' ~ (skip + take + 1, total)|min ~ '&take=' ~ take  }}" class="{% if take > total %}disabled{% endif %}">
+          <span>Next</span><span class="icon">chevron_right</span>
+        </a>
       </div>
     </div>
   </div>
