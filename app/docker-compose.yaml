@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/app
+      - ./public:/app/public
+    env_file: ./.env
+    depends_on:
+      - redis
+      - mongo
+      - worker
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - ${MONGO_PORT}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - ${REDIS_PORT}:6379
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ['celery', '-A', 'tasks', 'worker', '-l', 'info']
+    depends_on:
+      - redis
+    env_file: ./.env
+    volumes:
+      - ./src:/app
+    restart: always
+    scale: 1
+volumes:
+  mongo_data:
