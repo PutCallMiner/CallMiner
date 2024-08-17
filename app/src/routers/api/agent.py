@@ -1,18 +1,13 @@
 import fastapi
-import typing
-import motor.motor_asyncio as motor
 
-import models.db
 import models.agent
 
 router = fastapi.APIRouter(prefix="/api/agents", tags=["agents"])
 
 
 @router.get("/")
-async def index(
-    db: typing.Annotated[motor.AsyncIOMotorDatabase, fastapi.Depends(models.db.get_db)],
-) -> list[models.agent.Agent]:
-    return await models.agent.get_all(db)
+async def index() -> list[models.agent.Agent]:
+    return await models.agent.get_all()
 
 
 @router.post(
@@ -20,6 +15,5 @@ async def index(
 )
 async def create(
     agent: models.agent.Agent,
-    db: typing.Annotated[motor.AsyncIOMotorDatabase, fastapi.Depends(models.db.get_db)],
 ) -> str:
-    return await models.agent.add(db, agent)
+    return await models.agent.add(agent)

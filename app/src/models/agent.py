@@ -1,6 +1,9 @@
 import typing
 import pydantic
-import motor.motor_asyncio as motor
+
+from models.db import db
+
+agents = db["agents"]
 
 
 class Agent(pydantic.BaseModel):
@@ -8,13 +11,13 @@ class Agent(pydantic.BaseModel):
     name: str
 
 
-async def get_all(db: motor.AsyncIOMotorDatabase) -> list[Agent]:
-    records = await db["agents"].find().to_list(None)
+async def get_all() -> list[Agent]:
+    records = await agents.find().to_list(None)
     return [Agent.model_validate(record) for record in records]
 
 
-async def add(db: motor.AsyncIOMotorDatabase, agent: Agent) -> str:
-    result = await db["agents"].insert_one(
+async def add(agent: Agent) -> str:
+    result = await agents.insert_one(
         agent.model_dump(by_alias=True, exclude_unset=True)
     )
     return result.inserted_id

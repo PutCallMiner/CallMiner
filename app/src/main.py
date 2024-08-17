@@ -1,10 +1,8 @@
 import fastapi
 import fastapi.staticfiles
 import fastapi.templating
-import motor.motor_asyncio as motor
-import typing
 
-import models.db
+from models.db import db
 import routers.api.agent
 import routers.dashboard
 import routers.transcript
@@ -18,10 +16,8 @@ app.include_router(routers.transcript.router)
 app.include_router(routers.api.agent.router)
 
 
-@app.get("/api/health", response_class=fastapi.responses.Response)
-async def health(
-    db: typing.Annotated[motor.AsyncIOMotorDatabase, fastapi.Depends(models.db.get_db)]
-):
+@app.get("/api/health")
+async def health():
     try:
         result = await db.client.admin.command("ping")
     except:

@@ -1,6 +1,9 @@
 import datetime
 import pydantic
-import motor.motor_asyncio as motor
+
+from models.db import db
+
+transcripts = db["transcripts"]
 
 
 class Transcript(pydantic.BaseModel):
@@ -14,6 +17,6 @@ class Transcript(pydantic.BaseModel):
     tags: list[str]
 
 
-async def get_all(db: motor.AsyncIOMotorDatabase, skip, take) -> list[Transcript]:
-    records = await db["transcripts"].find().skip(skip).limit(take).to_list(None)
+async def get_all(skip, take) -> list[Transcript]:
+    records = await transcripts.find().skip(skip).limit(take).to_list(None)
     return [Transcript.model_validate(record) for record in records]
