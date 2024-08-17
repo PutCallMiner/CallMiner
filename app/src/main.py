@@ -45,3 +45,15 @@ async def health(
         )
 
     return fastapi.Response(status_code=fastapi.status.HTTP_200_OK)
+
+
+@app.get("/add/{x}/{y}")
+async def add_numbers(x: int, y: int, timeout: int = 10):
+    # Send the task to Celery
+    result = tasks.add.apply_async(args=[x, y])
+    try:
+        # Wait for the result with a timeout
+        task_result = result.get(timeout=timeout)
+        return {"task_id": result.id, "status": "Task completed", "result": task_result}
+    except TimeoutError:
+        return {"task_id": result.id, "status": "Task still running, timeout exceeded"}

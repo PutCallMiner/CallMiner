@@ -10,3 +10,8 @@ app = celery.Celery(
     backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
     include=["tasks"],
 )
+
+
+@app.task
+def add(x: int, y: int) -> int:
+    return x + y
