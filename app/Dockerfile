@@ -11,4 +11,4 @@ COPY public /app/public
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "fastapi $(if $ENV = 'development' ] ; then echo 'dev' ; else echo 'run'; fi) main.py --host 0.0.0.0 --port 8000" ]
+CMD ["sh", "-c", "fastapi $(if [ $ENV = 'development' ] ; then echo 'dev' ; else echo 'run'; fi) main.py --host 0.0.0.0 --port 8000" ]

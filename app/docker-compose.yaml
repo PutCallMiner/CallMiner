@@ -3,8 +3,7 @@ services:
     build:
       context: .
     restart: always
-    ports:
-      - ${APP_PORT}:8000
+    network_mode: host
     volumes:
       - ./src:/app
       - ./public:/app/public
@@ -32,13 +31,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
+    network_mode: host
+    scale: 1
     command: ['celery', '-A', 'tasks', 'worker', '-l', 'info']
-    depends_on:
-      - redis
-    env_file: ./.env
     volumes:
       - ./src:/app
-    restart: always
-    scale: 1
+    env_file: ./.env
+    depends_on:
+      - redis
 volumes:
   mongo_data:
