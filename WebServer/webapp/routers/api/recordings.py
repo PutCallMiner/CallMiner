@@ -12,10 +12,10 @@ router = APIRouter(prefix="/api/recordings", tags=["API"])
 
 @router.get("/")
 async def table(
-        request: Request,
-        db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
-        skip: int = 0,
-        take: int = 20,
+    request: Request,
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+    skip: int = 0,
+    take: int = 20,
 ) -> JSONResponse:
     recordings = await get_recordings(db, skip=skip, take=take)
 

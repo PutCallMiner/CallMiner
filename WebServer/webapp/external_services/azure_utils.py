@@ -17,10 +17,12 @@ class BlobUrlParser:
         :return: List of container and blob names
         """
         parsed_url: ParseResult = urlparse(url)
-        container_and_blob_names: list[str] = parsed_url.path.lstrip('/').split('/', 1)
+        container_and_blob_names: list[str] = parsed_url.path.lstrip("/").split("/", 1)
 
         if len(container_and_blob_names) != 2:
-            raise ValueError("Invalid URL format. Cannot determine container and blob names.")
+            raise ValueError(
+                "Invalid URL format. Cannot determine container and blob names."
+            )
 
         return container_and_blob_names
 
@@ -44,7 +46,9 @@ class AzureBlobDownloader:
         try:
             container_name, blob_name = BlobUrlParser.parse(url)
 
-            container_client: ContainerClient = self.blob_service_client.get_container_client(container_name)
+            container_client: ContainerClient = (
+                self.blob_service_client.get_container_client(container_name)
+            )
             blob_client: BlobClient = container_client.get_blob_client(blob_name)
 
             blob_content: bytes = blob_client.download_blob().readall()
@@ -52,5 +56,7 @@ class AzureBlobDownloader:
             return blob_content
 
         except Exception as e:
-            logging.error(f'Exception occurred when downloading blob from URL: {url}. Error: {e}:')
+            logging.error(
+                f"Exception occurred when downloading blob from URL: {url}. Error: {e}:"
+            )
             return None

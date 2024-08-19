@@ -8,9 +8,7 @@ Conversation:
 Summary:
 """.strip()
 
-MESSAGES = [
-    {"role": "user", "content": PROMPT}
-]
+MESSAGES = [{"role": "user", "content": PROMPT}]
 
 # Parameters
 MAX_TOKENS = 500
