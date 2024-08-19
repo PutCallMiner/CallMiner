@@ -1,12 +1,14 @@
-import pydantic
+from pydantic import Field, BaseModel
 
 from webapp.models.transcript import TranscriptEntry
 
 
-class Recording(pydantic.BaseModel):
-    id: str | None = pydantic.Field(serialization_alias="_id", default=None)
+class Recording(BaseModel):
+    id: str | None = Field(serialization_alias="_id", default=None)
     recording_url: str
-    agent: str | None
     transcript: list[TranscriptEntry] | None
     summary: str | None
-    analyzed: bool
+
+
+class LoadRecordingsResponse(BaseModel):
+    num_inserted: int

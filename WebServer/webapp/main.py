@@ -1,13 +1,27 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.staticfiles import StaticFiles
 
+from webapp.crud.common import init_db
+from webapp.errors import RecordingAlreadyExistsError
 from webapp.routers.api.add import router as add_api_router
 from webapp.routers.api.dashboard import router as dashboard_api_router
 from webapp.routers.api.recordings import router as recordings_api_router
 from webapp.routers.dashboard import router as dashboard_router
 from webapp.routers.recordings import router as recordings_router
 
-app = FastAPI()
+
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(RecordingAlreadyExistsError)
+def recording_exists_handler(request: Request, exc: RecordingAlreadyExistsError):
+    raise HTTPException(status.HTTP_409_CONFLICT, detail=str(exc))
+
 
 # statics
 app.mount("/public", StaticFiles(directory="public"), name="public")

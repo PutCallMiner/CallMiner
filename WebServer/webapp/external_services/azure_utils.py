@@ -9,7 +9,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 class BlobUrlParser:
     @staticmethod
-    def parse(url: str) -> list[str] | None:
+    def parse(url: str) -> list[str]:
         """
         Parses the blob URL and returns a list containing the container and blob names.
 
