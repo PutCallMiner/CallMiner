@@ -9,9 +9,7 @@ model_config = {
 
 signature = mlflow.models.infer_signature(
     model_input=["text"],
-    model_output=[
-        ["text"]
-    ],
+    model_output=[["text"]],
 )
 
 
@@ -23,5 +21,5 @@ if __name__ == "__main__":
             python_model=NERModelWrapper(),
             signature=signature,
             model_config=model_config,
-            pip_requirements="requirements.txt"
+            pip_requirements="requirements.txt",
         )

@@ -13,8 +13,19 @@ async def add_numbers(x: int, y: int, timeout: int = 10):
     try:
         # Wait for the result with a timeout
         task_result = result.get(timeout=timeout)
-        return JSONResponse(content={"task_id": result.id, "status": "Task completed", "result": task_result},
-                            status_code=200)
+        return JSONResponse(
+            content={
+                "task_id": result.id,
+                "status": "Task completed",
+                "result": task_result,
+            },
+            status_code=200,
+        )
     except TimeoutError:
-        return JSONResponse(content={"task_id": result.id, "status": "Task still running, timeout exceeded"},
-                            status_code=500)
+        return JSONResponse(
+            content={
+                "task_id": result.id,
+                "status": "Task still running, timeout exceeded",
+            },
+            status_code=500,
+        )

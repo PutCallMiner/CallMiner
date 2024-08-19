@@ -10,7 +10,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class NERModelWrapper(mlflow.pyfunc.PythonModel):
-
     def load_context(self, context):
         logging.info("Starting loading NER model context")
         ner_model_name = context.model_config["ner_model"]
@@ -28,7 +27,11 @@ class NERModelWrapper(mlflow.pyfunc.PythonModel):
             text_copy = text
             doc_text = self.ner(text_copy)
             for ent in sorted(doc_text.ents, key=lambda x: x.end_char, reverse=True):
-                text_copy = text_copy[:ent.start_char] + f"<{ent.label_}>{ent.text}</{ent.label_}>" + text_copy[ent.end_char:]
+                text_copy = (
+                    text_copy[: ent.start_char]
+                    + f"<{ent.label_}>{ent.text}</{ent.label_}>"
+                    + text_copy[ent.end_char :]
+                )
             result.append(text_copy)
             i += 1
             logging.info(f"Processed {i}/{len(model_input)} input records")
