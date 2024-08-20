@@ -12,3 +12,7 @@ class Recording(BaseModel):
 
 class LoadRecordingsResponse(BaseModel):
     num_inserted: int
+
+
+class RecordingsResponse(BaseModel):
+    recordings: list[Recording]
