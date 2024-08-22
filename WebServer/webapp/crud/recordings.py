@@ -1,3 +1,5 @@
+import bson
+import bson.errors
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.results import InsertManyResult
 
@@ -15,6 +17,15 @@ async def get_recordings(
         cursor = cursor.limit(take)
     records: list[dict] = await cursor.to_list(None)
     return [Recording.model_validate(record) for record in records]
+
+
+async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | None:
+    try:
+        objectid = bson.ObjectId(id)
+    except bson.errors.InvalidId:
+        return None
+    if recording := await db["recordings"].find_one({"_id": objectid}):
+        return Recording.model_validate(recording)
 
 
 async def insert_recordings(
