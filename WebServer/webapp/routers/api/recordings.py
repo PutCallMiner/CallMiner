@@ -1,10 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.crud.common import get_db
-from webapp.crud.recordings import get_recordings, insert_recordings
+from webapp.crud.recordings import (
+    get_recording_by_id,
+    get_recordings,
+    insert_recordings,
+)
 from webapp.models.record import LoadRecordingsResponse, Recording, RecordingsResponse
 
 router = APIRouter(prefix="/api/recordings", tags=["API"])
@@ -17,6 +21,17 @@ async def list_recordings(
     """List all recordings in the database"""
     recordings = await get_recordings(db)
     return RecordingsResponse(recordings=recordings)
+
+
+@router.get("/{id}")
+async def show_recording(
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)], id: str
+) -> Recording:
+    """Get the specific recording, looked by its id"""
+    recording = await get_recording_by_id(db, id)
+    if not recording:
+        raise HTTPException(status_code=404, detail=f"Recording {id} not found!")
+    return recording
 
 
 @router.post("/")
