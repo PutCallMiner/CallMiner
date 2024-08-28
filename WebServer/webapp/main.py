@@ -2,8 +2,13 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.staticfiles import StaticFiles
 
 from webapp.crud.common import init_db
-from webapp.errors import RecordingAlreadyExistsError
+from webapp.errors import (
+    BlobDownloadError,
+    RecordingAlreadyExistsError,
+    RecordingNotFoundError,
+)
 from webapp.routers.api.add import router as add_api_router
+from webapp.routers.api.analysis import router as analysis_api_router
 from webapp.routers.api.dashboard import router as dashboard_api_router
 from webapp.routers.api.recordings import router as recordings_api_router
 from webapp.routers.dashboard import router as dashboard_router
@@ -23,6 +28,16 @@ def recording_exists_handler(request: Request, exc: RecordingAlreadyExistsError)
     raise HTTPException(status.HTTP_409_CONFLICT, detail=str(exc))
 
 
+@app.exception_handler(RecordingNotFoundError)
+def recording_not_found_handler(request: Request, exc: RecordingNotFoundError):
+    raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(exc))
+
+
+@app.exception_handler(BlobDownloadError)
+def audio_download_handler(request: Request, exc: BlobDownloadError):
+    raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
 # statics
 app.mount("/public", StaticFiles(directory="public"), name="public")
 
@@ -34,3 +49,4 @@ app.include_router(recordings_router)
 app.include_router(dashboard_api_router)
 app.include_router(recordings_api_router)
 app.include_router(add_api_router)
+app.include_router(analysis_api_router)

@@ -50,8 +50,11 @@ class AzureBlobDownloader:
                 self.blob_service_client.get_container_client(container_name)
             )
             blob_client: BlobClient = container_client.get_blob_client(blob_name)
-
-            blob_content: bytes = blob_client.download_blob().readall()
+            sas_token = "sp=r&st=2024-08-27T20:11:46Z&se=2024-08-28T04:11:46Z&sv=2022-11-02&sr=c&sig=rNZDGfNLOVF2kloONeINbJcGvfifjqDFngBLcCBOCsE%3D"
+            blob_client_sas = BlobClient.from_blob_url(
+                blob_url=f"{blob_client.url}?{sas_token}"
+            )
+            blob_content: bytes = blob_client_sas.download_blob().readall()
             logging.info(f"Blob {blob_name} downloaded successfully.")
             return blob_content
 

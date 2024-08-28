@@ -1,10 +1,11 @@
 import bson
 import bson.errors
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pymongo.results import InsertManyResult
+from pymongo.results import InsertManyResult, UpdateResult
 
 from webapp.errors import RecordingAlreadyExistsError
-from webapp.models.record import Recording
+from webapp.models.record import PyObjectId, Recording, RecordingBase
+from webapp.models.transcript import Transcript
 
 
 async def get_recordings(
@@ -24,12 +25,15 @@ async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | 
         objectid = bson.ObjectId(id)
     except bson.errors.InvalidId:
         return None
-    if recording := await db["recordings"].find_one({"_id": objectid}):
-        return recording
+
+    recording = await db["recordings"].find_one({"_id": objectid})
+    if recording is None:
+        return None
+    return Recording.model_validate(recording)
 
 
 async def insert_recordings(
-    db: AsyncIOMotorDatabase, recordings: list[Recording]
+    db: AsyncIOMotorDatabase, recordings: list[RecordingBase]
 ) -> InsertManyResult:
     recording_urls = [rec.recording_url for rec in recordings]
     prev_recording_doc = await db["recordings"].find_one(
@@ -42,3 +46,12 @@ async def insert_recordings(
     recording_docs = [rec.model_dump() for rec in recordings]
     result = await db["recordings"].insert_many(recording_docs)
     return result
+
+
+async def update_with_transcript(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, transcript: Transcript
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": recording_id}, update={"transcript": transcript}
+    )
+    return update_result

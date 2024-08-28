@@ -7,11 +7,14 @@ from webapp.models.transcript import TranscriptEntry
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-class Recording(BaseModel):
-    id: PyObjectId | None = Field(alias="_id", default=None)
+class RecordingBase(BaseModel):
     recording_url: str
     transcript: list[TranscriptEntry] | None
     summary: str | None
+
+
+class Recording(RecordingBase):
+    id: PyObjectId = Field(alias="_id")
 
 
 class LoadRecordingsResponse(BaseModel):

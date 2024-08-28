@@ -6,7 +6,7 @@ celery_app = Celery(
     "webapp",
     broker=CELERY_BROKER_URL,
     backend=CELERY_RESULT_BACKEND,
-    include=["webapp.tasks.add"],
+    include=["webapp.tasks.add", "webapp.tasks.analysis"],
 )
 
 # Optional configuration for Celery
