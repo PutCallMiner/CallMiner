@@ -4,7 +4,7 @@ from model import NERModelWrapper
 
 
 model_config = {
-    "ner_model": "xx_ent_wiki_sm",
+    "ner_model": "pl_core_news_md",
 }
 
 signature = mlflow.models.infer_signature(
