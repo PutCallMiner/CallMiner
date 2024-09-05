@@ -295,7 +295,7 @@ class DiarizationPipeline:
             MODEL_CONFIG_PATH = wget.download(config_url, os.getcwd())
 
         config = OmegaConf.load(MODEL_CONFIG_PATH)
-        config.num_workers = 4
+        config.num_workers = 1
         config.batch_size = 32
 
         config.diarizer.manifest_filepath = str(manifest_path)
@@ -322,7 +322,7 @@ class DiarizationPipeline:
         config.diarizer.oracle_vad = False
         config.diarizer.collar = 0.25
 
-        config.diarizer.vad.model_path = "vad_multilingual_marblenet"
+        config.diarizer.vad.model_path = "vad_telephony_marblenet"
         config.diarizer.oracle_vad = False  # ----> Not using oracle VAD
 
         model = ClusteringDiarizer(cfg=config)
@@ -386,6 +386,18 @@ class DiarizationPipeline:
         result_aligned = self._align(audio, transcribe_results)
 
         word_ts = result_aligned["word_segments"]
+        # NOTE: this filling in of missing "start"/"end" is just patchwork solution and may be incorrect
+        for i, word_dict in enumerate(word_ts):
+            if "start" not in word_dict.keys():
+                if i == 0:
+                    word_dict["start"] = result_aligned["segments"][0]["start"]
+                else:
+                    word_dict["start"] = word_ts[i - 1]["end"]
+            if "end" not in word_dict.keys():
+                if i == len(word_ts):
+                    word_dict["end"] = result_aligned["segments"][-1]["end"]
+                else:
+                    word_dict["end"] = word_ts[i + 1]["start"]
 
         rttm_filepath = (
             self.results_dir / "diarized" / "pred_rttms" / f"{audio.stem}.rttm"

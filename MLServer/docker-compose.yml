@@ -31,11 +31,12 @@ services:
       - OPENAI_API_KEY=${AZURE_API_KEY}
       - OPENAI_API_VERSION=${AZURE_API_VERSION}
       - OPENAI_DEPLOYMENT_NAME=${AZURE_GPT_35_TURBO_ENDPOINT}
-      
+
   asr:
     restart: always
     image: asr_model
     container_name: asr_model
+    shm_size: 2gb
     build:
       context: ./Models/ASR
     ports:
