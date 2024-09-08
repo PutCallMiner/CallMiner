@@ -7,7 +7,7 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_db
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
 from webapp.errors import RecordingNotFoundError
-from webapp.models.analysis import ASRParams
+from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.tasks.analysis import run_asr_task
 from webapp.utils.azure import download_azure_blob
@@ -49,7 +49,7 @@ async def run_recording_analysis(
     stage_timeout: Annotated[
         float, Body(...)
     ] = 600,  # NOTE: fastapi doesn't allow the default in Body() for some reason
-):
+) -> RunAnalysisResponse:
     recording = await get_recording_by_id(db, recording_id)
     if recording is None:
         raise RecordingNotFoundError(recording_id)
@@ -60,3 +60,5 @@ async def run_recording_analysis(
         asr_params=asr_params,
         stage_timeout=stage_timeout,
     )
+
+    return RunAnalysisResponse()

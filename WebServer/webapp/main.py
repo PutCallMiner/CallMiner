@@ -37,6 +37,12 @@ def audio_download_handler(request: Request, exc: BlobDownloadError):
     raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
+# TODO: handle TaskTimeoutError when method of analysis status tracking is decided
+# @app.exception_handler(TaskTimeoutError)
+# def task_timout_handler(request: Request, exc: TaskTimeoutError):
+#     raise HTTPException(status.HTTP_408_REQUEST_TIMEOUT, detail=str(exc))
+
+
 # statics
 app.mount("/public", StaticFiles(directory="public"), name="public")
 

@@ -24,3 +24,12 @@ class BlobDownloadError(Exception):
 
 class ASRError(Exception):
     pass
+
+
+class TaskTimeoutError(Exception):
+    def __init__(self, task_name: str, task_id: str):
+        self.task_name = task_name
+        self.task_id = task_id
+        super().__init__(
+            f"Celery task '{self.task_name}' (ID: {self.task_id}) timed out."
+        )
