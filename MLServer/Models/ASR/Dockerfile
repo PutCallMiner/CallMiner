@@ -20,6 +20,8 @@ COPY model.py \
 # Copy the entrypoint script
 COPY serve_model.sh /serve_model.sh
 
+VOLUME [ "/app/diar_infer_telephonic.yaml" ]
+
 # Make sure the script is executable
 RUN chmod +x /serve_model.sh
 

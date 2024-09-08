@@ -295,35 +295,9 @@ class DiarizationPipeline:
             MODEL_CONFIG_PATH = wget.download(config_url, os.getcwd())
 
         config = OmegaConf.load(MODEL_CONFIG_PATH)
-        config.num_workers = 1
-        config.batch_size = 32
 
         config.diarizer.manifest_filepath = str(manifest_path)
         config.diarizer.out_dir = str(self.results_dir / "diarized")
-        config.diarizer.speaker_embeddings.model_path = "titanet_large"
-        config.diarizer.speaker_embeddings.parameters.window_length_in_sec = [
-            1.5,
-            1.0,
-            0.5,
-        ]
-        config.diarizer.speaker_embeddings.parameters.shift_length_in_sec = [
-            0.75,
-            0.5,
-            0.25,
-        ]
-        config.diarizer.speaker_embeddings.parameters.multiscale_weights = [
-            0.33,
-            0.33,
-            0.33,
-        ]
-        config.diarizer.speaker_embeddings.parameters.save_embeddings = False
-
-        config.diarizer.ignore_overlap = False
-        config.diarizer.oracle_vad = False
-        config.diarizer.collar = 0.25
-
-        config.diarizer.vad.model_path = "vad_telephony_marblenet"
-        config.diarizer.oracle_vad = False  # ----> Not using oracle VAD
 
         model = ClusteringDiarizer(cfg=config)
         model.diarize()
