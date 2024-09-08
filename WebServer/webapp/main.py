@@ -7,7 +7,6 @@ from webapp.errors import (
     RecordingAlreadyExistsError,
     RecordingNotFoundError,
 )
-from webapp.routers.api.add import router as add_api_router
 from webapp.routers.api.analysis import router as analysis_api_router
 from webapp.routers.api.dashboard import router as dashboard_api_router
 from webapp.routers.api.recordings import router as recordings_api_router
@@ -48,5 +47,4 @@ app.include_router(recordings_router)
 # api routes
 app.include_router(dashboard_api_router)
 app.include_router(recordings_api_router)
-app.include_router(add_api_router)
 app.include_router(analysis_api_router)
