@@ -1,12 +1,12 @@
-from typing import TypeAlias
-import pydantic
+from pydantic import BaseModel
 
 
-class TranscriptEntry(pydantic.BaseModel):
-    speaker: str
+class TranscriptEntry(BaseModel):
+    speaker: int
     start_time: int
     end_time: int
     text: str
 
 
-Transcript: TypeAlias = list[TranscriptEntry]
+class Transcript(BaseModel):
+    entries: list[TranscriptEntry]

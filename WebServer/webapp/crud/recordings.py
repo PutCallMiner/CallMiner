@@ -51,7 +51,9 @@ async def insert_recordings(
 async def update_with_transcript(
     db: AsyncIOMotorDatabase, recording_id: PyObjectId, transcript: Transcript
 ) -> UpdateResult:
+    """Overwrite 'transcript' field of recording with given transcript data"""
     update_result = await db["recordings"].update_one(
-        filter={"_id": recording_id}, update={"transcript": transcript}
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"transcript": transcript.model_dump()}},
     )
     return update_result

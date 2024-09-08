@@ -1,3 +1,4 @@
+import logging
 import os
 
 # mongo
@@ -24,3 +25,5 @@ AZURE_SAS_TOKEN = os.environ["AZURE_SAS_TOKEN"]
 
 # mlflow models
 MLFLOW_ASR_URL = os.environ["MLFLOW_ASR_URL"]
+
+logger = logging.getLogger("uvicorn")
