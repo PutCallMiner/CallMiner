@@ -1,16 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
-import httpx
 
 from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_db
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
-from webapp.errors import BlobDownloadError, RecordingNotFoundError
+from webapp.errors import RecordingNotFoundError
 from webapp.models.analysis import ASRParams
 from webapp.models.record import Recording
 from webapp.tasks.analysis import run_asr_task
+from webapp.utils.azure import download_azure_blob
 
 
 router = APIRouter(prefix="/api/analysis", tags=["API"])
@@ -29,11 +29,7 @@ async def background_analyze(
     logger.info(
         f"[id: {recording.id}] Downloading audio file '{recording.recording_url}'."
     )
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{recording.recording_url}?{AZURE_SAS_TOKEN}")
-    if resp.status_code != status.HTTP_200_OK:
-        raise BlobDownloadError(recording.recording_url)
-    audio_bytes = resp.content
+    audio_bytes = await download_azure_blob(recording.recording_url, AZURE_SAS_TOKEN)
 
     # Step 1. Run ASR
     logger.info(f"[id: {recording.id}] Running ASR celery task.")
