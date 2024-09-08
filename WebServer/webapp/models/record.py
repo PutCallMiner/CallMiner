@@ -2,16 +2,19 @@ from typing import Annotated
 
 from pydantic import BaseModel, BeforeValidator, Field
 
-from webapp.models.transcript import TranscriptEntry
+from webapp.models.transcript import Transcript
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-class Recording(BaseModel):
-    id: PyObjectId | None = Field(alias="_id", default=None)
+class RecordingBase(BaseModel):
     recording_url: str
-    transcript: list[TranscriptEntry] | None
+    transcript: Transcript | None
     summary: str | None
+
+
+class Recording(RecordingBase):
+    id: PyObjectId = Field(alias="_id")
 
 
 class LoadRecordingsResponse(BaseModel):

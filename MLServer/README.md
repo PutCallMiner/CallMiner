@@ -21,6 +21,53 @@ Follow these steps to start the ML Server:
 ``docker-compose up --build -d``
 _________________________________________________________
 ### API Documentation
+
+_________________________________________________________
+### Automatic Speech Recognition and Speaker Diarization (ASR + Diarization)
+- **URL:** `/invocations`
+- **HTTP Method:** `POST`
+- **Request Headers:**
+  - `Content-Type: application/json`
+
+**Request Example:**
+```bash
+curl -X POST server-url/invocations -H "Content-Type: application/json" -H "charset: utf-8" --data '{"dataframe_records": ["Your audio file binary, base64 encoded and utf-8 decoded"], "params": {"language": "pl", "batch_size": 0, "suppress_numerals": false, "no_stem": true}}'
+```
+
+**Request Body:**
+```json
+{
+  "instances": ["Your audio file binary, base64 encoded and utf-8 decoded"],
+  "params": {
+    "language": "pl",
+    "batch_size": 0, 
+    "suppress_numerals": false, 
+    "no_stem": true
+  }
+}
+```
+
+**Response Example:**
+```json
+{
+  "predictions": [
+    [
+      {
+        "speaker_id": 0,
+        "text": "Speaker 0 text here."
+      },
+      {
+        "speaker_id": 1,
+        "text": "Speaker 1 text here."
+      },
+      {
+        "speaker_id": 0,
+        "text": "Speaker 0 text here."
+      }
+    ]
+  ]
+}
+```
 _________________________________________________________
 #### Named Entity Recognition (NER)
 The Named Entity Recognition (NER) endpoint classifies entities within a given text.

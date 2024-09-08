@@ -1,3 +1,4 @@
+import logging
 import os
 
 # mongo
@@ -17,3 +18,12 @@ REDIS_PORT = os.environ["REDIS_PORT"]
 # celery
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+# azure
+AZURE_STORAGE_CONNECTION_STRING = os.environ["AZURE_STORAGE_CONNECTION_STRING"]
+AZURE_SAS_TOKEN = os.environ["AZURE_SAS_TOKEN"]
+
+# mlflow models
+MLFLOW_ASR_URL = os.environ["MLFLOW_ASR_URL"]
+
+logger = logging.getLogger("uvicorn")

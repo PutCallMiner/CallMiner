@@ -295,35 +295,9 @@ class DiarizationPipeline:
             MODEL_CONFIG_PATH = wget.download(config_url, os.getcwd())
 
         config = OmegaConf.load(MODEL_CONFIG_PATH)
-        config.num_workers = 4
-        config.batch_size = 32
 
         config.diarizer.manifest_filepath = str(manifest_path)
         config.diarizer.out_dir = str(self.results_dir / "diarized")
-        config.diarizer.speaker_embeddings.model_path = "titanet_large"
-        config.diarizer.speaker_embeddings.parameters.window_length_in_sec = [
-            1.5,
-            1.0,
-            0.5,
-        ]
-        config.diarizer.speaker_embeddings.parameters.shift_length_in_sec = [
-            0.75,
-            0.5,
-            0.25,
-        ]
-        config.diarizer.speaker_embeddings.parameters.multiscale_weights = [
-            0.33,
-            0.33,
-            0.33,
-        ]
-        config.diarizer.speaker_embeddings.parameters.save_embeddings = False
-
-        config.diarizer.ignore_overlap = False
-        config.diarizer.oracle_vad = False
-        config.diarizer.collar = 0.25
-
-        config.diarizer.vad.model_path = "vad_multilingual_marblenet"
-        config.diarizer.oracle_vad = False  # ----> Not using oracle VAD
 
         model = ClusteringDiarizer(cfg=config)
         model.diarize()
@@ -386,6 +360,18 @@ class DiarizationPipeline:
         result_aligned = self._align(audio, transcribe_results)
 
         word_ts = result_aligned["word_segments"]
+        # NOTE: this filling in of missing "start"/"end" is just patchwork solution and may be incorrect
+        for i, word_dict in enumerate(word_ts):
+            if "start" not in word_dict.keys():
+                if i == 0:
+                    word_dict["start"] = result_aligned["segments"][0]["start"]
+                else:
+                    word_dict["start"] = word_ts[i - 1]["end"]
+            if "end" not in word_dict.keys():
+                if i == len(word_ts):
+                    word_dict["end"] = result_aligned["segments"][-1]["end"]
+                else:
+                    word_dict["end"] = word_ts[i + 1]["start"]
 
         rttm_filepath = (
             self.results_dir / "diarized" / "pred_rttms" / f"{audio.stem}.rttm"

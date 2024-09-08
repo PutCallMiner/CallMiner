@@ -9,7 +9,12 @@ from webapp.crud.recordings import (
     get_recordings,
     insert_recordings,
 )
-from webapp.models.record import LoadRecordingsResponse, Recording, RecordingsResponse
+from webapp.models.record import (
+    LoadRecordingsResponse,
+    Recording,
+    RecordingBase,
+    RecordingsResponse,
+)
 
 router = APIRouter(prefix="/api/recordings", tags=["API"])
 
@@ -40,7 +45,7 @@ async def add_recordings(
 ) -> LoadRecordingsResponse:
     """Create new (not analyzed yet) recordings into the database"""
     recordings = [
-        Recording(recording_url=rec_url, transcript=None, summary=None)
+        RecordingBase(recording_url=rec_url, transcript=None, summary=None)
         for rec_url in recording_urls
     ]
     insert_result = await insert_recordings(db, recordings)
