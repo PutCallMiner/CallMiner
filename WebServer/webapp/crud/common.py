@@ -1,8 +1,13 @@
+import redis.asyncio as redis
 from collections.abc import AsyncGenerator
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-from webapp.configs.globals import MONGO_CONNECTION_STRING, MONGO_DB_NAME
+from webapp.configs.globals import (
+    MONGO_CONNECTION_STRING,
+    MONGO_DB_NAME,
+    REDIS_TASKS_DB,
+)
 
 
 async def get_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
@@ -22,3 +27,11 @@ async def init_db():
     db_gen = get_db()
     db = await anext(db_gen)
     await db["recordings"].create_index([("recording_url", 1)], unique=True)
+
+
+async def get_redis() -> AsyncGenerator[redis.Redis]:
+    redis_client = redis.from_url(REDIS_TASKS_DB)
+    try:
+        yield redis_client
+    finally:
+        await redis_client.close()

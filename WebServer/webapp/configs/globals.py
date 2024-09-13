@@ -14,6 +14,7 @@ MONGO_CONNECTION_STRING = (
 # redis
 REDIS_HOST = os.environ["REDIS_HOST"]
 REDIS_PORT = os.environ["REDIS_PORT"]
+REDIS_TASKS_DB = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
 
 # celery
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"

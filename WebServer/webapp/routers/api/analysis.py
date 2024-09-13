@@ -4,11 +4,13 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import AZURE_SAS_TOKEN, logger
-from webapp.crud.common import get_db
+from webapp.crud.common import get_db, get_redis
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
+from webapp.crud.tasks import set_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
+from webapp.models.task_status import TaskStatus
 from webapp.tasks.analysis import run_asr_task
 from webapp.utils.azure import download_azure_blob
 
@@ -22,6 +24,11 @@ async def background_analyze(
     stage_timeout: float,
 ):
     """Runs the whole recording analysis step by step"""
+    # set task status
+    redis_gen = get_redis()
+    redis_client = await anext(redis_gen)
+    await set_key_value(redis_client, recording.id, TaskStatus.IN_PROGRESS.value)
+
     # get database connection
     db_gen = get_db()
     db = await anext(db_gen)  # noqa
