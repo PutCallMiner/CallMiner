@@ -45,6 +45,7 @@ async def background_analyze(
     await update_with_transcript(db, recording.id, transcript)
 
     # TODO: Subsequent steps
+    await set_key_value(redis_client, recording.id, TaskStatus.FINISHED.value)
 
 
 @router.post("/")
