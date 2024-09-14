@@ -1,4 +1,4 @@
-from celery import Celery
+from celery import Celery  # type: ignore[import]
 
 from webapp.configs.globals import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 

@@ -12,7 +12,6 @@ from webapp.models.record import Recording
 from webapp.tasks.analysis import run_asr_task
 from webapp.utils.azure import download_azure_blob
 
-
 router = APIRouter(prefix="/api/analysis", tags=["API"])
 
 
