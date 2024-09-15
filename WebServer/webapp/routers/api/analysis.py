@@ -4,11 +4,13 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import AZURE_SAS_TOKEN, logger
-from webapp.crud.common import get_db
+from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
+from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
+from webapp.models.task_status import TaskStatus
 from webapp.tasks.analysis import run_asr_task
 from webapp.utils.azure import download_azure_blob
 
@@ -22,8 +24,13 @@ async def background_analyze(
     stage_timeout: float,
 ):
     """Runs the whole recording analysis step by step"""
+    # set task status
+    tasks_db_gen = get_tasks_db()
+    tasks_db = await anext(tasks_db_gen)
+    await set_key_value(tasks_db, recording.id, TaskStatus.IN_PROGRESS)
+
     # get database connection
-    db_gen = get_db()
+    db_gen = get_rec_db()
     db = await anext(db_gen)  # noqa
 
     logger.info(
@@ -38,13 +45,14 @@ async def background_analyze(
     await update_with_transcript(db, recording.id, transcript)
 
     # TODO: Subsequent steps
+    await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 
 
 @router.post("/")
 async def run_recording_analysis(
     recording_id: Annotated[str, Body(...)],
     asr_params: Annotated[ASRParams, Body(...)],
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     background_tasks: BackgroundTasks,
     stage_timeout: Annotated[
         float, Body(...)

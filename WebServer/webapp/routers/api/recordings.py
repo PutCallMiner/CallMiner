@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.crud.common import get_db
+from webapp.crud.common import get_rec_db
 from webapp.crud.recordings import (
     get_recording_by_id,
     get_recordings,
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/recordings", tags=["API"])
 
 @router.get("/")
 async def list_recordings(
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
 ) -> RecordingsResponse:
     """List all recordings in the database"""
     recordings = await get_recordings(db)
@@ -30,7 +30,7 @@ async def list_recordings(
 
 @router.get("/{id}")
 async def show_recording(
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)], id: str
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)], id: str
 ) -> Recording:
     """Get the specific recording, looked by its id"""
     recording = await get_recording_by_id(db, id)
@@ -41,7 +41,7 @@ async def show_recording(
 
 @router.post("/")
 async def add_recordings(
-    recording_urls: list[str], db: Annotated[AsyncIOMotorDatabase, Depends(get_db)]
+    recording_urls: list[str], db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)]
 ) -> LoadRecordingsResponse:
     """Create new (not analyzed yet) recordings into the database"""
     recordings = [
