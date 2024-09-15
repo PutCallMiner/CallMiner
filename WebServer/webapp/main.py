@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.staticfiles import StaticFiles
 
-from webapp.crud.common import init_db
+from webapp.crud.common import init_rec_db
 from webapp.errors import (
     BlobDownloadError,
     RecordingAlreadyExistsError,
@@ -15,7 +15,7 @@ from webapp.routers.recordings import router as recordings_router
 
 
 async def lifespan(app: FastAPI):
-    await init_db()
+    await init_rec_db()
     yield
 
 

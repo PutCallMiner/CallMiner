@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum, auto
 
 
-class TaskStatus(Enum):
-    IN_PROGRESS = "IN_PROGRESS"
-    FINISHED = "FINISHED"
-    FAILED = "FAILED"
+class TaskStatus(StrEnum):
+    IN_PROGRESS = auto()
+    FINISHED = auto()
+    FAILED = auto()

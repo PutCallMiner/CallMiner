@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.views import templates, nav_links
-from webapp.crud.common import get_db
+from webapp.crud.common import get_rec_db
 from webapp.crud.recordings import get_recordings
 
 router = APIRouter(prefix="/recordings", tags=["Jinja"])
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/recordings", tags=["Jinja"])
 @router.get("/")
 async def table(
     request: Request,
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     skip: int = 0,
     take: int = 20,
 ) -> HTMLResponse:

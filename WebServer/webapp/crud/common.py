@@ -10,7 +10,7 @@ from webapp.configs.globals import (
 )
 
 
-async def get_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
+async def get_rec_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
     client: AsyncIOMotorClient = AsyncIOMotorClient(
         MONGO_CONNECTION_STRING,
         connect=True,
@@ -22,16 +22,16 @@ async def get_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
         db.client.close()
 
 
-async def init_db():
+async def init_rec_db():
     # NOTE: we have to keep the generator, so the connection doesn't close prematurely
-    db_gen = get_db()
+    db_gen = get_rec_db()
     db = await anext(db_gen)
     await db["recordings"].create_index([("recording_url", 1)], unique=True)
 
 
-async def get_redis() -> AsyncGenerator[redis.Redis]:
-    redis_client = redis.from_url(REDIS_TASKS_DB)
+async def get_tasks_db() -> AsyncGenerator[redis.Redis]:
+    redis_tasks_db = redis.from_url(REDIS_TASKS_DB)
     try:
-        yield redis_client
+        yield redis_tasks_db
     finally:
-        await redis_client.close()
+        await redis_tasks_db.close()
