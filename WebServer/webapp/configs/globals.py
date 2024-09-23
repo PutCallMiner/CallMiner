@@ -26,5 +26,6 @@ AZURE_SAS_TOKEN = os.environ["AZURE_SAS_TOKEN"]
 
 # mlflow models
 MLFLOW_ASR_URL = os.environ["MLFLOW_ASR_URL"]
+MLFLOW_SUMMARIZER_URL = os.environ["GPT_SUMMARIZER_URL"]
 
 logger = logging.getLogger("uvicorn")
