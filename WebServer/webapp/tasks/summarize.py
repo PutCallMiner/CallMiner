@@ -11,8 +11,11 @@ from webapp.models.transcript import Transcript
 
 @celery_app.task
 def summarize_task(text: str) -> str:
+    headers = {"Content-Type": "application/json"}
     data = {"instances": [{"conversation": [text]}]}
-    resp = requests.post(f"{MLFLOW_SUMMARIZER_URL}/invocations", data=json.dumps(data))
+    resp = requests.post(
+        f"{MLFLOW_SUMMARIZER_URL}/invocations", headers=headers, data=json.dumps(data)
+    )
     if not resp.ok:
         raise SummarizerError(resp.content.decode())
     return resp.json()
