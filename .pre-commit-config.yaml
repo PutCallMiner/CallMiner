@@ -6,15 +6,18 @@ repos:
       # Run the linter.
       - id: ruff
         name: webserver-ruff
-        args: [--config, WebServer/ruff.toml, --fix]
+        pass_filenames: false
+        args: [--config, WebServer/ruff.toml, --fix, WebServer/webapp]
       # Run the formatter.
       - id: ruff-format
         name: webserver-ruff-format
-        args: [--config, WebServer/ruff.toml]
+        pass_filenames: false
+        args: [--config, WebServer/ruff.toml, WebServer/webapp]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.2.0
     hooks:
       - id: mypy
         name: webserver-mypy
         pass_filenames: false
+        additional_dependencies: [types-redis==4.6.0]
         args: [--config-file, WebServer/mypy.ini, WebServer/webapp, --ignore-missing-imports]
