@@ -1,10 +1,10 @@
-import os
-import mlflow.pyfunc
-import spacy
-import pandas as pd
 import logging
-
+import os
 from typing import List
+
+import mlflow.pyfunc
+import pandas as pd
+import spacy
 
 logging.getLogger().setLevel(logging.INFO)
 

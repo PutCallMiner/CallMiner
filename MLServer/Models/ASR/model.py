@@ -2,13 +2,12 @@ import io
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import mlflow.pyfunc  # type: ignore
 import pandas as pd  # type: ignore
 from pydub import AudioSegment  # type: ignore
 from whisper_nemo_diarization import (
-    DiarizationConfig,
     DiarizationParams,
     DiarizationPipeline,
     SentenceDict,
@@ -50,33 +49,8 @@ class ASRModelWrapper(mlflow.pyfunc.PythonModel):
         logging.info("Finished ASR inference on written audio files data")
         return results
 
-    def validate_model_config(self, model_config: Dict[str, str]):
-        errors = []
-        valid_whisper_models = [
-            "tiny",
-            "base",
-            "medium",
-            "large",
-            "large-v2",
-            "large-v3",
-        ]
-        whisper_model = model_config["whisper_model"]
-        if whisper_model not in valid_whisper_models:
-            errors.append(
-                f"Invalid value '{whisper_model}' for 'whisper_model' in model_config"
-            )
-        if errors:
-            raise ValueError("Invalid model_config:\n" + "\n".join(errors))
-
     def load_context(self, context):
-        model_config: Dict[str, str] = context.model_config
-        self.validate_model_config(model_config)
-
-        diar_params = DiarizationConfig(
-            whisper_model=model_config.get("whisper_model"),
-            device=model_config.get("device", "cpu"),
-        )
-        self.pipeline = DiarizationPipeline(diar_config=diar_params)
+        self.pipeline = DiarizationPipeline()
         logging.info("Loaded model context")
 
     def predict(
@@ -89,8 +63,9 @@ class ASRModelWrapper(mlflow.pyfunc.PythonModel):
         if params is None:
             params = {}
         diar_params = DiarizationParams(
+            language=params.get("language", None),
             num_speakers=params.get("num_speakers", None),
-            beam_size=params.get("beam_size", None),
+            whisper_prompt=params.get("whisper_prompt", None),
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
