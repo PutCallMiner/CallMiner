@@ -245,7 +245,7 @@ class DiarizationPipeline:
     ) -> TranscribeResults:
         client = AzureOpenAI(
             api_key=AZURE_API_KEY,
-            api_version="2024-02-01",  # AZURE_API_VERSION,
+            api_version=AZURE_API_VERSION,
             azure_endpoint=AZURE_OPENAI_ENDPOINT,
         )
 
