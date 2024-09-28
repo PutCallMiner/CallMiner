@@ -7,8 +7,8 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import (
     get_recording_by_id,
-    update_with_transcript,
     update_with_summary,
+    update_with_transcript,
 )
 from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError

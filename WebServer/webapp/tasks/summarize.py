@@ -1,10 +1,9 @@
-import requests  # type: ignore
-
-from celery.exceptions import TimeoutError
+import requests
+from celery.exceptions import TimeoutError  # type: ignore[import-untyped]
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_SUMMARIZER_URL
-from webapp.errors import TaskTimeoutError, SummarizerError
+from webapp.errors import SummarizerError, TaskTimeoutError
 from webapp.models.transcript import Transcript
 
 
