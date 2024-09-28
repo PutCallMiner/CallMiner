@@ -5,13 +5,18 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
-from webapp.crud.recordings import get_recording_by_id, update_with_transcript
+from webapp.crud.recordings import (
+    get_recording_by_id,
+    update_with_transcript,
+    update_with_summary,
+)
 from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
-from webapp.tasks.analysis import run_asr_task
+from webapp.tasks.asr import run_asr_task
+from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
 
 router = APIRouter(prefix="/api/analysis", tags=["API"])
@@ -43,7 +48,16 @@ async def background_analyze(
     logger.info(f"[id: {recording.id}] Writing audio transcript to database.")
     await update_with_transcript(db, recording.id, transcript)
 
-    # TODO: Subsequent steps
+    # TODO: Run speaker classifier
+
+    # Step 2. Run Summarizer
+    logger.info(f"[id: {recording.id}] Running Summarize celery task")
+    summary = await run_summarize_task(transcript, timeout=stage_timeout)
+    logger.info(f"[id: {recording.id}] Writing summary to database.")
+    await update_with_summary(db, recording.id, summary)
+
+    # TODO: Run NER
+    # TODO: Run conformity check
     await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 
 

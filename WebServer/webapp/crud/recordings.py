@@ -57,3 +57,13 @@ async def update_with_transcript(
         update={"$set": {"transcript": transcript.model_dump()}},
     )
     return update_result
+
+
+async def update_with_summary(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, summary: str
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"summary": summary}},
+    )
+    return update_result
