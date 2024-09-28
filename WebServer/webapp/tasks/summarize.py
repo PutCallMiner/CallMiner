@@ -1,4 +1,3 @@
-import json
 import requests  # type: ignore
 
 from celery.exceptions import TimeoutError
@@ -11,10 +10,9 @@ from webapp.models.transcript import Transcript
 
 @celery_app.task
 def summarize_task(text: str) -> str:
-    headers = {"Content-Type": "application/json"}
-    data = {"instances": [{"conversation": [text]}]}
     resp = requests.post(
-        f"{MLFLOW_SUMMARIZER_URL}/invocations", headers=headers, data=json.dumps(data)
+        f"{MLFLOW_SUMMARIZER_URL}/invocations",
+        json={"instances": [{"conversation": [text]}]},
     )
     if not resp.ok:
         raise SummarizerError(resp.content.decode())
