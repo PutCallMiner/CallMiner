@@ -7,8 +7,8 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import (
     get_recording_by_id,
-    update_with_transcript,
     update_with_summary,
+    update_with_transcript,
 )
 from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError
@@ -18,7 +18,6 @@ from webapp.models.task_status import TaskStatus
 from webapp.tasks.asr import run_asr_task
 from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
-
 
 router = APIRouter(prefix="/api/analysis", tags=["API"])
 
@@ -31,12 +30,12 @@ async def background_analyze(
     """Runs the whole recording analysis step by step"""
     # set task status
     tasks_db_gen = get_tasks_db()
-    tasks_db = await anext(tasks_db_gen)
+    tasks_db = await anext(tasks_db_gen)  # noqa: F821
     await set_key_value(tasks_db, recording.id, TaskStatus.IN_PROGRESS)
 
     # get database connection
     db_gen = get_rec_db()
-    db = await anext(db_gen)  # noqa
+    db = await anext(db_gen)  # noqa: F821
 
     logger.info(
         f"[id: {recording.id}] Downloading audio file '{recording.recording_url}'."

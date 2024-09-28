@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from webapp.configs.views import templates, nav_links
+from webapp.configs.views import nav_links, templates
 
 router = APIRouter(tags=["Jinja"])
 

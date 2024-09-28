@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.configs.views import templates, nav_links
+from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_rec_db
 from webapp.crud.recordings import get_recordings
 
