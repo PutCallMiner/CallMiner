@@ -4,8 +4,8 @@ import logging
 import os
 from typing import Any, Literal
 
-import requests  # type: ignore[import]
-from celery.exceptions import TimeoutError  # type: ignore[import]
+import requests
+from celery.exceptions import TimeoutError  # type: ignore[import-untyped]
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_ASR_URL

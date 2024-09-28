@@ -19,5 +19,5 @@ repos:
       - id: mypy
         name: webserver-mypy
         pass_filenames: false
-        additional_dependencies: [types-redis==4.6.0]
+        additional_dependencies: [types-redis==4.6.0.20240903, types-requests==2.32.0.20240914]
         args: [--config-file, WebServer/mypy.ini, WebServer/webapp, --ignore-missing-imports]

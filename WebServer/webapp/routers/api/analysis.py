@@ -30,7 +30,7 @@ async def background_analyze(
 
     # get database connection
     db_gen = get_rec_db()
-    db = await anext(db_gen)  # noqa
+    db = await anext(db_gen)  # noqa: F821
 
     logger.info(
         f"[id: {recording.id}] Downloading audio file '{recording.recording_url}'."
