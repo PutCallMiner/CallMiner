@@ -40,9 +40,8 @@ curl -X POST server-url/invocations -H "Content-Type: application/json" -H "char
   "instances": ["Your audio file binary, base64 encoded and utf-8 decoded"],
   "params": {
     "language": "pl",
-    "batch_size": 0, 
-    "suppress_numerals": false, 
-    "no_stem": true
+    "whisper_prompt": null,
+    "num_speakers": 2,
   }
 }
 ```

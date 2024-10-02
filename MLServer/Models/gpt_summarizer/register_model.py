@@ -1,8 +1,6 @@
 import mlflow
 import openai
-
-from model import MODEL, MESSAGES, TEMPERATURE, MAX_TOKENS
-
+from model import MAX_TOKENS, MESSAGES, MODEL, TEMPERATURE
 
 if __name__ == "__main__":
     with mlflow.start_run():
