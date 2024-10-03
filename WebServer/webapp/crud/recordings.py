@@ -67,3 +67,13 @@ async def update_with_summary(
         update={"$set": {"summary": summary}},
     )
     return update_result
+
+
+async def update_with_ner(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, ner: str
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"ner": ner}},
+    )
+    return update_result

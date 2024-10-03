@@ -7,6 +7,7 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import (
     get_recording_by_id,
+    update_with_ner,
     update_with_summary,
     update_with_transcript,
 )
@@ -16,6 +17,7 @@ from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 from webapp.tasks.asr import run_asr_task
+from webapp.tasks.ner import run_ner_task
 from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
 
@@ -56,7 +58,12 @@ async def background_analyze(
     logger.info(f"[id: {recording.id}] Writing summary to database.")
     await update_with_summary(db, recording.id, summary)
 
-    # TODO: Run NER
+    # Step 3. Run NER
+    logger.info(f"[id: {recording.id}] Running NER celery task")
+    ner = await run_ner_task(transcript, timeout=stage_timeout)
+    logger.info(f"[id: {recording.id}] Writing summary to database.")
+    await update_with_ner(db, recording.id, ner)
+
     # TODO: Run conformity check
     await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 

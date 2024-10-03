@@ -11,6 +11,7 @@ class RecordingBase(BaseModel):
     recording_url: str
     transcript: Transcript | None
     summary: str | None
+    ner: str | None
 
 
 class Recording(RecordingBase):
