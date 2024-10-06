@@ -1,4 +1,4 @@
-MODEL = "callminer-gpt-35-turbo"
+MODEL = "callminer-gpt-4o-mini"
 
 PROMPT = """
 Generate a concise summary of the following conversation, ensuring that the summary is presented in the same language as the original dialogue. The summary should capture the key points, decisions made, and any actions to be taken, reflecting the tone and context of the conversation accurately.

@@ -16,7 +16,7 @@ The expected format is a single line containing JSON object like:
 depending on the correct assignment of roles.
 
 Transcript for role classification:
-{transcript}
+{conversation}
 Answer: 
 """.strip()
 
