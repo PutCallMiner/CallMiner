@@ -145,15 +145,28 @@ input {
 .table {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   justify-content: space-between;
-  flex-grow: 1;
 
+  background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--standard-border-radius);
 
+  &::-webkit-scrollbar-track {
+    margin: 5px 0;
+    border-left: 1px solid var(--border);
+  }
+
   table {
     border-collapse: collapse;
+
+    thead {
+      position: sticky;
+      top: 0;
+      background-color: var(--card);
+    }
 
     td,
     th {
@@ -163,12 +176,15 @@ input {
   }
 
   .pagination {
+    position: sticky;
+    bottom: 0;
     padding: 16px 0;
 
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 16px;
+    background-color: var(--card);
 
     div {
       display: flex;
@@ -281,12 +297,8 @@ button.chip {
 /* Layout styles */
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   margin: 0 3rem;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
 }
 
 body > header {
@@ -344,9 +356,9 @@ body > header {
     }
 
     a.active {
-      color: var(--secondary);
+      color: var(--primary);
       font-weight: 700;
-      border-bottom: 1px solid var(--secondary);
+      border-bottom: 1px solid var(--primary);
     }
 
     a:hover {
@@ -366,64 +378,58 @@ body > header {
   }
 }
 
-body > main {
+body > main#recordings {
   margin: 2rem 3rem;
-
+  height: calc(100% - 10rem);
   display: flex;
-  flex-grow: 1;
+  flex-direction: column;
 
-  &#transcripts {
-    flex-direction: column;
+  #controls {
+    margin-bottom: 1rem;
 
-    #controls {
-      margin-bottom: 1rem;
+    display: flex;
 
-      display: flex;
+    input[type="search"] {
+      max-width: 30%;
+    }
+  }
 
-      input[type="search"] {
-        max-width: 30%;
-      }
+  .table {
+    flex-grow: 1;
+
+    th,
+    td {
+      padding: 1.5rem;
     }
 
-    .table {
-      th,
-      td {
-        padding: 1.5rem;
+    th:first-child,
+    td:first-child {
+      width: 500px;
+      max-width: 500px;
+      overflow-x: hidden;
+      white-space: nowrap;
+    }
+
+    td {
+      .recording-tag {
+        margin: 2px 2px;
       }
 
-      th:first-child,
-      td:first-child {
-        min-width: 200px;
-      }
+      a {
+        width: 100%;
+        display: flow;
+        color: var(--text);
 
-      td {
-        &:nth-child(1) {
-          padding: 0;
+        span.icon {
+          display: none;
+          font-size: 0.75rem;
         }
 
-        &:nth-child(5) {
-          .chip {
-            margin: 2px 2px;
-          }
-        }
-
-        a {
-          width: 100%;
-          padding: 1.5rem;
-          display: flow;
-          color: var(--text);
+        &:hover {
+          font-weight: 700;
 
           span.icon {
-            display: none;
-            font-size: 0.75rem;
-          }
-
-          &:hover {
-            font-weight: 700;
-
-            span.icon {
-              display: inline-block;
-            }
+            display: inline-block;
           }
         }
       }
