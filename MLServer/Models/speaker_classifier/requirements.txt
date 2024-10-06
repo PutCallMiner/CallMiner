@@ -1,0 +1,5 @@
+mlflow==2.11.1
+tiktoken==0.6.0
+openai==1.14.1
+tenacity==8.2.3
+azure-storage-blob==12.19.1
