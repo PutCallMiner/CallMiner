@@ -22,18 +22,18 @@
 }
 
 :root {
-  --text: #040507;
+  --text: #04080d;
   --background: #e7ecf1;
-  --primary: #022759;
-  --secondary: #8fc0ff;
-  --accent: #ff6294;
+  --primary: #8fc0ff;
+  --secondary: #022759;
+  --accent: #adf549;
   --border: #c0c0c0;
-  --card: #f8f8ff;
-  --input-active: rgba(11, 87, 208, 0.008);
+  --card: #f2f2f6;
+  --input-active: #ebebf4;
 
   --small-border-radius: 8px;
   --standard-border-radius: 16px;
-  --large-border-radius: 32px;
+  --large-border-radius: 24px;
 }
 
 /* Global styles */
