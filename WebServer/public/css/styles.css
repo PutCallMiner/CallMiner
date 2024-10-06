@@ -84,17 +84,34 @@ small {
 
 /* Component styles */
 
+* {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: var(--primary);
+    border-radius: var(--large-border-radius);
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
+
 input {
   background-color: var(--card);
   font-size: 1rem;
   font-family: inherit;
   border: 1px solid var(--border);
+  outline: none;
 
-  &:focus {
+  &:focus-visible {
     border-color: var(--primary);
   }
 
-  &:focus,
+  &:focus-visible,
   &:hover {
     background-color: var(--input-active);
   }
@@ -117,7 +134,7 @@ input {
     background-size: 24px;
     transition: 0.1s;
 
-    &:focus {
+    &:focus-visible {
       background-position: 0px 18px;
       background-size: 1px;
       padding-left: 16px;
