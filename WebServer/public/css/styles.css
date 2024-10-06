@@ -341,12 +341,14 @@ body > header {
 
     display: flex;
     justify-content: start;
-    gap: 3rem;
+    gap: 1rem;
 
     a {
+      width: 150px;
       padding: 0.5rem 1rem;
 
       display: flex;
+      justify-content: center;
       align-items: center;
 
       text-decoration: none;
