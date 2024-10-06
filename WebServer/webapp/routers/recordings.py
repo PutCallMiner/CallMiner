@@ -21,6 +21,18 @@ async def table(
     recordings = await get_recordings(db, skip=skip, take=take)
     total = await count_recordings(db)
 
+    if request.headers.get("hx-request"):
+        return templates.TemplateResponse(
+            request=request,
+            name="recordings_table.html.jinja2",
+            context={
+                "recordings": recordings,
+                "total": total,
+                "take": take,
+                "skip": skip,
+            },
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="recordings.html.jinja2",

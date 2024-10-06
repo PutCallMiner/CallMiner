@@ -195,8 +195,8 @@ input {
         width: 100px;
         display: flex;
         align-items: center;
-        text-decoration: none;
         color: var(--text);
+        cursor: pointer;
 
         &.disabled {
           visibility: hidden;
