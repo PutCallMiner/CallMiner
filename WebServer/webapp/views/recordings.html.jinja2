@@ -3,70 +3,7 @@
 {% block content %}
 
 <main id="recordings">
-  <div id="controls">
-    <input type="search" placeholder="Search" >
-  </div>
-  <div class="table">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Agent</th>
-          <th>Duration</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for recording in recordings %}
-        <tr>
-          <td>
-            <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
-              {{ recording.recording_url.split("/")[-1].split(".")[0] }}<span class="icon">north_east</span>
-            </a>
-          </td>
-          <td>
-            <button class="chip">
-              <object></object>
-              Unknown
-            </button>
-          </td>
-          <td>
-            {{ "???" ~ " min" }}
-          </td>
-          <td>
-            ???
-            {# {{ recording.timestamp.strftime('%b %d, %Y') }} #}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <div class="pagination">
-      <div>
-        <span>Show</span>
-        <select>
-        {% for t in [5, 10, 20, 50] %}
-          <option value="{{ l }}" {% if t == take %}selected{% endif %}>{{ t }}</option>
-        {% endfor %}
-        </select>
-        <span>results</span>
-      </div>
-      <div>
-        <a href="{{ '/recordings?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}" class="{% if skip <= 0 %}disabled{% endif %}">
-          <span class="icon">chevron_left</span><span>Previous</span>
-        </a>
-        <select>
-          {% for s in range(0, total + 1, take) %}
-            <option value="{{ s }}" {% if s == skip %}selected{% endif %}>{{ s // take + 1 }}</option>
-          {% endfor %} 
-        </select>
-        <span>of {{ (total / take)|round(method="ceil")|int }}</span>
-        <a href="{{ '/recordings?skip=' ~ (skip + take, total)|min ~ '&take=' ~ take  }}" class="{% if skip + take + 1 > total %}disabled{% endif %}">
-          <span>Next</span><span class="icon">chevron_right</span>
-        </a>
-      </div>
-    </div>
-  </div>
+  {% include "recordings_table.html.jinja2" %}
 </main>
 
 {% endblock %}
