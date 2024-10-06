@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_rec_db
-from webapp.crud.recordings import get_recordings
+from webapp.crud.recordings import count_recordings, get_recordings
 
 router = APIRouter(prefix="/recordings", tags=["Jinja"])
 
@@ -19,6 +19,7 @@ async def table(
     take: int = 20,
 ) -> HTMLResponse:
     recordings = await get_recordings(db, skip=skip, take=take)
+    total = await count_recordings(db)
 
     return templates.TemplateResponse(
         request=request,
@@ -26,9 +27,8 @@ async def table(
         context={
             "nav_links": nav_links,
             "current": 1,
-            "page_title": "Recordings",
-            "transcripts": recordings,
-            "total": len(recordings),
+            "recordings": recordings,
+            "total": total,
             "take": take,
             "skip": skip,
         },

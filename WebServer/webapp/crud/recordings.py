@@ -20,6 +20,10 @@ async def get_recordings(
     return [Recording.model_validate(record) for record in records]
 
 
+async def count_recordings(db: AsyncIOMotorDatabase) -> int:
+    return await db["recordings"].count_documents({})
+
+
 async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | None:
     try:
         objectid = bson.ObjectId(id)
