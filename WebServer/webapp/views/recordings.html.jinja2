@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<main id="transcripts">
+<main id="recordings">
   <div id="controls">
     <input type="search" placeholder="Search" >
   </div>
@@ -10,43 +10,33 @@
     <table>
       <thead>
         <tr>
-          <th>Topic</th>
+          <th>Name</th>
           <th>Agent</th>
-          <th>Score</th>
           <th>Duration</th>
-          <th>Tags</th>
           <th>Date</th>
         </tr>
       </thead>
       <tbody>
-        {% for transcript in transcripts %}
+        {% for recording in recordings %}
         <tr>
           <td>
-            <a href="{{ '/transcripts/' ~ transcript.id }}" title="Go to Details">
-              {{ transcript.topic }}<span class="icon">north_east</span>
+            <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
+              {{ recording.recording_url.split("/")[-1].split(".")[0] }}<span class="icon">north_east</span>
             </a>
           </td>
           <td>
             <button class="chip">
               <object></object>
-              {{ transcript.agent }}
+              Unknown
             </button>
           </td>
           <td>
-            {% set score = "#fd8a8a" if transcript.score < 33 else "#f3d17c" if transcript.score < 66 else "#b8d8be" %}
-            <div class="rating" style="{{ 'background-image: conic-gradient(' ~ score ~ ' ' ~ transcript.score ~ '%, transparent 0 100%);' }}">
-              <span>{{ transcript.score }}</span>
-            </div>
+            {{ "???" ~ " min" }}
           </td>
-          <td>{{ transcript.duration_secs // 60 ~ " min" }}</td>
           <td>
-            {% for tag in transcript.tags %}
-            <button class="chip">
-              {{ tag }}
-            </button>
-            {% endfor %}
+            ???
+            {# {{ recording.timestamp.strftime('%b %d, %Y') }} #}
           </td>
-          <td>{{ transcript.timestamp.strftime('%b %d, %Y') }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -62,7 +52,7 @@
         <span>results</span>
       </div>
       <div>
-        <a href="{{ '/transcripts?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}" class="{% if skip <= 0 %}disabled{% endif %}">
+        <a href="{{ '/recordings?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}" class="{% if skip <= 0 %}disabled{% endif %}">
           <span class="icon">chevron_left</span><span>Previous</span>
         </a>
         <select>
@@ -70,8 +60,8 @@
             <option value="{{ s }}" {% if s == skip %}selected{% endif %}>{{ s // take + 1 }}</option>
           {% endfor %} 
         </select>
-        <span>of {{ total // take + 1 }}</span>
-        <a href="{{ '/transcripts?skip=' ~ (skip + take + 1, total)|min ~ '&take=' ~ take  }}" class="{% if take > total %}disabled{% endif %}">
+        <span>of {{ (total / take)|round(method="ceil")|int }}</span>
+        <a href="{{ '/recordings?skip=' ~ (skip + take, total)|min ~ '&take=' ~ take  }}" class="{% if skip + take + 1 > total %}disabled{% endif %}">
           <span>Next</span><span class="icon">chevron_right</span>
         </a>
       </div>

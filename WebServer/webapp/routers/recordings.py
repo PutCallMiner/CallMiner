@@ -20,10 +20,9 @@ async def table(
 ) -> HTMLResponse:
     recordings = await get_recordings(db, skip=skip, take=take)
 
-    # TODO: fix template according to the new Recording model
     return templates.TemplateResponse(
         request=request,
-        name="recording.html.jinja2",
+        name="recordings.html.jinja2",
         context={
             "nav_links": nav_links,
             "current": 1,
