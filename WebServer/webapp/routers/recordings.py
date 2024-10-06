@@ -23,11 +23,11 @@ async def table(
     # TODO: fix template according to the new Recording model
     return templates.TemplateResponse(
         request=request,
-        name="transcript.html.jinja2",
+        name="recording.html.jinja2",
         context={
             "nav_links": nav_links,
             "current": 1,
-            "page_title": "Transcripts",
+            "page_title": "Recordings",
             "transcripts": recordings,
             "total": len(recordings),
             "take": take,
