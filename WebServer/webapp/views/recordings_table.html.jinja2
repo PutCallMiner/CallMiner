@@ -23,9 +23,9 @@
            type="search"
            placeholder="Search..."
            value="{{ search }}"
-           hx-get=" {{ link(take=take, skip=skip) }} "
+           hx-get=" {{ link(take=take) }} "
            hx-target="#recordings"
-           hx-trigger="input changed delay:750ms, search">
+           hx-trigger="search">
 </div>
 <div id="recordings-table" class="table">
     <table>
@@ -72,11 +72,11 @@
                 <span class="icon">chevron_left</span><span>Previous</span>
             </a>
             <select name="skip" hx-get="{{ link(search, take) }}" hx-target="#recordings">
-                {% for s in range(0, total, take) %}
+                {% for s in range(0, (total, 1)|max, take) %}
                     <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
                 {% endfor %}
             </select>
-            <span>of {{ (total / take)|round(method="ceil") |int }}</span>
+            <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
             <a hx-get="{{ link(search, take, (skip + take, total) | min) }}"
                hx-target="#recordings"
                class="{% if skip + take + 1 > total %}disabled{% endif %}">

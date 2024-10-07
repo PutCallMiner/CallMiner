@@ -1,3 +1,6 @@
+from collections.abc import Mapping
+from typing import Any
+
 import bson
 import bson.errors
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -9,9 +12,13 @@ from webapp.models.transcript import Transcript
 
 
 async def get_recordings(
-    db: AsyncIOMotorDatabase, skip: int | None = None, take: int | None = None
+    db: AsyncIOMotorDatabase,
+    query: Mapping[str, Any] | None = None,
+    skip: int | None = None,
+    take: int | None = None,
 ) -> list[Recording]:
-    cursor = db["recordings"].find()
+    query = query or {}
+    cursor = db["recordings"].find(query)
     if skip is not None:
         cursor = cursor.skip(skip)
     if take is not None:
@@ -20,8 +27,11 @@ async def get_recordings(
     return [Recording.model_validate(record) for record in records]
 
 
-async def count_recordings(db: AsyncIOMotorDatabase) -> int:
-    return await db["recordings"].count_documents({})
+async def count_recordings(
+    db: AsyncIOMotorDatabase, query: Mapping[str, Any] | None = None
+) -> int:
+    query = query or {}
+    return await db["recordings"].count_documents(query)
 
 
 async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | None:
