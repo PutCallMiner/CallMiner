@@ -24,8 +24,8 @@
 :root {
   --text: #04080d;
   --background: #e7ecf1;
-  --primary: #8fc0ff;
-  --secondary: #022759;
+  --primary: #022759;
+  --secondary: #8fc0ff;
   --accent: #adf549;
   --border: #c0c0c0;
   --card: #f2f2f6;
@@ -55,31 +55,31 @@ h5 {
 }
 
 html {
-  font-size: 100%;
-} /* 16px */
+  font-size: 100%; /* 16px */
+}
 
 h1 {
-  font-size: 4.21rem; /* 67.36px */
+  font-size: 2.489rem; /* 39.84px */
 }
 
 h2 {
-  font-size: 3.158rem; /* 50.56px */
+  font-size: 2.074rem; /* 33.12px */
 }
 
 h3 {
-  font-size: 2.369rem; /* 37.92px */
+  font-size: 1.728rem; /* 27.68px */
 }
 
 h4 {
-  font-size: 1.777rem; /* 28.48px */
+  font-size: 1.44rem; /* 23.04px */
 }
 
 h5 {
-  font-size: 1.333rem; /* 21.28px */
+  font-size: 1.2rem; /* 19.2px */
 }
 
 small {
-  font-size: 0.75rem; /* 12px */
+  font-size: 0.833rem; /* 13.28px */
 }
 
 /* Component styles */
@@ -323,7 +323,7 @@ body > header {
       height: 3rem;
     }
 
-    h3 {
+    h1 {
       margin: 0;
       margin-inline: 1rem;
 
@@ -380,9 +380,12 @@ body > header {
   }
 }
 
-body > main#recordings {
+body > main {
   margin: 2rem 3rem;
   height: calc(100% - 10rem);
+}
+
+body > main#recordings {
   display: flex;
   flex-direction: column;
 
@@ -434,6 +437,37 @@ body > main#recordings {
             display: inline-block;
           }
         }
+      }
+    }
+  }
+}
+
+body > main#recording {
+  display: flex;
+  flex-direction: column;
+
+  header {
+    display: flex;
+    flex-direction: row;
+
+    nav {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      align-items: center;
+
+      a {
+        height: fit-content;
+        text-decoration: none;
+        color: var(--text);
+
+        span.icon {
+          font-size: 1.5rem;
+        }
+      }
+
+      h1 {
+        margin: 0;
       }
     }
   }
