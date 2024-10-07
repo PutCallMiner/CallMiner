@@ -47,11 +47,21 @@ async def detail(
     request: Request,
     recording_id: str,
     db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tab: int = 0,
 ) -> HTMLResponse:
     recording = await get_recording_by_id(db, recording_id)
 
     return templates.TemplateResponse(
         request=request,
-        name="recording.html.jinja2",
-        context={"nav_links": nav_links, "current": 1, "recording": recording},
+        name=(
+            "recording.html.jinja2"
+            if not request.headers.get("hx-request")
+            else "recording_details.html.jinja2"
+        ),
+        context={
+            "nav_links": nav_links,
+            "current": 1,
+            "recording": recording,
+            "tab": tab,
+        },
     )

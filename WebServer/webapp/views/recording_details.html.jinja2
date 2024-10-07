@@ -1,5 +1,9 @@
-<article id="recording-details">
-    <nav>
+{% import "components.html.jinja2" as components %}
+<article id="recording-details" class="tabs">
+    <nav class="tabs-control">
+        {{ components.tab_button(0, tab, true, "description", "Summary") }}
+        {{ components.tab_button(1, tab, true, "fingerprint", "NER") }}
+        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
     </nav>
     <section>
     </section>

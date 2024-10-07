@@ -1,0 +1,15 @@
+{%- macro tab_button(idx, current, is_icon = false, text = "" , title = "") -%}
+    <a href="?tab={{ idx }}"
+       class="{{ "icon-button" if is_icon else "" }} {{ "active" if idx == current else "" }}"
+       title="{{ title }}"
+       hx-get="?tab={{ idx }}"
+       hx-target="closest .tabs"
+       hx-swap="outerHTML"
+       hx-trigger="click">
+        {%- if is_icon -%}
+            <span class="icon">{{ text }}</span>
+        {%- else -%}
+            {{ text }}
+        {%- endif -%}
+    </a>
+{%- endmacro -%}

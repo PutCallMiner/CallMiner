@@ -23,6 +23,7 @@
 
 :root {
   --text: #04080d;
+  --text-contrast: #ffffff;
   --background: #e7ecf1;
   --primary: #022759;
   --secondary: #8fc0ff;
@@ -294,6 +295,34 @@ button.chip {
   }
 }
 
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--card);
+  color: var(--border);
+  box-shadow: 0 0 1px var(--border);
+  cursor: pointer;
+  font-size: 1.5rem;
+
+  &.active {
+    background-color: var(--primary);
+    color: var(--text-contrast);
+  }
+
+  &:hover {
+    box-shadow: 0 0 4px var(--border);
+  }
+}
+
+a.icon-button {
+  text-decoration: none;
+}
+
 /* Layout styles */
 
 body {
@@ -482,8 +511,9 @@ body > main#recording {
     nav {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
+      justify-content: start;
       gap: 1rem;
+      padding-top: 6rem;
     }
 
     section {
