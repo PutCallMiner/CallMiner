@@ -1,42 +1,38 @@
-{% macro title(value = "") %}
-  {% set default_title = "CallMiner" %}
-  {% if value == "" %}
-    <title>{{ default_title }}</title>
-  {% else %}
-    <title>{{ default_title + " | " + value }}</title>
-  {% endif %}
-{% endmacro %}
-
-<!doctype html>
+{%- macro title(value = "") -%}
+    {%- set default_title = "CallMiner" -%}
+    {%- if value == "" -%}
+        <title>{{ default_title }}</title>
+    {%- else -%}
+        <title>{{ default_title + " | " + value }}</title>
+    {%- endif -%}
+{%- endmacro -%}
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-  {{ title(nav_links[current].title) }}
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="" />
-  <link rel="stylesheet" href="/public/css/styles.css" />
-  <link rel="icon" type="image/svg+xml" href="/public/assets/logo.svg" />
-</head>
-
-<body>
-  <header>
-    <a href="/" title="Go to Dashboard" id="site-logo">
-      <img src="/public/assets/logo.svg" alt="CallMiner" />
-      <h3>CallMiner</h3>
-    </a>
-    <nav>
-      {% for nav_link in nav_links %}
-        <a href="{{ nav_link.url }}" class="{{ 'active' if loop.index0==current else '' }}">{{ nav_link.title }}</a>
-      {% endfor %}
-    </nav>
-  </header>
-  {% block content %}
-  <main>
-  </main>
-{% endblock %}
-
-  <script src="/public/js/htmx.min.js"></script>
-</body>
-
+    <head>
+        {{ title(nav_links[current].title) }}
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="/public/css/styles.css" />
+        <link rel="icon" type="image/svg+xml" href="/public/assets/logo.svg" />
+    </head>
+    <body>
+        <header>
+            <a href="/" title="Go to Dashboard" id="site-logo">
+                <img src="/public/assets/logo.svg" alt="CallMiner" />
+                <h3>CallMiner</h3>
+            </a>
+            <nav>
+                {% for nav_link in nav_links %}
+                    <a href="{{ nav_link.url }}"
+                       class="{{ 'active' if loop.index0==current else '' }}">{{ nav_link.title }}</a>
+                {% endfor %}
+            </nav>
+        </header>
+        {% block content %}
+            <main>
+            </main>
+        {% endblock %}
+        <script src="/public/js/htmx.min.js"></script>
+    </body>
 </html>

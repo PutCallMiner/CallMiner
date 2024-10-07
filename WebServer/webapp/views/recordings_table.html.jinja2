@@ -1,64 +1,87 @@
-<div id="controls">
-  <input name="search" type="search" placeholder="Search..." hx-get="recordings" hx-target="#recordings" hx-trigger="input changed delay:500ms, search">
+{%- macro link(search = "", take = 20, skip = 0) -%}
+    {%- if search != "" or take != 20 or skip != 0 -%}
+        ?
+    {%- endif -%}
+    {%- if search != "" -%}
+        search={{ search }}
+    {%- endif -%}
+    {%- if search != "" and take != 20 -%}
+        &
+    {%- endif -%}
+    {%- if take != 20 -%}
+        take={{ take }}
+    {%- endif -%}
+    {%- if (search != "" or take != 20) and skip != 0 -%}
+        &
+    {%- endif -%}
+    {%- if skip != 0 -%}
+        skip={{ skip }}
+    {%- endif -%}
+{%- endmacro -%}
+<div id="recordings-controls">
+    <input name="search"
+           type="search"
+           placeholder="Search..."
+           value="{{ search }}"
+           hx-get=" {{ link(take=take, skip=skip) }} "
+           hx-target="#recordings"
+           hx-trigger="input changed delay:750ms, search">
 </div>
-<div class="table">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Agent</th>
-        <th>Duration</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for recording in recordings %}
-      <tr>
-        <td>
-          <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
-            {{ recording.recording_url.split("/")[-1].split(".")[0] }}<span class="icon">north_east</span>
-          </a>
-        </td>
-        <td>
-          <button class="chip">
-            <object></object>
-            Unknown
-          </button>
-        </td>
-        <td>
-          {{ "???" ~ " min" }}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div class="pagination">
-    <div>
-      <span>Show</span>
-      <select name="take" hx-get="/recordings" hx-target="#recordings">
-      {% for t in [5, 10, 20, 50] %}
-        <option value="{{ t }}" {% if t == take %}selected{% endif %}>{{ t }}</option>
-      {% endfor %}
-      </select>
-      <span>results</span>
+<div id="recordings-table" class="table">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Agent</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recording in recordings %}
+                <tr>
+                    <td>
+                        <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
+                            {{ recording.recording_url.split("/")[-1] .split(".")[0] }}<span class="icon">north_east</span>
+                        </a>
+                    </td>
+                    <td>
+                        <button class="chip">
+                            <object></object>
+                            Unknown
+                        </button>
+                    </td>
+                    <td>{{ "???" ~ " min" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        <div>
+            <span>Show</span>
+            <select name="take" hx-get="{{ link(search) }}" hx-target="#recordings">
+                {% for t in [5, 10, 20, 50] %}
+                    <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+            <span>results</span>
+        </div>
+        <div>
+            <a hx-get="{{ link(search, take, (skip-take, 0) | max) }}"
+               hx-target="#recordings"
+               class="{% if skip <= 0 %}disabled{% endif %}">
+                <span class="icon">chevron_left</span><span>Previous</span>
+            </a>
+            <select name="skip" hx-get="{{ link(search, take) }}" hx-target="#recordings">
+                {% for s in range(0, total, take) %}
+                    <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
+                {% endfor %}
+            </select>
+            <span>of {{ (total / take)|round(method="ceil") |int }}</span>
+            <a hx-get="{{ link(search, take, (skip + take, total) | min) }}"
+               hx-target="#recordings"
+               class="{% if skip + take + 1 > total %}disabled{% endif %}">
+                <span>Next</span><span class="icon">chevron_right</span>
+            </a>
+        </div>
     </div>
-    <div>
-      <a hx-get="{{ '/recordings?skip=' ~ (skip - take, 0)|max ~ '&take=' ~ take  }}" hx-target="#recordings"
-        class="{% if skip <= 0 %}disabled{% endif %}"
-      >
-        <span class="icon">chevron_left</span><span>Previous</span>
-      </a>
-      <select name="skip" hx-get="{{ '/recordings?take=' ~ take }}" hx-target="#recordings">
-        {% for s in range(0, total, take) %}
-          <option value="{{ s }}" {% if s == skip %}selected{% endif %}>{{ s // take + 1 }}</option>
-        {% endfor %} 
-      </select>
-      <span>of {{ (total / take)|round(method="ceil")|int }}</span>
-      <a hx-get="{{ '/recordings?skip=' ~ (skip + take, total)|min ~ '&take=' ~ take  }}" hx-target="#recordings"
-        class="{% if skip + take + 1 > total %}disabled{% endif %}"
-      >
-        <span>Next</span><span class="icon">chevron_right</span>
-      </a>
-    </div>
-  </div>
 </div>
-
