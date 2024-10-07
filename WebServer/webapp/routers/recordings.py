@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_rec_db
-from webapp.crud.recordings import count_recordings, get_recordings
+from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -39,4 +39,20 @@ async def table(
             "skip": skip,
             "search": search,
         },
+    )
+
+
+@router.get("/{recording_id}")
+async def detail(
+    request: Request,
+    recording_id: str,
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+) -> HTMLResponse:
+    recording = await get_recording_by_id(db, recording_id)
+    print(recording)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="recording.html.jinja2",
+        context={"nav_links": nav_links, "current": 1, "recording": recording},
     )

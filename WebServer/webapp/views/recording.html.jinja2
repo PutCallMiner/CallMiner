@@ -1,0 +1,14 @@
+{% from "recording_utils.html.jinja2" import recording_url %}
+{% extends "layout.html.jinja2" %}
+{% block content %}
+    <main id="recording">
+        <header>
+            <nav>
+                <a href="/recordings"><span class="icon">arrow_back</span></a>
+                <h1>{{ recording_url(recording.recording_url) }}</h1>
+            </nav>
+            <div></div>
+        </header>
+        <article></article>
+    </main>
+{% endblock %}
