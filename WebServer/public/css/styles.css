@@ -471,4 +471,34 @@ body > main#recording {
       }
     }
   }
+
+  article {
+    flex-grow: 1;
+    margin-block: 1rem;
+    display: grid;
+    grid-template-columns: 60px 1.5fr 1fr;
+    gap: 1rem;
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 1rem;
+    }
+
+    section {
+      overflow-y: auto;
+    }
+
+    aside {
+      background-color: var(--card);
+      box-shadow: 0 0 1px var(--border);
+      border-radius: var(--large-border-radius);
+    }
+  }
+
+  footer {
+    display: flex;
+    height: 3rem;
+  }
 }

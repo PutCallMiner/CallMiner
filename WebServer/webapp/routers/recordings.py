@@ -49,7 +49,6 @@ async def detail(
     db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
 ) -> HTMLResponse:
     recording = await get_recording_by_id(db, recording_id)
-    print(recording)
 
     return templates.TemplateResponse(
         request=request,
