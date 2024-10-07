@@ -1,0 +1,3 @@
+{%- macro recording_url(value) -%}
+    {{ value.split("/")[-1] .split(".")[0] }}
+{%- endmacro -%}
