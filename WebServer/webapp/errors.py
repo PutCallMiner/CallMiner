@@ -30,6 +30,10 @@ class SummarizerError(Exception):
     pass
 
 
+class SpeakerClassifierError(Exception):
+    pass
+
+
 class TaskTimeoutError(Exception):
     def __init__(self, task_name: str, task_id: str):
         self.task_name = task_name
