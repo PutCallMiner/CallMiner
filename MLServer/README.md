@@ -157,6 +157,6 @@ curl -X POST server-url/invocations -H "Content-Type: application/json" --data '
 **Response Example:**
 ```json
 {
-  "predictions": ["JSON containing mapping of speaker IDs and their roles"]
+  "predictions": ["{'speaker 0': 'agent', 'speaker 1': 'client'}"]
 }
 ```
