@@ -1,10 +1,10 @@
 import requests
-from celery.exceptions import TimeoutError  # type: ignore[import-untyped]
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_SUMMARIZER_URL
-from webapp.errors import SummarizerError, TaskTimeoutError
+from webapp.errors import SummarizerError
 from webapp.models.transcript import Transcript
+from webapp.tasks.utils import task_to_async
 
 
 @celery_app.task
@@ -20,9 +20,6 @@ def summarize_task(text: str) -> str:
 
 async def run_summarize_task(transcript: Transcript, timeout: float) -> str:
     text = transcript.get_text_with_speakers()
-    summarizer_result = summarize_task.apply_async(args=[text])
-    try:
-        summary = summarizer_result.get(timeout=timeout)["predictions"][0]
-    except TimeoutError as _:
-        raise TaskTimeoutError(summarize_task.name, summarizer_result.id)
+    result = await task_to_async(timeout)(summarize_task)(args=[text])
+    summary = result["predictions"][0]
     return summary
