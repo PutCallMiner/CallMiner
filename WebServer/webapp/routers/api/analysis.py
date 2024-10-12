@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends
@@ -7,6 +8,7 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import (
     get_recording_by_id,
+    update_with_speaker_mapping,
     update_with_summary,
     update_with_transcript,
 )
@@ -16,6 +18,7 @@ from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 from webapp.tasks.asr import run_asr_task
+from webapp.tasks.classify_speakers import run_classify_speaker_task
 from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
 
@@ -48,16 +51,30 @@ async def background_analyze(
     logger.info(f"[id: {recording.id}] Writing audio transcript to database.")
     await update_with_transcript(db, recording.id, transcript)
 
-    # TODO: Run speaker classifier
+    # Step 2. Run tasks for recording analysis
+    logger.info(
+        f"[id: {recording.id}] Running Speaker Classifier and Summarizer celery tasks concurrently."
+    )
 
-    # Step 2. Run Summarizer
-    logger.info(f"[id: {recording.id}] Running Summarize celery task")
-    summary = await run_summarize_task(transcript, timeout=stage_timeout)
+    speaker_classifier_task = run_classify_speaker_task(
+        transcript, timeout=stage_timeout
+    )
+    summarizer_task = run_summarize_task(transcript, timeout=stage_timeout)
+    # TODO: Run NER
+    # TODO: Run conformity check
+    speaker_classifier_mapping, summary = await asyncio.gather(
+        speaker_classifier_task, summarizer_task
+    )
+
+    # Step 3. Write results into db
+    logger.info(f"[id: {recording.id}] Writing speaker classifier mapping to database.")
+    await update_with_speaker_mapping(db, recording.id, speaker_classifier_mapping)
+
     logger.info(f"[id: {recording.id}] Writing summary to database.")
     await update_with_summary(db, recording.id, summary)
 
-    # TODO: Run NER
-    # TODO: Run conformity check
+    # Step 4. Update task status
+    logger.info(f"[id: {recording.id}] Updating task status to: {TaskStatus.FINISHED}")
     await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 
 

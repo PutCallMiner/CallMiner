@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Literal
 
 import bson
 import bson.errors
@@ -79,5 +79,17 @@ async def update_with_summary(
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
         update={"$set": {"summary": summary}},
+    )
+    return update_result
+
+
+async def update_with_speaker_mapping(
+    db: AsyncIOMotorDatabase,
+    recording_id: PyObjectId,
+    speaker_mapping: dict[str, Literal["agent", "client"]],
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"speaker_mapping": speaker_mapping}},
     )
     return update_result
