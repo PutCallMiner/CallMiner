@@ -1,18 +1,18 @@
 @font-face {
   font-family: "Inter";
-  src: url("../assets/Inter-Regular.ttf") format("truetype");
+  src: url("../assets/Inter-Regular.woff2") format("woff2");
   font-weight: 400;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../assets/Inter-Bold.ttf") format("truetype");
+  src: url("../assets/Inter-Bold.woff2") format("woff2");
   font-weight: 700;
 }
 
 @font-face {
   font-family: "Material Icons";
-  src: url("../assets/MaterialSymbolsOutlined.ttf") format("truetype");
+  src: url("../assets/MaterialSymbolsOutlined.woff2") format("woff2");
 }
 
 *,
@@ -22,18 +22,18 @@
 }
 
 :root {
-  --text: #040507;
+  --text: #04080d;
   --background: #e7ecf1;
-  --primary: #022759;
-  --secondary: #8fc0ff;
-  --accent: #ff6294;
+  --primary: #8fc0ff;
+  --secondary: #022759;
+  --accent: #adf549;
   --border: #c0c0c0;
-  --card: #f8f8ff;
-  --input-active: rgba(11, 87, 208, 0.008);
+  --card: #f2f2f6;
+  --input-active: #ebebf4;
 
   --small-border-radius: 8px;
   --standard-border-radius: 16px;
-  --large-border-radius: 32px;
+  --large-border-radius: 24px;
 }
 
 /* Global styles */
@@ -84,17 +84,34 @@ small {
 
 /* Component styles */
 
+* {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: var(--primary);
+    border-radius: var(--large-border-radius);
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
+
 input {
   background-color: var(--card);
   font-size: 1rem;
   font-family: inherit;
   border: 1px solid var(--border);
+  outline: none;
 
-  &:focus {
+  &:focus-visible {
     border-color: var(--primary);
   }
 
-  &:focus,
+  &:focus-visible,
   &:hover {
     background-color: var(--input-active);
   }
@@ -117,7 +134,7 @@ input {
     background-size: 24px;
     transition: 0.1s;
 
-    &:focus {
+    &:focus-visible {
       background-position: 0px 18px;
       background-size: 1px;
       padding-left: 16px;
@@ -128,15 +145,28 @@ input {
 .table {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   justify-content: space-between;
-  flex-grow: 1;
 
+  background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--standard-border-radius);
 
+  &::-webkit-scrollbar-track {
+    margin: 5px 0;
+    border-left: 1px solid var(--border);
+  }
+
   table {
     border-collapse: collapse;
+
+    thead {
+      position: sticky;
+      top: 0;
+      background-color: var(--card);
+    }
 
     td,
     th {
@@ -146,12 +176,15 @@ input {
   }
 
   .pagination {
+    position: sticky;
+    bottom: 0;
     padding: 16px 0;
 
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 16px;
+    background-color: var(--card);
 
     div {
       display: flex;
@@ -162,8 +195,8 @@ input {
         width: 100px;
         display: flex;
         align-items: center;
-        text-decoration: none;
         color: var(--text);
+        cursor: pointer;
 
         &.disabled {
           visibility: hidden;
@@ -264,12 +297,8 @@ button.chip {
 /* Layout styles */
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   margin: 0 3rem;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
 }
 
 body > header {
@@ -312,12 +341,14 @@ body > header {
 
     display: flex;
     justify-content: start;
-    gap: 3rem;
+    gap: 1rem;
 
     a {
+      width: 150px;
       padding: 0.5rem 1rem;
 
       display: flex;
+      justify-content: center;
       align-items: center;
 
       text-decoration: none;
@@ -327,9 +358,9 @@ body > header {
     }
 
     a.active {
-      color: var(--secondary);
+      color: var(--primary);
       font-weight: 700;
-      border-bottom: 1px solid var(--secondary);
+      border-bottom: 1px solid var(--primary);
     }
 
     a:hover {
@@ -349,64 +380,58 @@ body > header {
   }
 }
 
-body > main {
+body > main#recordings {
   margin: 2rem 3rem;
-
+  height: calc(100% - 10rem);
   display: flex;
-  flex-grow: 1;
+  flex-direction: column;
 
-  &#transcripts {
-    flex-direction: column;
+  #recordings-controls {
+    margin-bottom: 1rem;
 
-    #controls {
-      margin-bottom: 1rem;
+    display: flex;
 
-      display: flex;
+    input[type="search"] {
+      max-width: 30%;
+    }
+  }
 
-      input[type="search"] {
-        max-width: 30%;
-      }
+  #recordings-table {
+    flex-grow: 1;
+
+    th,
+    td {
+      padding: 1.5rem;
     }
 
-    .table {
-      th,
-      td {
-        padding: 1.5rem;
+    th:first-child,
+    td:first-child {
+      width: 500px;
+      max-width: 500px;
+      overflow-x: hidden;
+      white-space: nowrap;
+    }
+
+    td {
+      .recording-tag {
+        margin: 2px 2px;
       }
 
-      th:first-child,
-      td:first-child {
-        min-width: 200px;
-      }
+      a {
+        width: 100%;
+        display: flow;
+        color: var(--text);
 
-      td {
-        &:nth-child(1) {
-          padding: 0;
+        span.icon {
+          display: none;
+          font-size: 0.75rem;
         }
 
-        &:nth-child(5) {
-          .chip {
-            margin: 2px 2px;
-          }
-        }
-
-        a {
-          width: 100%;
-          padding: 1.5rem;
-          display: flow;
-          color: var(--text);
+        &:hover {
+          font-weight: 700;
 
           span.icon {
-            display: none;
-            font-size: 0.75rem;
-          }
-
-          &:hover {
-            font-weight: 700;
-
-            span.icon {
-              display: inline-block;
-            }
+            display: inline-block;
           }
         }
       }
