@@ -19,7 +19,6 @@ async def table(
     skip: int = 0,
     take: int = 20,
 ) -> HTMLResponse:
-    print("search:", search)
     query = {"recording_url": {"$regex": search, "$options": "i"}} if search else None
     total = await count_recordings(db, query=query)
     recordings = await get_recordings(db, query=query, skip=skip, take=take)
