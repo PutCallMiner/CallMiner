@@ -5,13 +5,13 @@ import os
 from typing import Any, Literal
 
 import requests
-from celery.exceptions import TimeoutError  # type: ignore[import-untyped]
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_ASR_URL
-from webapp.errors import ASRError, TaskTimeoutError
+from webapp.errors import ASRError
 from webapp.models.analysis import ASRParams
 from webapp.models.transcript import Transcript
+from webapp.tasks.utils import task_to_async
 
 
 @celery_app.task
@@ -33,12 +33,10 @@ async def run_asr_task(
     asr_params: ASRParams,
     timeout: float,
 ) -> Transcript:
-    asr_result = asr_task.apply_async(
+    result = await task_to_async(timeout=timeout)(asr_task)(
         args=[base64.b64encode(audio_bytes).decode(), asr_params.model_dump()]
     )
-    try:
-        transcript_raw = asr_result.get(timeout=timeout)["predictions"][0]
-    except TimeoutError as _:
-        raise TaskTimeoutError(asr_task.name, asr_result.id)
+    transcript_raw = result["predictions"][0]
+
     transcript = Transcript.model_validate({"entries": transcript_raw})
     return transcript
