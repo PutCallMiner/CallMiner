@@ -505,7 +505,7 @@ body > main#recording {
     flex-grow: 1;
     margin-block: 1rem;
     display: grid;
-    grid-template-columns: 60px 1.5fr 1fr;
+    grid-template-columns: 60px 1.25fr 1fr;
     gap: 1rem;
 
     nav {

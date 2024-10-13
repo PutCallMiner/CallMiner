@@ -3,10 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from redis.asyncio import Redis
 
 from webapp.configs.views import nav_links, templates
-from webapp.crud.common import get_rec_db
+from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
+from webapp.crud.redis_manage import get_key_value
+from webapp.errors import RecordingNotFoundError
+from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -51,12 +55,15 @@ async def detail(
 ) -> HTMLResponse:
     recording = await get_recording_by_id(db, recording_id)
 
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
     return templates.TemplateResponse(
         request=request,
         name=(
             "recording.html.jinja2"
             if not request.headers.get("hx-request")
-            else "recording_details.html.jinja2"
+            else "recording_content.html.jinja2"
         ),
         context={
             "nav_links": nav_links,
@@ -64,4 +71,30 @@ async def detail(
             "recording": recording,
             "tab": tab,
         },
+    )
+
+
+@router.get("/{recording_id}/transcript")
+async def transcript(
+    request: Request,
+    recording_id: str,
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+) -> HTMLResponse:
+    recording = await get_recording_by_id(recording_db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
+    if recording.transcript is None:
+        status = await get_key_value(tasks_db, recording_id)
+
+        if status is None or status != TaskStatus.IN_PROGRESS:
+            return HTMLResponse()
+        return HTMLResponse()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="recording_transcript.html.jinja2",
+        context={"recording": recording},
     )
