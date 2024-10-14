@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, BeforeValidator, Field
 
@@ -11,6 +11,7 @@ class RecordingBase(BaseModel):
     recording_url: str
     transcript: Transcript | None
     summary: str | None
+    speaker_mapping: dict[str, Literal["agent", "client"]] | None
     ner: str | None
 
 

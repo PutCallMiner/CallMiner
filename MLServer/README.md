@@ -130,3 +130,33 @@ curl -X POST server-url/invocations -H "Content-Type: application/json" --data '
   "predictions": ["Summarized Conversation"]
 }
 ```
+
+#### Speaker Classifier
+The Speaker Classifier endpoint processes conversations and returns a JSON containing a mapping of speaker IDs and their roles.
+- **URL:** `/invocations`
+- **HTTP Method:** `POST`
+- **Request Headers:**
+  - `Content-Type: application/json`
+
+**Request Example:**
+```bash
+curl -X POST server-url/invocations -H "Content-Type: application/json" --data '{"instances": [{"conversation": "Your conversation goes here"}]}'
+```
+
+**Request Body:**
+```bash
+{
+  "instances": [
+    {
+      "conversation": ["Your conversation goes here"]
+    }
+  ]
+}
+```
+
+**Response Example:**
+```json
+{
+  "predictions": ["{'speaker 0': 'agent', 'speaker 1': 'client'}"]
+}
+```

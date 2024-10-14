@@ -12,7 +12,13 @@ audio_files = [
     "SCCNext_2024_04_17__15_42_52.wav"
 ]
 
-recordings = audio_files.map(rec => ({recording_url: blob_url + rec, transcript: null,  summary: null, ner: null}))
+recordings = audio_files.map(rec => ({
+    recording_url: blob_url + rec,
+    transcript: null,
+    summary: null,
+    speaker_mapping: null,
+    ner: null,
+}))
 
 db = db.getSiblingDB("callminer");
 db.recordings.insertMany(recordings);

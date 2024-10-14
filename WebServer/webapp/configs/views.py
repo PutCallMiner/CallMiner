@@ -14,5 +14,5 @@ class NavLink:
 templates = Jinja2Templates(directory=os.path.join("webapp", "views"))
 nav_links = [
     NavLink("/", "Dashboard", "View call data and statistics"),
-    NavLink("/transcripts", "Transcripts", "View call transcripts"),
+    NavLink("/recordings", "Recordings", "View call recordings"),
 ]
