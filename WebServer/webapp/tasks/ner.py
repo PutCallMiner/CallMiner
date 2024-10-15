@@ -51,11 +51,8 @@ def parse_ner_output(text: str) -> NER:
     return ner
 
 
-async def run_ner_task(transcript: Transcript, timeout: float) -> str:
+async def run_ner_task(transcript: Transcript, timeout: float) -> NER:
     text = transcript.get_text_with_speakers(special=True)
     ner_result = ner_task.apply_async(args=[text])
-    try:
-        ner = ner_result.get(timeout=timeout)["predictions"][0]
-    except TimeoutError as _:
-        raise TaskTimeoutError(ner_task.name, ner_result.id)
-    return ner
+    res = ner_result.get(timeout=timeout)["predictions"][0]
+    return parse_ner_output(res)

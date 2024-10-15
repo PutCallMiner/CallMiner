@@ -7,6 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.results import InsertManyResult, UpdateResult
 
 from webapp.errors import RecordingAlreadyExistsError
+from webapp.models.ner import NER
 from webapp.models.record import PyObjectId, Recording, RecordingBase
 from webapp.models.transcript import Transcript
 
@@ -84,11 +85,11 @@ async def update_with_summary(
 
 
 async def update_with_ner(
-    db: AsyncIOMotorDatabase, recording_id: PyObjectId, ner: str
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, ner: NER
 ) -> UpdateResult:
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
-        update={"$set": {"ner": ner}},
+        update={"$set": {"ner": ner.model_dump()}},
     )
     return update_result
 

@@ -19,8 +19,8 @@ from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 from webapp.tasks.asr import run_asr_task
-from webapp.tasks.ner import run_ner_task
 from webapp.tasks.classify_speakers import run_classify_speaker_task
+from webapp.tasks.ner import run_ner_task
 from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
 
@@ -62,30 +62,25 @@ async def background_analyze(
         transcript, timeout=stage_timeout
     )
     summarizer_task = run_summarize_task(transcript, timeout=stage_timeout)
-    # TODO: Run NER
+    ner_task = run_ner_task(transcript, timeout=stage_timeout)
     # TODO: Run conformity check
-    speaker_classifier_mapping, summary = await asyncio.gather(
-        speaker_classifier_task, summarizer_task
+    speaker_classifier_mapping, summary, ner = await asyncio.gather(
+        speaker_classifier_task, summarizer_task, ner_task
     )
 
     # Step 3. Write results into db
-    logger.info(
-        f"[id: {recording.id}] Writing speaker classifier mapping to database.")
+    logger.info(f"[id: {recording.id}] Writing speaker classifier mapping to database.")
     await update_with_speaker_mapping(db, recording.id, speaker_classifier_mapping)
 
     logger.info(f"[id: {recording.id}] Writing summary to database.")
     await update_with_summary(db, recording.id, summary)
 
-    # Step 3. Run NER
-    logger.info(f"[id: {recording.id}] Running NER celery task")
-    ner = await run_ner_task(transcript, timeout=stage_timeout)
-    logger.info(f"[id: {recording.id}] Writing summary to database.")
+    logger.info(f"[id: {recording.id}] Writing ner to database.")
     await update_with_ner(db, recording.id, ner)
 
     # TODO: Run conformity check
     # Step 4. Update task status
-    logger.info(
-        f"[id: {recording.id}] Updating task status to: {TaskStatus.FINISHED}")
+    logger.info(f"[id: {recording.id}] Updating task status to: {TaskStatus.FINISHED}")
     await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 
 
