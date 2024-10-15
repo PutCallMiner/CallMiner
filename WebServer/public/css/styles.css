@@ -240,16 +240,10 @@ input {
   border: 1px solid var(--border);
   border-radius: var(--small-border-radius);
 
-  &:has(object) {
+  &:has(.avatar) {
     padding-left: 4px;
     border-radius: var(--large-border-radius);
-
-    object {
-      height: 24px;
-      width: 24px;
-      margin-right: 4px;
-      background: url("../assets/account.svg") no-repeat center;
-    }
+    gap: 4px;
   }
 }
 
@@ -323,6 +317,11 @@ a.icon-button {
   text-decoration: none;
 }
 
+.avatar {
+  height: 24px;
+  width: 24px;
+  background: url("../assets/account.svg") no-repeat center;
+}
 /* Layout styles */
 
 body {
