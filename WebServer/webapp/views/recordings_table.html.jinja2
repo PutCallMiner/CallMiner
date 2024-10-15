@@ -50,7 +50,7 @@
                             Unknown
                         </button>
                     </td>
-                    <td>{{ "???" ~ " min" }}</td>
+                    <td>{{ recording.duration ~ "s" if recording.duration else "???" }} </td>
                 </tr>
             {% endfor %}
         </tbody>
