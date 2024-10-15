@@ -47,7 +47,9 @@ async def background_analyze(
     )
     audio_bytes = await download_azure_blob(recording.recording_url, AZURE_SAS_TOKEN)
     audio_duration = get_audio_duration(audio_bytes)
-    logger.info(f"[id: {recording.id}] has duration of {audio_duration:.2f} seconds.")
+    logger.info(
+        f"[id: {recording.id}] has duration of {audio_duration:.2f} miliseconds."
+    )
     await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording.id)},
         update={"$set": {"duration": audio_duration}},
