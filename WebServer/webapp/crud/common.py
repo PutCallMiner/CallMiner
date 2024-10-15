@@ -1,6 +1,6 @@
-import redis.asyncio as redis
 from collections.abc import AsyncGenerator
 
+import redis.asyncio as redis
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from webapp.configs.globals import (
@@ -10,7 +10,7 @@ from webapp.configs.globals import (
 )
 
 
-async def get_rec_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
+async def get_rec_db() -> AsyncGenerator[AsyncIOMotorDatabase, None]:
     client: AsyncIOMotorClient = AsyncIOMotorClient(
         MONGO_CONNECTION_STRING,
         connect=True,
@@ -25,11 +25,11 @@ async def get_rec_db() -> AsyncGenerator[AsyncIOMotorDatabase]:
 async def init_rec_db():
     # NOTE: we have to keep the generator, so the connection doesn't close prematurely
     db_gen = get_rec_db()
-    db = await anext(db_gen)
+    db = await anext(db_gen)  # noqa: F821
     await db["recordings"].create_index([("recording_url", 1)], unique=True)
 
 
-async def get_tasks_db() -> AsyncGenerator[redis.Redis]:
+async def get_tasks_db() -> AsyncGenerator[redis.Redis, None]:
     redis_tasks_db = redis.from_url(REDIS_TASKS_DB)
     try:
         yield redis_tasks_db

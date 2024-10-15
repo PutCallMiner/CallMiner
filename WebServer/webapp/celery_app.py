@@ -1,4 +1,4 @@
-from celery import Celery
+from celery import Celery  # type: ignore[import-untyped]
 
 from webapp.configs.globals import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
@@ -6,7 +6,11 @@ celery_app = Celery(
     "webapp",
     broker=CELERY_BROKER_URL,
     backend=CELERY_RESULT_BACKEND,
-    include=["webapp.tasks.analysis"],
+    include=[
+        "webapp.tasks.asr",
+        "webapp.tasks.summarize",
+        "webapp.tasks.classify_speakers",
+    ],
 )
 
 # Optional configuration for Celery

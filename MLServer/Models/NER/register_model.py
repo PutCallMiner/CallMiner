@@ -1,7 +1,5 @@
 import mlflow
-
 from model import NERModelWrapper
-
 
 model_config = {
     "ner_model": "pl_core_news_md",

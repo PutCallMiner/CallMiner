@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated
 
 import bson
@@ -6,13 +7,20 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import AZURE_SAS_TOKEN, logger
 from webapp.crud.common import get_rec_db, get_tasks_db
-from webapp.crud.recordings import get_recording_by_id, update_with_transcript
+from webapp.crud.recordings import (
+    get_recording_by_id,
+    update_with_speaker_mapping,
+    update_with_summary,
+    update_with_transcript,
+)
 from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.analysis import ASRParams, RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
-from webapp.tasks.analysis import run_asr_task
+from webapp.tasks.asr import run_asr_task
+from webapp.tasks.classify_speakers import run_classify_speaker_task
+from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.audio import get_audio_duration
 from webapp.utils.azure import download_azure_blob
 
@@ -27,12 +35,12 @@ async def background_analyze(
     """Runs the whole recording analysis step by step"""
     # set task status
     tasks_db_gen = get_tasks_db()
-    tasks_db = await anext(tasks_db_gen)
+    tasks_db = await anext(tasks_db_gen)  # noqa: F821
     await set_key_value(tasks_db, recording.id, TaskStatus.IN_PROGRESS)
 
     # get database connection
     db_gen = get_rec_db()
-    db = await anext(db_gen)  # noqa
+    db = await anext(db_gen)  # noqa: F821
 
     logger.info(
         f"[id: {recording.id}] Downloading audio file '{recording.recording_url}'."
@@ -51,7 +59,30 @@ async def background_analyze(
     logger.info(f"[id: {recording.id}] Writing audio transcript to database.")
     await update_with_transcript(db, recording.id, transcript)
 
-    # TODO: Subsequent steps
+    # Step 2. Run tasks for recording analysis
+    logger.info(
+        f"[id: {recording.id}] Running Speaker Classifier and Summarizer celery tasks concurrently."
+    )
+
+    speaker_classifier_task = run_classify_speaker_task(
+        transcript, timeout=stage_timeout
+    )
+    summarizer_task = run_summarize_task(transcript, timeout=stage_timeout)
+    # TODO: Run NER
+    # TODO: Run conformity check
+    speaker_classifier_mapping, summary = await asyncio.gather(
+        speaker_classifier_task, summarizer_task
+    )
+
+    # Step 3. Write results into db
+    logger.info(f"[id: {recording.id}] Writing speaker classifier mapping to database.")
+    await update_with_speaker_mapping(db, recording.id, speaker_classifier_mapping)
+
+    logger.info(f"[id: {recording.id}] Writing summary to database.")
+    await update_with_summary(db, recording.id, summary)
+
+    # Step 4. Update task status
+    logger.info(f"[id: {recording.id}] Updating task status to: {TaskStatus.FINISHED}")
     await set_key_value(tasks_db, recording.id, TaskStatus.FINISHED)
 
 

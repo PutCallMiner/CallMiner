@@ -6,15 +6,21 @@ import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypedDict, Literal
+from typing import Literal, TypedDict
 
 import wget  # type: ignore
-import whisper  # type: ignore
 import whisperx  # type: ignore
 from deepmultilingualpunctuation import PunctuationModel  # type: ignore
 from nemo.collections.asr.models.msdd_models import ClusteringDiarizer  # type: ignore
 from omegaconf import OmegaConf
+from openai import NOT_GIVEN, AzureOpenAI
 from whisperx.alignment import SingleWordSegment  # type: ignore
+
+AZURE_API_KEY = os.environ["AZURE_API_KEY"]
+AZURE_API_VERSION = os.environ["AZURE_API_VERSION"]
+AZURE_OPENAI_ENDPOINT = os.environ["AZURE_OPENAI_ENDPOINT"]
+AZURE_WHISPER_ENDPOINT = os.environ["AZURE_WHISPER_ENDPOINT"]
+ALIGN_MODEL_DEVICE = "cpu"
 
 
 class TranscribeSegment(TypedDict):
@@ -218,21 +224,15 @@ def _get_sentences_speaker_mapping(
     return snts
 
 
-@dataclass(frozen=True)
-class DiarizationConfig:
-    whisper_model: str
-    device: str
-
-
 @dataclass
 class DiarizationParams:
+    language: str | None = None
+    whisper_prompt: str | None = None
     num_speakers: int | None = None
-    beam_size: int | None = None
 
 
 class DiarizationPipeline:
-    def __init__(self, diar_config: DiarizationConfig, results_dir: str | None = None):
-        self.diar_config = diar_config
+    def __init__(self, results_dir: str | None = None):
         self.temp_dir = None
         if results_dir is None:
             self.temp_dir = tempfile.TemporaryDirectory()
@@ -243,30 +243,49 @@ class DiarizationPipeline:
     def _transcribe(
         self, audio: Path, diar_params: DiarizationParams
     ) -> TranscribeResults:
-        model = whisper.load_model(
-            self.diar_config.whisper_model, device=self.diar_config.device
+        client = AzureOpenAI(
+            api_key=AZURE_API_KEY,
+            api_version=AZURE_API_VERSION,
+            azure_endpoint=AZURE_OPENAI_ENDPOINT,
         )
-        # Beam size if None by default (Greedy Decoding). You can also set the
-        # beam_size to some number like 5. This will increase in better transcription
-        # quality but it'll increase runtime considerabley.
-        results = model.transcribe(str(audio), beam_size=diar_params.beam_size)
-        del model
-        return results
+
+        result = client.audio.transcriptions.create(
+            file=open(audio, "rb"),
+            model=AZURE_WHISPER_ENDPOINT,
+            response_format="verbose_json",
+            language=diar_params.language
+            if diar_params.language is not None
+            else NOT_GIVEN,
+            prompt=diar_params.whisper_prompt
+            if diar_params.whisper_prompt is not None
+            else NOT_GIVEN,
+        )
+
+        assert (
+            result.model_extra is not None
+        ), "Azure whisper didn't return verbose response!"
+
+        return TranscribeResults(
+            text=result.text,
+            segments=result.model_extra["segments"],
+            language=diar_params.language
+            if diar_params.language is not None
+            else result.model_extra["language"],
+        )
 
     def _align(
         self, audio: Path, transcribe_results: TranscribeResults
     ):  # -> AlignResults:
         # WhisperX results in better word timestamps by using wav2vec based forced alignment.
-        device = self.diar_config.device
         alignment_model, metadata = whisperx.load_align_model(
-            language_code=transcribe_results["language"], device=device
+            language_code=transcribe_results["language"], device=ALIGN_MODEL_DEVICE
         )
         result_aligned = whisperx.align(
             transcribe_results["segments"],
             alignment_model,
             metadata,
             str(audio),
-            device,
+            ALIGN_MODEL_DEVICE,
         )
         del alignment_model
         return result_aligned
@@ -382,13 +401,15 @@ class DiarizationPipeline:
         return ssm
 
 
+## Example usage
 if __name__ == "__main__":
-    diar_config = DiarizationConfig(whisper_model="base", device="cpu")
-    pipeline = DiarizationPipeline(diar_config=diar_config)
+    pipeline = DiarizationPipeline()
+    diar_params = DiarizationParams(
+        language="pl", num_speakers=None, whisper_prompt=None
+    )
 
-    diar_params = DiarizationParams(num_speakers=None, beam_size=3)
     transcript = pipeline.run(
-        "/home/nikita/dev_stuff/MLServer/Models/ASR/raw_audios/POL_M_023_Irek.mp3",
+        Path(__file__).parent / "POL_M_023_Irek.mp3",
         diar_params=diar_params,
     )
     print(transcript)

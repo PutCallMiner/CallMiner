@@ -1,3 +1,6 @@
+from collections.abc import Mapping
+from typing import Any, Literal
+
 import bson
 import bson.errors
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -9,15 +12,26 @@ from webapp.models.transcript import Transcript
 
 
 async def get_recordings(
-    db: AsyncIOMotorDatabase, skip: int | None = None, take: int | None = None
+    db: AsyncIOMotorDatabase,
+    query: Mapping[str, Any] | None = None,
+    skip: int | None = None,
+    take: int | None = None,
 ) -> list[Recording]:
-    cursor = db["recordings"].find()
+    query = query or {}
+    cursor = db["recordings"].find(query)
     if skip is not None:
         cursor = cursor.skip(skip)
     if take is not None:
         cursor = cursor.limit(take)
     records: list[dict] = await cursor.to_list(None)
     return [Recording.model_validate(record) for record in records]
+
+
+async def count_recordings(
+    db: AsyncIOMotorDatabase, query: Mapping[str, Any] | None = None
+) -> int:
+    query = query or {}
+    return await db["recordings"].count_documents(query)
 
 
 async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | None:
@@ -55,5 +69,27 @@ async def update_with_transcript(
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
         update={"$set": {"transcript": transcript.model_dump()}},
+    )
+    return update_result
+
+
+async def update_with_summary(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, summary: str
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"summary": summary}},
+    )
+    return update_result
+
+
+async def update_with_speaker_mapping(
+    db: AsyncIOMotorDatabase,
+    recording_id: PyObjectId,
+    speaker_mapping: dict[str, Literal["agent", "client"]],
+) -> UpdateResult:
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"speaker_mapping": speaker_mapping}},
     )
     return update_result

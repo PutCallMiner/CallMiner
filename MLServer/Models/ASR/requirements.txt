@@ -1,9 +1,10 @@
-torch==2.0.1
-torchaudio==2.0.2
+# torch==2.0.1
+# torchaudio==2.0.2
 azure-storage-blob==12.19.1
 mlflow==2.12.2
 nemo_toolkit[asr]==1.23.0
 huggingface-hub==0.22.0
+openai==1.47.0
 openai-whisper==20231117
 deepmultilingualpunctuation==1.0.1 #@ git+https://github.com/oliverguhr/deepmultilingualpunctuation.git@5a0dd7f4fd56687f59405aa8eba1144393d8b74b
 whisperx @ git+https://github.com/m-bain/whisperX.git@78dcfaab51005aa703ee21375f81ed31bc248560

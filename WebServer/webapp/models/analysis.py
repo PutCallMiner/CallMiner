@@ -1,10 +1,12 @@
 from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
 class ASRParams(BaseModel):
-    num_speakers: int | None = Field(None)
-    beam_size: int | None = Field(None)
+    language: str | None = Field(None, examples=["pl"])
+    num_speakers: int | None = Field(None, examples=[2])
+    whisper_prompt: str | None = Field(None)
 
 
 class RunAnalysisResponse(BaseModel):

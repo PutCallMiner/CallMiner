@@ -40,9 +40,8 @@ curl -X POST server-url/invocations -H "Content-Type: application/json" -H "char
   "instances": ["Your audio file binary, base64 encoded and utf-8 decoded"],
   "params": {
     "language": "pl",
-    "batch_size": 0, 
-    "suppress_numerals": false, 
-    "no_stem": true
+    "whisper_prompt": null,
+    "num_speakers": 2,
   }
 }
 ```
@@ -129,5 +128,35 @@ curl -X POST server-url/invocations -H "Content-Type: application/json" --data '
 ```json
 {
   "predictions": ["Summarized Conversation"]
+}
+```
+
+#### Speaker Classifier
+The Speaker Classifier endpoint processes conversations and returns a JSON containing a mapping of speaker IDs and their roles.
+- **URL:** `/invocations`
+- **HTTP Method:** `POST`
+- **Request Headers:**
+  - `Content-Type: application/json`
+
+**Request Example:**
+```bash
+curl -X POST server-url/invocations -H "Content-Type: application/json" --data '{"instances": [{"conversation": "Your conversation goes here"}]}'
+```
+
+**Request Body:**
+```bash
+{
+  "instances": [
+    {
+      "conversation": ["Your conversation goes here"]
+    }
+  ]
+}
+```
+
+**Response Example:**
+```json
+{
+  "predictions": ["{'speaker 0': 'agent', 'speaker 1': 'client'}"]
 }
 ```
