@@ -1,7 +1,7 @@
 {% import "components.html.jinja2" as components %}
 {% from "recording_utils.html.jinja2" import time_to_min %}
 {% if load %}
-    {{ components.progress_circle(recording.id ~ "/transcript", delay) }}
+    {{ components.progress_circle(recording.id ~ "/transcript?delay=" ~ (delay + 1) , delay * 10) }}
 {% elif not recording.transcript or not recording.speaker_mapping %}
     No transcript available.
 {% else %}

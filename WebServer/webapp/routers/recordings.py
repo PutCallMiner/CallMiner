@@ -71,6 +71,7 @@ async def detail(
             "recording": recording,
             "tab": tab,
             "load": tab == 0 and not recording.transcript,
+            "delay": 0,
         },
     )
 
@@ -81,6 +82,7 @@ async def transcript(
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+    delay: int = 0,
 ) -> HTMLResponse:
     recording = await get_recording_by_id(recording_db, recording_id)
 
@@ -95,5 +97,5 @@ async def transcript(
     return templates.TemplateResponse(
         request=request,
         name="recording_transcript.html.jinja2",
-        context={"recording": recording, "load": load, "delay": 5},
+        context={"recording": recording, "load": load, "delay": delay},
     )
