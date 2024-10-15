@@ -1,3 +1,6 @@
 {%- macro recording_url(value) -%}
     {{ value.split("/")[-1] .split(".")[0] }}
 {%- endmacro -%}
+{%- macro time_to_min(secs) -%}
+    {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
+{%- endmacro -%}

@@ -1,0 +1,18 @@
+{% import "components.html.jinja2" as components %}
+{% from "recording_utils.html.jinja2" import time_to_min %}
+{% if load %}
+    {{ components.progress_circle(recording.id ~ "/transcript", delay) }}
+{% elif not recording.transcript or not recording.speaker_mapping %}
+    No transcript available.
+{% else %}
+    {% for entry in recording.transcript.entries %}
+        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }}>
+            <object class="avatar"></object>
+            <header>
+                <span>{{ recording.speaker_mapping["speaker " ~ entry.speaker] }}</span>
+                <span>{{ time_to_min(entry.start_time) }}</span>
+            </header>
+            <p>{{ entry.text }}</p>
+        </div>
+    {% endfor %}
+{% endif %}

@@ -70,6 +70,7 @@ async def detail(
             "current": 1,
             "recording": recording,
             "tab": tab,
+            "load": tab == 0 and not recording.transcript,
         },
     )
 
@@ -86,15 +87,13 @@ async def transcript(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
+    load = False
     if recording.transcript is None:
         status = await get_key_value(tasks_db, recording_id)
-
-        if status is None or status != TaskStatus.IN_PROGRESS:
-            return HTMLResponse()
-        return HTMLResponse()
+        load = status == TaskStatus.IN_PROGRESS
 
     return templates.TemplateResponse(
         request=request,
         name="recording_transcript.html.jinja2",
-        context={"recording": recording},
+        context={"recording": recording, "load": load, "delay": 5},
     )

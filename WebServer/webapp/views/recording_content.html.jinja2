@@ -1,4 +1,5 @@
 {% import "components.html.jinja2" as components %}
+{% from "recording_utils.html.jinja2" import recording_url, time_to_min %}
 <article id="recording-details" class="tabs">
     <nav class="tabs-control">
         {{ components.tab_button(0, tab, true, "description", "Summary") }}
@@ -6,7 +7,45 @@
         {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
     </nav>
     <section>
+        {% if tab == 0 %}
+            {% include "recording_transcript.html.jinja2" %}
+        {% endif %}
     </section>
-    <aside>
-    </aside>
+    {% if tab == 0 %}
+        <aside>
+            <h3>Details</h3>
+            <dl>
+                <div>
+                    <dt>Recording Title</dt>
+                    <dd>
+                        {{ recording_url(recording.recording_url) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Agent</dt>
+                    <dd>
+                        <object class="avatar"></object>
+                        Unknown
+                    </dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd>
+                        ??? min
+                    </dd>
+                </div>
+                <div>
+                    <dt>Created At</dt>
+                    <dd>
+                        ???
+                    </dd>
+                </div>
+            </dl>
+        </aside>
+        <aside>
+            <h3>Summary</h3>
+        </aside>
+    {% elif tab == 1 %}
+    {% elif tab == 2 %}
+    {% endif %}
 </article>
