@@ -1,51 +1,27 @@
 {% import "components.html.jinja2" as components %}
-{% from "recording_utils.html.jinja2" import recording_url, time_to_min %}
-<article id="recording-details" class="tabs">
-    <nav class="tabs-control">
-        {{ components.tab_button(0, tab, true, "description", "Summary") }}
-        {{ components.tab_button(1, tab, true, "fingerprint", "NER") }}
-        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
-    </nav>
-    <section>
-        {% if tab == 0 %}
-            {% include "recording_transcript.html.jinja2" %}
-        {% endif %}
-    </section>
-    {% if tab == 0 %}
-        <aside>
-            <h3>Details</h3>
-            <dl>
-                <div>
-                    <dt>Recording Title</dt>
-                    <dd>
-                        {{ recording_url(recording.recording_url) }}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Agent</dt>
-                    <dd>
-                        <object class="avatar"></object>
-                        Unknown
-                    </dd>
-                </div>
-                <div>
-                    <dt>Duration</dt>
-                    <dd>
-                        ??? min
-                    </dd>
-                </div>
-                <div>
-                    <dt>Created At</dt>
-                    <dd>
-                        ???
-                    </dd>
-                </div>
-            </dl>
-        </aside>
-        <aside>
-            <h3>Summary</h3>
-        </aside>
-    {% elif tab == 1 %}
-    {% elif tab == 2 %}
-    {% endif %}
-</article>
+{% from "recording_utils.html.jinja2" import time_to_min %}
+{%- macro transcript() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript)) -%}
+        {% for entry in recording.transcript.entries %}
+            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }}>
+                <object class="avatar"></object>
+                <header>
+                    {% set speaker = recording.speaker_mapping["speaker " ~ entry.speaker] %}
+                    <span class="{{ speaker }}">{{ speaker }}</span>
+                    <span>{{ time_to_min(entry.start_time) }}</span>
+                </header>
+                <p>{{ entry.text }}</p>
+            </div>
+        {% endfor %}
+    {%- endcall -%}
+{%- endmacro -%}
+{%- macro summary() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/summary?delay=" ~ delay, delay=delay, load=(not recording.summary)) -%}
+        <p>{{ recording.summary }}</p>
+    {%- endcall -%}
+{%- endmacro -%}
+{% if content == "transcript" %}
+    {{ transcript() }}
+{% elif content == "summary" %}
+    {{ summary() }}
+{% endif %}

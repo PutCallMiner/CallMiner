@@ -419,6 +419,50 @@ a.icon-button {
   }
 }
 
+dl {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin-block: 2rem;
+  background-color: inherit;
+
+  & > div {
+    background-color: inherit;
+
+    &::after {
+      float: left;
+      width: 0;
+      white-space: nowrap;
+      content: ". . . . . . . . . . . . . . . . . . . . "
+        ". . . . . . . . . . . . . . . . . . . . "
+        ". . . . . . . . . . . . . . . . . . . . "
+        ". . . . . . . . . . . . . . . . . . . . ";
+    }
+  }
+
+  dt {
+    font-weight: 700;
+    padding-right: 0.33em;
+    display: inline;
+    background-color: inherit;
+  }
+
+  dd {
+    margin-inline-start: 0;
+    float: right;
+    padding-left: 0.5rem;
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    background-color: inherit;
+  }
+}
+
 /* Layout styles */
 
 body {
@@ -629,54 +673,24 @@ body > main#recording {
     }
 
     aside {
+      display: flex;
+      flex-direction: column;
       background-color: var(--card);
       box-shadow: 0 0 1px var(--border);
       border-radius: var(--large-border-radius);
       grid-column: 3;
+      padding-inline: 4rem;
 
       h3 {
         margin: 0;
         margin-top: 2rem;
         text-align: center;
+        color: var(--primary);
       }
 
-      dl {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        max-width: 100%;
-        overflow-x: hidden;
-        margin: 2rem 3rem;
-
-        & > div::after {
-          float: left;
-          width: 0;
-          white-space: nowrap;
-          content: ". . . . . . . . . . . . . . . . . . . . "
-            ". . . . . . . . . . . . . . . . . . . . "
-            ". . . . . . . . . . . . . . . . . . . . "
-            ". . . . . . . . . . . . . . . . . . . . ";
-        }
-
-        dt {
-          font-weight: 700;
-          padding-right: 0.33em;
-          display: inline;
-          background-color: var(--card);
-        }
-
-        dd {
-          margin-inline-start: 0;
-          float: right;
-          padding-left: 0.5rem;
-          position: relative;
-          z-index: 1;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-
-          background-color: var(--card);
-        }
+      p {
+        margin: 2rem auto;
+        text-align: justify;
       }
     }
   }

@@ -1,16 +1,76 @@
-{% from "recording_utils.html.jinja2" import recording_url %}
-{% extends "layout.html.jinja2" %}
-{% block content %}
-    <main id="recording">
-        <header>
-            <nav>
-                <a href="/recordings"><span class="icon">arrow_back</span></a>
-                <h1>{{ recording_url(recording.recording_url) }}</h1>
-            </nav>
-            <div></div>
-        </header>
-        {% include "recording_content.html.jinja2" %}
-        <footer>
-        </footer>
-    </main>
-{% endblock %}
+{% import "components.html.jinja2" as components %}
+{% from "recording_utils.html.jinja2" import recording_url, time_to_min %}
+{% from "recording_content.html.jinja2" import transcript, summary with context %}
+{%- macro component() %}
+    <nav class="tabs-control">
+        {{ components.tab_button(0, tab, true, "description", "Summary") }}
+        {{ components.tab_button(1, tab, true, "fingerprint", "NER") }}
+        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
+    </nav>
+    <section>
+        {% if tab == 0 %}{{ transcript() }}{% endif %}
+    </section>
+    {% if tab == 0 %}
+        <aside>
+            <h3>Details</h3>
+            <dl>
+                <div>
+                    <dt>Title</dt>
+                    <dd>
+                        {{ recording_url(recording.recording_url) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Agent</dt>
+                    <dd>
+                        <object class="avatar"></object>
+                        Unknown
+                    </dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd>
+                        ??? min
+                    </dd>
+                </div>
+                <div>
+                    <dt>Created At</dt>
+                    <dd>
+                        ???
+                    </dd>
+                </div>
+                <div>
+                    <dt>Tags</dt>
+                    <dd>
+                        <a>#???</a> <a>#???</a>
+                    </dd>
+                </div>
+            </dl>
+        </aside>
+        <aside>
+            <h3>Summary</h3>
+            {{ summary() }}
+        </aside>
+    {% elif tab == 1 %}
+    {% elif tab == 2 %}
+    {% endif %}
+{%- endmacro %}
+{% if not partial %}
+    {% extends "layout.html.jinja2" %}
+    {% block content %}
+        <main id="recording">
+            <header>
+                <nav>
+                    <a href="/recordings"><span class="icon">arrow_back</span></a>
+                    <h1>{{ recording_url(recording.recording_url) }}</h1>
+                </nav>
+                <div></div>
+            </header>
+            <article id="recording-details" class="tabs">{{ component() }}</article>
+            <footer>
+            </footer>
+        </main>
+    {% endblock %}
+{% else %}
+    {{ component() }}
+{% endif %}
