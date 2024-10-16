@@ -4,7 +4,7 @@
        title="{{ title }}"
        hx-get="?tab={{ idx }}"
        hx-target="closest .tabs"
-       hx-swap="outerHTML"
+       hx-swap="innerHTML"
        hx-trigger="click">
         {%- if is_icon -%}
             <span class="icon">{{ text }}</span>
@@ -13,10 +13,18 @@
         {%- endif -%}
     </a>
 {%- endmacro -%}
-{%- macro progress_circle(link, delay = 0) -%}
-    <div class="progress" hx-get={{ link }} hx-target="this" hx-swap="outerHTML" hx-trigger="{{ "load delay:" ~ delay ~ "s" }}">
-        <svg viewBox="25 25 50 50">
-            <circle r="20" cy="50" cx="50"></circle>
-        </svg>
-    </div>
+{%- macro progress_circle(link, delay = 0, load = True) -%}
+    {%- if load -%}
+        <div class="progress"
+             hx-get="{{ link }}"
+             hx-target="this"
+             hx-swap="outerHTML"
+             hx-trigger="{{ "load delay:" ~ (delay * 10) ~ "s" }}">
+            <svg viewBox="25 25 50 50">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+        </div>
+    {%- else -%}
+        {{ caller() }}
+    {%- endif -%}
 {%- endmacro -%}

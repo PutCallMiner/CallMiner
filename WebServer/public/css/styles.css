@@ -375,11 +375,10 @@ a.icon-button {
 }
 
 .progress {
-  width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
 
   svg:has(circle) {
     width: 3.25em;
