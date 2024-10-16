@@ -27,7 +27,7 @@
   --background: #e7ecf1;
   --primary: #022759;
   --secondary: #8fc0ff;
-  --accent: #adf549;
+  --accent: #ff5c82;
   --border: #c0c0c0;
   --card: #f2f2f6;
   --input-active: #ebebf4;
@@ -92,7 +92,7 @@ small {
 
   &::-webkit-scrollbar-thumb {
     cursor: pointer;
-    background-color: var(--primary);
+    background-color: var(--secondary);
     border-radius: var(--large-border-radius);
   }
 
