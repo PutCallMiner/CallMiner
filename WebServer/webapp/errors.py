@@ -30,6 +30,10 @@ class SummarizerError(Exception):
     pass
 
 
+class NERError(Exception):
+    pass
+
+
 class SpeakerClassifierError(Exception):
     pass
 

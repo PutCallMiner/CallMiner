@@ -16,7 +16,8 @@ recordings = audio_files.map(rec => ({
     recording_url: blob_url + rec,
     transcript: null,
     summary: null,
-    speaker_mapping: null
+    speaker_mapping: null,
+    ner: null,
 }))
 
 db = db.getSiblingDB("callminer");
