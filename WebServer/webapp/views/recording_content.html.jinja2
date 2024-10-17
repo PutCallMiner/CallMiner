@@ -1,6 +1,6 @@
 {% import "components.html.jinja2" as components %}
 {%- macro transcript() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript)) -%}
+    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript or not recording.speaker_mapping)) -%}
         {% for entry in recording.transcript.entries %}
             <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{entry.start_time / 1000}})">
                 <object class="avatar"></object>
