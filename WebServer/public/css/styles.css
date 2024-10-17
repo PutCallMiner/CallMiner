@@ -390,9 +390,11 @@ a.icon-button {
 
 .progress {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
+  gap: 1rem;
 
   svg:has(circle) {
     width: 3.25em;
@@ -408,6 +410,12 @@ a.icon-button {
       stroke-linecap: round;
       animation: dash4 1.5s ease-in-out infinite;
     }
+  }
+
+  p {
+    margin: 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
   }
 }
 
