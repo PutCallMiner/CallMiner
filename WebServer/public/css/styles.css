@@ -656,12 +656,14 @@ body > main#recordings {
 }
 
 body > main#recording {
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
 
   header {
     display: flex;
     flex-direction: row;
+    height: 2rem;
 
     nav {
       display: flex;
@@ -678,16 +680,11 @@ body > main#recording {
           font-size: 1.5rem;
         }
       }
-
-      h1 {
-        margin: 0;
-      }
     }
   }
 
   article {
-    flex-grow: 1;
-    max-height: calc(100% - 8rem);
+    height: calc(100% - 7rem);
     margin-block: 1rem;
     display: grid;
     grid-template-columns: 40px 1.25fr 1fr;
@@ -770,9 +767,8 @@ body > main#recording {
           list-style-type: none;
           gap: 0.25rem 1rem;
 
-          a {
-            text-decoration: none;
-            color: var(--text);
+          li {
+            cursor: pointer;
 
             &:hover {
               text-decoration: underline;
