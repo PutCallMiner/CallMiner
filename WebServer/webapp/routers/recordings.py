@@ -110,15 +110,22 @@ async def content(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
-    if getattr(recording, content, None) is None:
+    attr = content.split("-")[0]
+    attr_name = attr.upper() if attr in ["ner"] else attr.capitalize()
+
+    if getattr(recording, attr, None) is None:
         status = await get_key_value(tasks_db, recording.id)
         if status != TaskStatus.IN_PROGRESS:
             return HTMLResponse(
-                content=f"<p>{content.capitalize()} not found, please run the analysis first.</p>",
+                content=f"<p>{attr_name} not found, please run the analysis first.</p>",
             )
 
     return templates.TemplateResponse(
         request=request,
         name="recording_content.html.jinja2",
-        context={"recording": recording, "content": content, "delay": delay + 1},
+        context={
+            "recording": recording,
+            "content": content.replace("-", "_"),
+            "delay": delay + 1,
+        },
     )

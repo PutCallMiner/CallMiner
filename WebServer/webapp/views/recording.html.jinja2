@@ -62,6 +62,10 @@
             {{ content.summary() }}
         </aside>
     {% elif tab == 1 %}
+        <aside>
+            <h3>Named-Entity Recognition</h3>
+            {{ content.ner_details() }}
+        </aside>
     {% elif tab == 2 %}
     {% endif %}
 {%- endmacro %}

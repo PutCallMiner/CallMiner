@@ -31,9 +31,16 @@
                     <span class="{{ speaker }}">{{ speaker }}</span>
                     <span>{{ components.time_to_min(transcript_entry.start_time) }}</span>
                 </header>
-                <p>{{ transcript_entry.text }}{{ ner_entries }}</p>
+                <p>{{ components.ner(transcript_entry.text, ner_entries) }}</p>
             </div>
         {% endfor %}
+    {%- endcall -%}
+{%- endmacro -%}
+{%- macro ner_details() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/ner-details?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
+        {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
+            {{ components.ner_details(entity, recording.transcript.entries, recording.ner.entries) }}
+        {%- endfor -%}
     {%- endcall -%}
 {%- endmacro -%}
 {% if content == "transcript" %}
