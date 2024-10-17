@@ -77,11 +77,11 @@ async def get_content(
     request: Request,
     recording: Recording,
     content: str,
-    predicate: bool,
+    not_in_db: bool,
     delay: int,
     tasks_db: Redis,
 ) -> HTMLResponse:
-    if predicate:
+    if not_in_db:
         status = await get_key_value(tasks_db, recording.id)
         if status != TaskStatus.IN_PROGRESS:
             return HTMLResponse(
