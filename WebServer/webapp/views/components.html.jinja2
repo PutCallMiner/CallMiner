@@ -28,3 +28,29 @@
         {{ caller() }}
     {%- endif -%}
 {%- endmacro -%}
+{%- macro link(search = "", take = 20, skip = 0) -%}
+    {%- if search != "" or take != 20 or skip != 0 -%}
+        ?
+    {%- endif -%}
+    {%- if search != "" -%}
+        search={{ search }}
+    {%- endif -%}
+    {%- if search != "" and take != 20 -%}
+        &
+    {%- endif -%}
+    {%- if take != 20 -%}
+        take={{ take }}
+    {%- endif -%}
+    {%- if (search != "" or take != 20) and skip != 0 -%}
+        &
+    {%- endif -%}
+    {%- if skip != 0 -%}
+        skip={{ skip }}
+    {%- endif -%}
+{%- endmacro -%}
+{%- macro recording_url(value) -%}
+    {{ value.split("/")[-1] .split(".")[0] }}
+{%- endmacro -%}
+{%- macro time_to_min(secs) -%}
+    {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
+{%- endmacro -%}

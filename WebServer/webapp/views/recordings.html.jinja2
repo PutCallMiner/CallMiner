@@ -1,6 +1,84 @@
-{% extends "layout.html.jinja2" %}
-{% block content %}
-    <main id="recordings">
-        {% include "recordings_table.html.jinja2" %}
-    </main>
-{% endblock %}
+{% import "components.html.jinja2" as components %}
+{%- macro component() -%}
+    <div id="recordings-controls">
+        <input name="search"
+               type="search"
+               placeholder="Search..."
+               value="{{ search }}"
+               hx-get=" {{ components.link(take=take) }} "
+               hx-target="#recordings"
+               hx-trigger="search">
+    </div>
+    <div id="recordings-table" class="table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Agent</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recording in recordings %}
+                    <tr>
+                        <td>
+                            <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
+                                {{ components.recording_url(recording.recording_url) }}<span class="icon">north_east</span>
+                            </a>
+                        </td>
+                        <td>
+                            <button class="chip">
+                                <object class="avatar"></object>
+                                Unknown
+                            </button>
+                        </td>
+                        <td>{{ "???" ~ " min" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <div>
+                <span>Show</span>
+                <select name="take"
+                        hx-get="{{ components.link(search) }}"
+                        hx-target="#recordings">
+                    {% for t in [5, 10, 20, 50] %}
+                        <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+                <span>results</span>
+            </div>
+            <div>
+                <a hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
+                   hx-target="#recordings"
+                   class="{% if skip <= 0 %}disabled{% endif %}">
+                    <span class="icon">chevron_left</span><span>Previous</span>
+                </a>
+                <select name="skip"
+                        hx-get="{{ components.link(search, take) }}"
+                        hx-target="#recordings">
+                    {% for s in range(0, (total, 1)|max, take) %}
+                        <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
+                    {% endfor %}
+                </select>
+                <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
+                <a hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
+                   hx-target="#recordings"
+                   class="{% if skip + take + 1 > total %}disabled{% endif %}">
+                    <span>Next</span><span class="icon">chevron_right</span>
+                </a>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}
+{%- if not partial -%}
+    {% extends "layout.html.jinja2" %}
+    {% block content %}
+        <main id="recordings">
+            {{ component() }}
+        </main>
+    {% endblock %}
+{%- else -%}
+    {{ component() }}
+{%- endif -%}
