@@ -1,6 +1,5 @@
 {% import "components.html.jinja2" as components %}
-{% from "recording_utils.html.jinja2" import recording_url, time_to_min %}
-{% from "recording_content.html.jinja2" import transcript, summary with context %}
+{% import "recording_content.html.jinja2" as content with context %}
 {%- macro component() %}
     <nav class="tabs-control">
         {{ components.tab_button(0, tab, true, "description", "Summary") }}
@@ -8,7 +7,12 @@
         {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
     </nav>
     <section>
-        {% if tab == 0 %}{{ transcript() }}{% endif %}
+        {% if tab == 0 %}
+            {{ content.transcript() }}
+        {% elif tab == 1 %}
+            {{ content.ner() }}
+        {% elif tab == 2 %}
+        {% endif %}
     </section>
     {% if tab == 0 %}
         <aside id="audio-player">
@@ -23,7 +27,7 @@
                 <div>
                     <dt>Title</dt>
                     <dd>
-                        {{ recording_url(recording.recording_url) }}
+                        {{ components.recording_url(recording.recording_url) }}
                     </dd>
                 </div>
                 <div>
@@ -55,7 +59,7 @@
         </aside>
         <aside>
             <h3>Summary</h3>
-            {{ summary() }}
+            {{ content.summary() }}
         </aside>
     {% elif tab == 1 %}
     {% elif tab == 2 %}
@@ -68,7 +72,7 @@
             <header>
                 <nav>
                     <a href="/recordings"><span class="icon">arrow_back</span></a>
-                    <h1>{{ recording_url(recording.recording_url) }}</h1>
+                    <h1>{{ components.recording_url(recording.recording_url) }}</h1>
                 </nav>
                 <div></div>
             </header>
