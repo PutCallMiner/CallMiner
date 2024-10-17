@@ -12,6 +12,7 @@ class NavLink:
 
 
 templates = Jinja2Templates(directory=os.path.join("webapp", "views"))
+templates.env.add_extension("jinja2.ext.do")
 nav_links = [
     NavLink("/", "Dashboard", "View call data and statistics"),
     NavLink("/recordings", "Recordings", "View call recordings"),

@@ -73,14 +73,15 @@
             <span>{{ entity[0] }}<span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span></span>
         </summary>
         <ul>
+            {%- set seen = [] -%}
             {%- for i in range(transcript_entries|count) -%}
                 {%- for entry in ner_entries[i] -%}
-                    {%- if entry.entity == entity[1] -%}
+                    {%- set text = transcript_entries[i].text[entry.start_char:entry.end_char] -%}
+                    {%- if entry.entity == entity[1] and text not in seen -%}
                         <li>
-                            <a href="#entry-{{ transcript_entries[i].start_time }}">
-                                {{ transcript_entries[i].text[entry.start_char:entry.end_char] }}
-                            </a>
+                            <a href="#entry-{{ transcript_entries[i].start_time }}">{{ text }}</a>
                         </li>
+                        {% do seen.append(text) %}
                     {%- endif -%}
                 {%- endfor -%}
             {%- endfor -%}
