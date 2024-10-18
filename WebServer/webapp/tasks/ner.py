@@ -1,11 +1,10 @@
 import re
 
 import requests
-from celery.exceptions import TimeoutError  # type: ignore[import-untyped]
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_NER_URL
-from webapp.errors import NERError, TaskTimeoutError
+from webapp.errors import NERError
 from webapp.models.ner import NER, NEREntry
 from webapp.models.transcript import Transcript
 
