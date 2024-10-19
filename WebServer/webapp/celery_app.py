@@ -10,6 +10,7 @@ celery_app = Celery(
         "webapp.tasks.asr",
         "webapp.tasks.summarize",
         "webapp.tasks.classify_speakers",
+        "webapp.tasks.ner",
     ],
 )
 

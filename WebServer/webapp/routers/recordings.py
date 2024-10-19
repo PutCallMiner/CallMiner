@@ -3,10 +3,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from redis.asyncio import Redis
 
 from webapp.configs.views import nav_links, templates
-from webapp.crud.common import get_rec_db
-from webapp.crud.recordings import count_recordings, get_recordings
+from webapp.crud.common import get_rec_db, get_tasks_db
+from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
+from webapp.crud.redis_manage import get_key_value
+from webapp.errors import RecordingNotFoundError
+from webapp.models.record import Recording
+from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -39,4 +44,76 @@ async def table(
             "skip": skip,
             "search": search,
         },
+    )
+
+
+@router.get("/{recording_id}")
+async def detail(
+    request: Request,
+    recording_id: str,
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tab: int = 0,
+) -> HTMLResponse:
+    recording = await get_recording_by_id(db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
+    return templates.TemplateResponse(
+        request=request,
+        name=("recording.html.jinja2"),
+        context={
+            "nav_links": nav_links,
+            "current": 1,
+            "recording": recording,
+            "partial": request.headers.get("hx-request"),
+            "tab": tab,
+            "delay": 0,
+        },
+    )
+
+
+async def get_content(
+    request: Request,
+    recording: Recording,
+    content: str,
+    not_in_db: bool,
+    delay: int,
+    tasks_db: Redis,
+) -> HTMLResponse:
+    if not_in_db:
+        status = await get_key_value(tasks_db, recording.id)
+        if status != TaskStatus.IN_PROGRESS:
+            return HTMLResponse(
+                content=f"<p>{content.capitalize()} not found, please run the analysis first.</p>",
+            )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="recording_content.html.jinja2",
+        context={"recording": recording, "content": content, "delay": delay + 1},
+    )
+
+
+@router.get("/{recording_id}/{content}")
+async def content(
+    request: Request,
+    recording_id: str,
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+    content: str = "transcript",
+    delay: int = 0,
+) -> HTMLResponse:
+    recording = await get_recording_by_id(recording_db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
+    return await get_content(
+        request,
+        recording,
+        content,
+        getattr(recording, content, None) is None,
+        delay,
+        tasks_db,
     )

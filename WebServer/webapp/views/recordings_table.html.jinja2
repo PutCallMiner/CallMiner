@@ -1,3 +1,4 @@
+{% from "recording_utils.html.jinja2" import recording_url %}
 {%- macro link(search = "", take = 20, skip = 0) -%}
     {%- if search != "" or take != 20 or skip != 0 -%}
         ?
@@ -41,12 +42,12 @@
                 <tr>
                     <td>
                         <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
-                            {{ recording.recording_url.split("/")[-1] .split(".")[0] }}<span class="icon">north_east</span>
+                            {{ recording_url(recording.recording_url) }}<span class="icon">north_east</span>
                         </a>
                     </td>
                     <td>
                         <button class="chip">
-                            <object></object>
+                            <object class="avatar"></object>
                             Unknown
                         </button>
                     </td>

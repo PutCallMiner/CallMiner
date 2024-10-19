@@ -1,0 +1,27 @@
+{% import "components.html.jinja2" as components %}
+{% from "recording_utils.html.jinja2" import time_to_min %}
+{%- macro transcript() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript)) -%}
+        {% for entry in recording.transcript.entries %}
+            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }}>
+                <object class="avatar"></object>
+                <header>
+                    {% set speaker = recording.speaker_mapping["speaker " ~ entry.speaker] %}
+                    <span class="{{ speaker }}">{{ speaker }}</span>
+                    <span>{{ time_to_min(entry.start_time) }}</span>
+                </header>
+                <p>{{ entry.text }}</p>
+            </div>
+        {% endfor %}
+    {%- endcall -%}
+{%- endmacro -%}
+{%- macro summary() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/summary?delay=" ~ delay, delay=delay, load=(not recording.summary)) -%}
+        <p>{{ recording.summary }}</p>
+    {%- endcall -%}
+{%- endmacro -%}
+{% if content == "transcript" %}
+    {{ transcript() }}
+{% elif content == "summary" %}
+    {{ summary() }}
+{% endif %}
