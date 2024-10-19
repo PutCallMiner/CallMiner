@@ -20,6 +20,7 @@ from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 from webapp.tasks.asr import run_asr_task
 from webapp.tasks.classify_speakers import run_classify_speaker_task
+from webapp.tasks.embeddings import run_generate_embeddings_task
 from webapp.tasks.ner import run_ner_task
 from webapp.tasks.summarize import run_summarize_task
 from webapp.utils.azure import download_azure_blob
@@ -67,6 +68,9 @@ async def background_analyze(
     speaker_classifier_mapping, summary, ner = await asyncio.gather(
         speaker_classifier_task, summarizer_task, ner_task
     )
+
+    await run_generate_embeddings_task(transcript, recording.id)
+    logger.info(f"[id {recording.id}] Added embeddings for transcript entries")
 
     # Step 3. Write results into db
     logger.info(f"[id: {recording.id}] Writing speaker classifier mapping to database.")
