@@ -13,6 +13,7 @@ class RecordingBase(BaseModel):
     transcript: Transcript | None
     summary: str | None
     speaker_mapping: dict[str, Literal["agent", "client"]] | None
+    duration: int | None
     ner: NER | None
 
 

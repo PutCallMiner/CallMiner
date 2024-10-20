@@ -4,6 +4,9 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+RUN apt update
+RUN apt install -y ffmpeg
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY webapp /app/webapp

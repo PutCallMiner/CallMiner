@@ -17,6 +17,7 @@ recordings = audio_files.map(rec => ({
     transcript: null,
     summary: null,
     speaker_mapping: null,
+    duration: null
     ner: null,
 }))
 

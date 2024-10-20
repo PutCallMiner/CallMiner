@@ -1,6 +1,7 @@
 import asyncio
 from typing import Annotated
 
+import bson
 from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -22,6 +23,7 @@ from webapp.tasks.asr import run_asr_task
 from webapp.tasks.classify_speakers import run_classify_speaker_task
 from webapp.tasks.ner import run_ner_task
 from webapp.tasks.summarize import run_summarize_task
+from webapp.utils.audio import get_audio_duration
 from webapp.utils.azure import download_azure_blob
 
 router = APIRouter(prefix="/api/analysis", tags=["API"])
@@ -46,6 +48,14 @@ async def background_analyze(
         f"[id: {recording.id}] Downloading audio file '{recording.recording_url}'."
     )
     audio_bytes = await download_azure_blob(recording.recording_url, AZURE_SAS_TOKEN)
+    audio_duration = get_audio_duration(audio_bytes)
+    logger.info(
+        f"[id: {recording.id}] has duration of {audio_duration:.2f} miliseconds."
+    )
+    await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording.id)},
+        update={"$set": {"duration": audio_duration}},
+    )
 
     # Step 1. Run ASR
     logger.info(f"[id: {recording.id}] Running ASR celery task.")
