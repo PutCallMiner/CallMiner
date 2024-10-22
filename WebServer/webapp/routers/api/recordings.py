@@ -46,7 +46,11 @@ async def add_recordings(
     """Create new (not analyzed yet) recordings into the database"""
     recordings = [
         RecordingBase(
-            recording_url=rec_url, transcript=None, summary=None, speaker_mapping=None
+            recording_url=rec_url,
+            transcript=None,
+            summary=None,
+            speaker_mapping=None,
+            ner=None,
         )
         for rec_url in recording_urls
     ]

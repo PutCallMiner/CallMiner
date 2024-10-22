@@ -1,12 +1,14 @@
 import re
 
 import requests
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_NER_URL
+from webapp.crud.recordings import get_recording_by_id, update_with_ner
 from webapp.errors import NERError
 from webapp.models.ner import NER, NEREntry
-from webapp.models.transcript import Transcript
+from webapp.tasks.base import TIMEOUT, AnalyzeParams, DatabaseTask
 
 
 @celery_app.task
@@ -50,8 +52,17 @@ def parse_ner_output(text: str) -> NER:
     return ner
 
 
-async def run_ner_task(transcript: Transcript, timeout: float) -> NER:
-    text = transcript.get_text_with_speakers(special=True)
-    ner_result = ner_task.apply_async(args=[text])
-    res = ner_result.get(timeout=timeout)["predictions"][0]
-    return parse_ner_output(res)
+class NERTask(DatabaseTask):
+    async def run(
+        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+    ):
+        recording = await get_recording_by_id(db, recording_id)
+        assert recording is not None
+        assert recording.transcript is not None
+
+        text = recording.transcript.get_text_with_speakers(special=True)
+        ner_result = ner_task.apply_async(args=[text])
+        res = ner_result.get(timeout=TIMEOUT)["predictions"][0]
+        ner = parse_ner_output(res)
+
+        await update_with_ner(db, recording.id, ner)

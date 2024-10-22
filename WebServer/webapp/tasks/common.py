@@ -3,7 +3,12 @@ from copy import deepcopy
 from enum import StrEnum, auto
 from typing import TypeAlias
 
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
+from webapp.configs.globals import logger
 from webapp.models.record import Recording
+from webapp.tasks.asr import ASRTask
+from webapp.tasks.base import AnalyzeParams, DatabaseTask
 
 
 class Component(StrEnum):
@@ -24,6 +29,10 @@ dep_graph: Graph = {
     Component.SUMMARY: {Component.ASR, Component.SPEAKER_CLASS},
     Component.CONFORMITY: {Component.ASR, Component.SPEAKER_CLASS},
 }
+
+component_to_task: dict[Component, type[DatabaseTask]] = {
+    Component.ASR: ASRTask
+}  # TODO: add other tasks
 
 
 # TODO: perhaps move this class to a separate file
@@ -89,7 +98,8 @@ class Scheduler:
 
 
 class RecordingProcessor:
-    def __init__(self, recording: Recording):
+    def __init__(self, db: AsyncIOMotorDatabase, recording: Recording):
+        self.db = db
         self.recording = recording
 
     async def _is_component_in_db(self, component: Component) -> bool:
@@ -106,27 +116,23 @@ class RecordingProcessor:
                 # TODO
                 return True
 
-    async def execute_component(self, component: Component):
+    async def execute_component(
+        self, component: Component, analyze_params: AnalyzeParams
+    ) -> None:
         # TODO: perhaps have each component as a class with methods check_presence(Recording) and execute()
-        match component:
-            case Component.ASR:
-                pass
-            case Component.NER:
-                pass
-            case Component.SUMMARY:
-                pass
-            case Component.SPEAKER_CLASS:
-                pass
-            case Component.CONFORMITY:
-                pass
+        task = component_to_task[component]()
+        logger.info(f"[id: {self.recording.id}] Running '{component}' task.")
+        await task.run(self.db, self.recording.id, analyze_params)
 
-    async def run_with_dependencies(self, required_components: list[Component]):
+    async def run_with_dependencies(
+        self, required_components: list[Component], analyze_params: AnalyzeParams
+    ) -> None:
         schedule = Scheduler.get_execution_schedule(set(required_components))
         for step in schedule:
             coroutines = [
-                self.execute_component(comp)
+                self.execute_component(comp, analyze_params)
                 for comp in step
-                if not self._is_component_in_db(comp)
+                if not await self._is_component_in_db(comp)
             ]
             await asyncio.gather(*coroutines)
 

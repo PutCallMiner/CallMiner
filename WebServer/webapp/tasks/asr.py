@@ -5,13 +5,16 @@ import os
 from typing import Any, Literal
 
 import requests
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.celery_app import celery_app
-from webapp.configs.globals import MLFLOW_ASR_URL
-from webapp.errors import ASRError
-from webapp.models.analysis import ASRParams
+from webapp.configs.globals import AZURE_SAS_TOKEN, MLFLOW_ASR_URL
+from webapp.crud.recordings import get_recording_by_id, update_with_transcript
+from webapp.errors import ASRError, RecordingNotFoundError
 from webapp.models.transcript import Transcript
+from webapp.tasks.base import TIMEOUT, AnalyzeParams, DatabaseTask
 from webapp.tasks.utils import task_to_async
+from webapp.utils.azure import download_azure_blob
 
 
 @celery_app.task
@@ -28,15 +31,24 @@ def asr_task(
     return resp.json()
 
 
-async def run_asr_task(
-    audio_bytes: bytes,
-    asr_params: ASRParams,
-    timeout: float,
-) -> Transcript:
-    result = await task_to_async(timeout=timeout)(asr_task)(
-        args=[base64.b64encode(audio_bytes).decode(), asr_params.model_dump()]
-    )
-    transcript_raw = result["predictions"][0]
+class ASRTask(DatabaseTask):
+    async def run(
+        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+    ):
+        recording = await get_recording_by_id(db, recording_id)
+        if recording is None:
+            raise RecordingNotFoundError(recording_id)
+        audio_bytes = await download_azure_blob(
+            recording.recording_url, AZURE_SAS_TOKEN
+        )
 
-    transcript = Transcript.model_validate({"entries": transcript_raw})
-    return transcript
+        # Run celery task
+        result = await task_to_async(timeout=TIMEOUT)(asr_task)(
+            args=[base64.b64encode(audio_bytes).decode(), params.asr.model_dump()]
+        )
+
+        # Write results to DB
+        transcript_raw = result["predictions"][0]
+        transcript = Transcript.model_validate({"entries": transcript_raw})
+        await update_with_transcript(db, recording_id, transcript)
+        return transcript
