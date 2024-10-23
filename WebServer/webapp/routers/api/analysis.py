@@ -4,13 +4,13 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import logger
-from webapp.crud.common import get_rec_db, get_tasks_db
+from webapp.crud.common import get_rec_db, get_rec_db_context, get_tasks_db
 from webapp.crud.recordings import (
     get_recording_by_id,
 )
 from webapp.crud.redis_manage import set_key_value
 from webapp.errors import RecordingNotFoundError
-from webapp.models.analysis import ASRParams, RunAnalysisResponse
+from webapp.models.analysis import RunAnalysisResponse
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 from webapp.tasks.base import AnalyzeParams
@@ -21,14 +21,19 @@ router = APIRouter(prefix="/api/analysis", tags=["API"])
 
 async def background_analyze(
     recording: Recording,
-    asr_params: ASRParams,
+    required_components: list[Component],
+    analyze_params: AnalyzeParams,
     stage_timeout: float,
 ):
-    """Runs the whole recording analysis step by step"""
+    """Runs the required analysis components (and their dependencies if needed)"""
     # set task status
     tasks_db_gen = get_tasks_db()
     tasks_db = await anext(tasks_db_gen)  # noqa: F821
     await set_key_value(tasks_db, recording.id, TaskStatus.IN_PROGRESS)
+
+    async with get_rec_db_context() as db:
+        processor = RecordingProcessor(db, recording)
+        await processor.run_with_dependencies(required_components, analyze_params)
 
     # TODO: Run conformity check
     # Step 4. Update task status
@@ -51,9 +56,12 @@ async def run_recording_analysis(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
-    processor = RecordingProcessor(db, recording)
     background_tasks.add_task(
-        processor.run_with_dependencies, required_components, analyze_params
+        background_analyze,
+        recording,
+        required_components,
+        analyze_params,
+        stage_timeout,
     )
 
     return RunAnalysisResponse()

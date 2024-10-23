@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 import redis.asyncio as redis
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
@@ -22,11 +23,13 @@ async def get_rec_db() -> AsyncGenerator[AsyncIOMotorDatabase, None]:
         db.client.close()
 
 
+get_rec_db_context = asynccontextmanager(get_rec_db)
+
+
 async def init_rec_db():
     # NOTE: we have to keep the generator, so the connection doesn't close prematurely
-    db_gen = get_rec_db()
-    db = await anext(db_gen)  # noqa: F821
-    await db["recordings"].create_index([("recording_url", 1)], unique=True)
+    async with get_rec_db_context() as db:
+        await db["recordings"].create_index([("recording_url", 1)], unique=True)
 
 
 async def get_tasks_db() -> AsyncGenerator[redis.Redis, None]:

@@ -9,6 +9,9 @@ from webapp.configs.globals import logger
 from webapp.models.record import Recording
 from webapp.tasks.asr import ASRTask
 from webapp.tasks.base import AnalyzeParams, DatabaseTask
+from webapp.tasks.classify_speakers import SpeakerClassifyTask
+from webapp.tasks.ner import NERTask
+from webapp.tasks.summarize import SummarizeTask
 
 
 class Component(StrEnum):
@@ -31,8 +34,12 @@ dep_graph: Graph = {
 }
 
 component_to_task: dict[Component, type[DatabaseTask]] = {
-    Component.ASR: ASRTask
-}  # TODO: add other tasks
+    Component.ASR: ASRTask,
+    Component.NER: NERTask,
+    Component.SPEAKER_CLASS: SpeakerClassifyTask,
+    Component.SUMMARY: SummarizeTask,
+    # TODO: add conformity check
+}
 
 
 # TODO: perhaps move this class to a separate file
@@ -125,7 +132,9 @@ class RecordingProcessor:
         await task.run(self.db, self.recording.id, analyze_params)
 
     async def run_with_dependencies(
-        self, required_components: list[Component], analyze_params: AnalyzeParams
+        self,
+        required_components: list[Component],
+        analyze_params: AnalyzeParams,
     ) -> None:
         schedule = Scheduler.get_execution_schedule(set(required_components))
         for step in schedule:
