@@ -28,14 +28,15 @@ class RecordingProcessor:
         self,
         required_components: list[TaskType],
         analyze_params: AnalyzeParams,
+        force_rerun: bool,
     ) -> None:
         schedule = Scheduler.get_execution_schedule(set(required_components))
         for step in schedule:
-            coroutines = [
-                self.execute_task(task_t, analyze_params)
-                for task_t in step
-                if not await get_task_by_type(task_t)().is_result_in_db(
+            coroutines = []
+            for task_t in step:
+                result_in_db = await get_task_by_type(task_t)().is_result_in_db(
                     self.db, self.recording_id
                 )
-            ]
+                if force_rerun or not result_in_db:
+                    coroutines.append(self.execute_task(task_t, analyze_params))
             await asyncio.gather(*coroutines)

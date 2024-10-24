@@ -18,13 +18,16 @@ async def background_analyze(
     recording_id: str,
     required_components: list[TaskType],
     analyze_params: AnalyzeParams,
+    force_rerun: bool,
     stage_timeout: float,
 ):
     """Runs the required analysis components (and their dependencies if needed)"""
     try:
         async with get_rec_db_context() as db:
             processor = RecordingProcessor(db, recording_id)
-            await processor.run_with_dependencies(required_components, analyze_params)
+            await processor.run_with_dependencies(
+                required_components, analyze_params, force_rerun
+            )
     except Exception:
         await update_task_status(recording_id, TaskStatus.FAILED)
         raise
@@ -41,6 +44,7 @@ async def run_recording_analysis(
     analyze_params: Annotated[AnalyzeParams, Body(...)],
     required_components: list[TaskType],
     background_tasks: BackgroundTasks,
+    force_rerun: Annotated[bool, Body(...)] = False,
     stage_timeout: Annotated[
         float, Body(...)
     ] = 600,  # NOTE: fastapi doesn't allow the default in Body() for some reason
@@ -52,6 +56,7 @@ async def run_recording_analysis(
         recording_id,
         required_components,
         analyze_params,
+        force_rerun,
         stage_timeout,
     )
 
