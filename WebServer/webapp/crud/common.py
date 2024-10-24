@@ -38,3 +38,6 @@ async def get_tasks_db() -> AsyncGenerator[redis.Redis, None]:
         yield redis_tasks_db
     finally:
         await redis_tasks_db.close()
+
+
+get_tasks_db_context = asynccontextmanager(get_tasks_db)

@@ -22,6 +22,13 @@ class BlobDownloadError(Exception):
         self.url = url
 
 
+class AnalysisInProgressError(Exception):
+    def __init__(self, recording_id: PyObjectId):
+        msg = f"Analysis on recording {recording_id} is already in progress"
+        super().__init__(msg)
+        self.recording_id = recording_id
+
+
 class ASRError(Exception):
     pass
 

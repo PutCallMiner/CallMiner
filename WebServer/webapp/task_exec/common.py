@@ -4,8 +4,13 @@ from typing import TypeAlias
 
 from graphlib import TopologicalSorter
 
-from webapp.task_exec.tasks import ASRTask, NERTask, SpeakerClassifyTask, SummarizeTask
-from webapp.task_exec.tasks.base import RecordingTask
+from webapp.task_exec.tasks import (
+    ASRTask,
+    NERTask,
+    RecordingTask,
+    SpeakerClassifyTask,
+    SummarizeTask,
+)
 
 
 class TaskType(StrEnum):
