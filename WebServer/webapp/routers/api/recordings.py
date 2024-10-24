@@ -50,6 +50,7 @@ async def add_recordings(
             transcript=None,
             summary=None,
             speaker_mapping=None,
+            duration=None,
             ner=None,
         )
         for rec_url in recording_urls
