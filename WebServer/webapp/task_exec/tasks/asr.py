@@ -12,8 +12,8 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, MLFLOW_ASR_URL
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
 from webapp.errors import ASRError, RecordingNotFoundError
 from webapp.models.transcript import Transcript
-from webapp.tasks.base import TIMEOUT, AnalyzeParams, DatabaseTask
-from webapp.tasks.utils import task_to_async
+from webapp.task_exec.tasks.base import TIMEOUT, AnalyzeParams, RecordingTask
+from webapp.task_exec.utils import task_to_async
 from webapp.utils.azure import download_azure_blob
 
 
@@ -31,7 +31,12 @@ def asr_task(
     return resp.json()
 
 
-class ASRTask(DatabaseTask):
+class ASRTask(RecordingTask):
+    async def is_result_in_db(self, db: AsyncIOMotorDatabase, recording_id: str):
+        recording = await get_recording_by_id(db, recording_id)
+        assert recording is not None
+        return recording.transcript is not None
+
     async def run(
         self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
     ):

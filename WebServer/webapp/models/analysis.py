@@ -9,5 +9,9 @@ class ASRParams(BaseModel):
     whisper_prompt: str | None = Field(None, examples=[None])
 
 
+class AnalyzeParams(BaseModel):
+    asr: ASRParams
+
+
 class RunAnalysisResponse(BaseModel):
     analysis_started: Literal[True] = True

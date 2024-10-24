@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
 
-from webapp.models.analysis import ASRParams
+from webapp.models.analysis import AnalyzeParams
 
 TIMEOUT = 300  # TODO: pass this as parameter
 
 
-class AnalyzeParams(BaseModel):
-    asr: ASRParams
+class RecordingTask(ABC):
+    @abstractmethod
+    async def is_result_in_db(
+        self, db: AsyncIOMotorDatabase, recording_id: str
+    ) -> bool:
+        pass
 
-
-class DatabaseTask(ABC):
     @abstractmethod
     async def run(
         self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams

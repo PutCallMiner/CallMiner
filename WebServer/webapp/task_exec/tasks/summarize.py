@@ -5,8 +5,8 @@ from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_SUMMARIZER_URL
 from webapp.crud.recordings import get_recording_by_id, update_with_summary
 from webapp.errors import SummarizerError
-from webapp.tasks.base import TIMEOUT, AnalyzeParams, DatabaseTask
-from webapp.tasks.utils import task_to_async
+from webapp.task_exec.tasks.base import TIMEOUT, AnalyzeParams, RecordingTask
+from webapp.task_exec.utils import task_to_async
 
 
 @celery_app.task
@@ -20,7 +20,12 @@ def summarize_task(text: str) -> str:
     return resp.json()
 
 
-class SummarizeTask(DatabaseTask):
+class SummarizeTask(RecordingTask):
+    async def is_result_in_db(self, db: AsyncIOMotorDatabase, recording_id: str):
+        recording = await get_recording_by_id(db, recording_id)
+        assert recording is not None
+        return recording.summary is not None
+
     async def run(
         self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
     ):

@@ -7,10 +7,10 @@ celery_app = Celery(
     broker=CELERY_BROKER_URL,
     backend=CELERY_RESULT_BACKEND,
     include=[
-        "webapp.tasks.asr",
-        "webapp.tasks.summarize",
-        "webapp.tasks.classify_speakers",
-        "webapp.tasks.ner",
+        "webapp.task_exec.tasks.asr",
+        "webapp.task_exec.tasks.summarize",
+        "webapp.task_exec.tasks.classify_speakers",
+        "webapp.task_exec.tasks.ner",
     ],
 )
 
