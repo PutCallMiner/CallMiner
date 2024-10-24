@@ -18,17 +18,21 @@ class RecordingProcessor:
         return await task.is_result_in_db(self.db, self.recording_id)
 
     async def execute_task(
-        self, task_t: TaskType, analyze_params: AnalyzeParams
+        self,
+        task_t: TaskType,
+        analyze_params: AnalyzeParams,
+        task_timeout: float | None = None,
     ) -> None:
         task = get_task_by_type(task_t)()
         logger.info(f"[id: {self.recording_id}] Running '{task_t}' task.")
-        await task.run(self.db, self.recording_id, analyze_params)
+        await task.run(self.db, self.recording_id, analyze_params, task_timeout)
 
     async def run_with_dependencies(
         self,
         required_components: list[TaskType],
         analyze_params: AnalyzeParams,
         force_rerun: bool,
+        task_timeout: float | None = None,
     ) -> None:
         schedule = Scheduler.get_execution_schedule(set(required_components))
         for step in schedule:
@@ -38,5 +42,7 @@ class RecordingProcessor:
                     self.db, self.recording_id
                 )
                 if force_rerun or not result_in_db:
-                    coroutines.append(self.execute_task(task_t, analyze_params))
+                    coroutines.append(
+                        self.execute_task(task_t, analyze_params, task_timeout)
+                    )
             await asyncio.gather(*coroutines)

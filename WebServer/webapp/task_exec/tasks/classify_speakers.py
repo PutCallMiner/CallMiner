@@ -11,7 +11,7 @@ from webapp.configs.globals import (
 )
 from webapp.crud.recordings import get_recording_by_id, update_with_speaker_mapping
 from webapp.errors import SpeakerClassifierError
-from webapp.task_exec.tasks.base import TIMEOUT, AnalyzeParams, RecordingTask
+from webapp.task_exec.tasks.base import AnalyzeParams, RecordingTask
 from webapp.task_exec.utils import task_to_async
 
 
@@ -33,7 +33,11 @@ class SpeakerClassifyTask(RecordingTask):
         return recording.speaker_mapping is not None
 
     async def run(
-        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+        self,
+        db: AsyncIOMotorDatabase,
+        recording_id: str,
+        params: AnalyzeParams,
+        timeout: float | None = None,
     ):
         recording = await get_recording_by_id(db, recording_id)
         assert recording is not None
@@ -42,7 +46,7 @@ class SpeakerClassifyTask(RecordingTask):
         text = recording.transcript.get_n_entries_text_with_speakers(
             SPEAKER_CLASSIFIER_NUM_ENTRIES
         )
-        result = await task_to_async(TIMEOUT)(classify_speaker_task)(args=[text])
+        result = await task_to_async(timeout)(classify_speaker_task)(args=[text])
         try:
             speaker_classifier_mapping: dict = json.loads(result["predictions"][0])
         except JSONDecodeError as _:

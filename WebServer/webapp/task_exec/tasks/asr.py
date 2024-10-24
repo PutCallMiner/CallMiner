@@ -12,7 +12,7 @@ from webapp.configs.globals import AZURE_SAS_TOKEN, MLFLOW_ASR_URL
 from webapp.crud.recordings import get_recording_by_id, update_with_transcript
 from webapp.errors import ASRError, RecordingNotFoundError
 from webapp.models.transcript import Transcript
-from webapp.task_exec.tasks.base import TIMEOUT, AnalyzeParams, RecordingTask
+from webapp.task_exec.tasks.base import AnalyzeParams, RecordingTask
 from webapp.task_exec.utils import task_to_async
 from webapp.utils.azure import download_azure_blob
 
@@ -38,7 +38,11 @@ class ASRTask(RecordingTask):
         return recording.transcript is not None
 
     async def run(
-        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+        self,
+        db: AsyncIOMotorDatabase,
+        recording_id: str,
+        params: AnalyzeParams,
+        timeout: float | None = None,
     ):
         recording = await get_recording_by_id(db, recording_id)
         if recording is None:
@@ -48,7 +52,7 @@ class ASRTask(RecordingTask):
         )
 
         # Run celery task
-        result = await task_to_async(timeout=TIMEOUT)(asr_task)(
+        result = await task_to_async(timeout=timeout)(asr_task)(
             args=[base64.b64encode(audio_bytes).decode(), params.asr.model_dump()]
         )
 

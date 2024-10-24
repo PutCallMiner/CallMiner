@@ -8,7 +8,7 @@ from webapp.configs.globals import MLFLOW_NER_URL
 from webapp.crud.recordings import get_recording_by_id, update_with_ner
 from webapp.errors import NERError
 from webapp.models.ner import NER, NEREntry
-from webapp.task_exec.tasks.base import TIMEOUT, AnalyzeParams, RecordingTask
+from webapp.task_exec.tasks.base import AnalyzeParams, RecordingTask
 
 
 @celery_app.task
@@ -59,7 +59,11 @@ class NERTask(RecordingTask):
         return ner
 
     async def run(
-        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+        self,
+        db: AsyncIOMotorDatabase,
+        recording_id: str,
+        params: AnalyzeParams,
+        timeout: float | None = None,
     ):
         recording = await get_recording_by_id(db, recording_id)
         assert recording is not None
@@ -67,7 +71,7 @@ class NERTask(RecordingTask):
 
         text = recording.transcript.get_text_with_speakers(special=True)
         ner_result = ner_task.apply_async(args=[text])
-        res = ner_result.get(timeout=TIMEOUT)["predictions"][0]
+        res = ner_result.get(timeout=timeout)["predictions"][0]
         ner = self.parse_ner_output(res)
 
         await update_with_ner(db, recording.id, ner)

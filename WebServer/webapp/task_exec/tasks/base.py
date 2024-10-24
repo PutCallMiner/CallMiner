@@ -4,8 +4,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.models.analysis import AnalyzeParams
 
-TIMEOUT = 300  # TODO: pass this as parameter
-
 
 class RecordingTask(ABC):
     @abstractmethod
@@ -16,6 +14,10 @@ class RecordingTask(ABC):
 
     @abstractmethod
     async def run(
-        self, db: AsyncIOMotorDatabase, recording_id: str, params: AnalyzeParams
+        self,
+        db: AsyncIOMotorDatabase,
+        recording_id: str,
+        params: AnalyzeParams,
+        timeout: float | None = None,
     ) -> None:
         pass

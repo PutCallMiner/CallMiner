@@ -16,17 +16,17 @@ router = APIRouter(prefix="/api/analysis", tags=["API"])
 
 async def background_analyze(
     recording_id: str,
-    required_components: list[TaskType],
+    required_tasks: list[TaskType],
     analyze_params: AnalyzeParams,
     force_rerun: bool,
-    stage_timeout: float,
+    task_timeout: float | None = None,
 ):
     """Runs the required analysis components (and their dependencies if needed)"""
     try:
         async with get_rec_db_context() as db:
             processor = RecordingProcessor(db, recording_id)
             await processor.run_with_dependencies(
-                required_components, analyze_params, force_rerun
+                required_tasks, analyze_params, force_rerun, task_timeout
             )
     except Exception:
         await update_task_status(recording_id, TaskStatus.FAILED)
@@ -42,11 +42,11 @@ async def background_analyze(
 async def run_recording_analysis(
     recording_id: Annotated[str, Body(...)],
     analyze_params: Annotated[AnalyzeParams, Body(...)],
-    required_components: list[TaskType],
+    required_tasks: list[TaskType],
     background_tasks: BackgroundTasks,
     force_rerun: Annotated[bool, Body(...)] = False,
-    stage_timeout: Annotated[
-        float, Body(...)
+    task_timeout: Annotated[
+        float | None, Body(...)
     ] = 600,  # NOTE: fastapi doesn't allow the default in Body() for some reason
 ) -> RunAnalysisResponse:
     await update_task_status(recording_id, TaskStatus.IN_PROGRESS)
@@ -54,10 +54,10 @@ async def run_recording_analysis(
     background_tasks.add_task(
         background_analyze,
         recording_id,
-        required_components,
+        required_tasks,
         analyze_params,
         force_rerun,
-        stage_timeout,
+        task_timeout,
     )
 
     return RunAnalysisResponse()
