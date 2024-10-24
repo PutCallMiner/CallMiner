@@ -1,5 +1,5 @@
 from webapp.models.ner import NER, NEREntry
-from webapp.tasks.ner import parse_ner_output
+from webapp.task_exec.tasks import NERTask
 
 
 def test_parse_ner_output():
@@ -9,7 +9,7 @@ def test_parse_ner_output():
         "<|Speaker 2|> Hi I am <persName>Eve</persName>\n"
     )
 
-    res = parse_ner_output(ner_output)
+    res = NERTask.parse_ner_output(ner_output)
     assert res == NER(
         entries=[
             [
