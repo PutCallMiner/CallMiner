@@ -1,11 +1,11 @@
 import asyncio
+from typing import Iterable
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import logger
 from webapp.models.analysis import AnalyzeParams
-from webapp.task_exec.common import TaskType, get_task_by_type
-from webapp.task_exec.scheduling import Scheduler
+from webapp.task_exec.common import Scheduler, TaskType, get_task_by_type
 
 
 class RecordingProcessor:
@@ -29,18 +29,24 @@ class RecordingProcessor:
 
     async def run_with_dependencies(
         self,
-        required_components: list[TaskType],
+        required_tasks: Iterable[TaskType],
         analyze_params: AnalyzeParams,
         force_rerun: bool,
         task_timeout: float | None = None,
     ) -> None:
-        schedule = Scheduler.get_execution_schedule(set(required_components))
+        logger.info(f"[id: {self.recording_id}] Required Tasks: {required_tasks}")
+        schedule = Scheduler.get_execution_schedule(set(required_tasks))
+        logger.info(f"[id: {self.recording_id}] Schedule constructed: {schedule}")
         for step in schedule:
             coroutines = []
             for task_t in step:
                 result_in_db = await get_task_by_type(task_t)().is_result_in_db(
                     self.db, self.recording_id
                 )
+                if result_in_db:
+                    logger.info(
+                        f"[id: {self.recording_id}] Result of '{task_t}' already in DB."
+                    )
                 if force_rerun or not result_in_db:
                     coroutines.append(
                         self.execute_task(task_t, analyze_params, task_timeout)
