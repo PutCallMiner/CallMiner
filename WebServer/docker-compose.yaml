@@ -12,7 +12,6 @@ services:
       - redis
       - mongo
       - chromadb
-      - celery_worker
   mongo:
     image: mongo
     restart: always
@@ -29,19 +28,6 @@ services:
     restart: always
     ports:
       - ${REDIS_PORT}:6379
-  celery_worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    network_mode: host
-    command: ['celery', '-A', 'webapp.celery_app', 'worker', '-l', 'info']
-    depends_on:
-      - redis
-    volumes:
-      - ./webapp:/app/webapp
-    env_file: ./.env
-    restart: always
-    scale: 3
   chromadb:
     image: chromadb/chroma:latest
     restart: always

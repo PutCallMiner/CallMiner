@@ -2,6 +2,7 @@ from asyncio import Lock
 
 from redis.asyncio import Redis
 
+from webapp.configs.globals import logger
 from webapp.crud.common import get_tasks_db_context
 from webapp.errors import AnalysisInProgressError
 from webapp.models.task_status import TaskStatus
@@ -27,6 +28,7 @@ analysis_lock = Lock()
 
 
 async def update_task_status(recording_id: str, new_status: TaskStatus):
+    logger.info(f"[id: {recording_id}] Updating task status to: {TaskStatus.FINISHED}")
     async with get_tasks_db_context() as tasks_db:
         async with analysis_lock:
             old_status = await get_key_value(tasks_db, recording_id)

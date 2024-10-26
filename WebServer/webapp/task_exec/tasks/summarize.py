@@ -1,23 +1,13 @@
-import requests
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.celery_app import celery_app
 from webapp.configs.globals import MLFLOW_SUMMARIZER_URL
 from webapp.crud.recordings import get_recording_by_id, update_with_summary
 from webapp.errors import SummarizerError
-from webapp.task_exec.tasks.base import AnalyzeParams, RecordingTask
-from webapp.task_exec.utils import task_to_async
-
-
-@celery_app.task
-def summarize_task(text: str) -> str:
-    resp = requests.post(
-        f"{MLFLOW_SUMMARIZER_URL}/invocations",
-        json={"instances": [{"conversation": [text]}]},
-    )
-    if not resp.ok:
-        raise SummarizerError(resp.content.decode())
-    return resp.json()
+from webapp.task_exec.tasks.base import (
+    AnalyzeParams,
+    RecordingTask,
+)
+from webapp.task_exec.utils import async_request_with_timeout
 
 
 class SummarizeTask(RecordingTask):
@@ -38,7 +28,13 @@ class SummarizeTask(RecordingTask):
         assert recording.transcript is not None
 
         text = recording.transcript.get_text_with_speakers()
-        result = await task_to_async(timeout)(summarize_task)(args=[text])
-        summary = result["predictions"][0]
+
+        resp_data = await async_request_with_timeout(
+            f"{MLFLOW_SUMMARIZER_URL}/invocations",
+            {"instances": [{"conversation": [text]}]},
+            timeout,
+            SummarizerError,
+        )
+        summary = resp_data["predictions"][0]
 
         await update_with_summary(db, recording.id, summary)

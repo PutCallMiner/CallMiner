@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Body
 
-from webapp.configs.globals import logger
 from webapp.crud.common import get_rec_db_context
 from webapp.crud.redis_manage import update_task_status
 from webapp.models.analysis import RunAnalysisResponse
@@ -34,7 +33,6 @@ async def background_analyze(
 
     # TODO: Run conformity check
     # Step 4. Update task status
-    logger.info(f"[id: {recording_id}] Updating task status to: {TaskStatus.FINISHED}")
     await update_task_status(recording_id, TaskStatus.FINISHED)
 
 

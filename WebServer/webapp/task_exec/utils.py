@@ -1,32 +1,27 @@
-import asyncio
-import time
 from functools import cached_property
 from typing import Generic, Hashable, TypeAlias, TypeVar
 
-from asgiref.sync import sync_to_async
-from celery import Task  # type: ignore[import]
+import httpx
 from graphlib import TopologicalSorter
 
-from webapp.errors import TaskTimeoutError
 
-
-# Converts a Celery tasks to an async function
-def task_to_async(timeout: float | None = None):
-    def timeout_wrapper(task: Task):
-        async def wrapper(*args, **kwargs):
-            delay = 0.1
-            async_result = await sync_to_async(task.apply_async)(*args, **kwargs)
-            start_time = time.time()
-            while not async_result.ready():
-                if (timeout is not None) and (time.time() - start_time) > timeout:
-                    raise TaskTimeoutError(task.name, async_result.id)
-                await asyncio.sleep(delay)
-                delay = min(delay * 1.5, 2)  # exponential backoff, max 2 seconds
-            return async_result.get()
-
-        return wrapper
-
-    return timeout_wrapper
+async def async_request_with_timeout(
+    url: str,
+    json_data: dict,
+    timeout: float | None,
+    not_ok_error_t: type[Exception],
+):
+    """Makes an async request to url with json_data and raises
+    corresponding errors on timeout or if response isn't 2XX"""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            url,
+            json=json_data,
+            timeout=timeout,
+        )
+    if not resp.is_success:
+        raise not_ok_error_t(resp.content.decode())
+    return resp.json()
 
 
 T = TypeVar("T", bound=Hashable)

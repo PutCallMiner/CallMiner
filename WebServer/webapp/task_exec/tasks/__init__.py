@@ -1,6 +1,7 @@
 __all__ = [
     "ASRTask",
     "RecordingTask",
+    "TaskType",
     "SpeakerClassifyTask",
     "NERTask",
     "SummarizeTask",

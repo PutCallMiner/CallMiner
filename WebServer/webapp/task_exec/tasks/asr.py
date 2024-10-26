@@ -1,13 +1,7 @@
 import base64
-import json
-import logging
-import os
-from typing import Any, Literal
 
-import requests
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.celery_app import celery_app
 from webapp.configs.globals import AZURE_SAS_TOKEN, MLFLOW_ASR_URL
 from webapp.crud.recordings import (
     get_recording_by_id,
@@ -16,24 +10,13 @@ from webapp.crud.recordings import (
 )
 from webapp.errors import ASRError, RecordingNotFoundError
 from webapp.models.transcript import Transcript
-from webapp.task_exec.tasks.base import AnalyzeParams, RecordingTask
-from webapp.task_exec.utils import task_to_async
+from webapp.task_exec.tasks.base import (
+    AnalyzeParams,
+    RecordingTask,
+)
+from webapp.task_exec.utils import async_request_with_timeout
 from webapp.utils.audio import get_audio_duration
 from webapp.utils.azure import download_azure_blob
-
-
-@celery_app.task
-def asr_task(
-    audio_bytes_encoded: str, asr_params_dict: dict
-) -> dict[Literal["predictions"], list[Any]]:
-    logging.info(json.dumps(dict(os.environ), indent=4))
-    resp = requests.post(
-        f"{MLFLOW_ASR_URL}/invocations",
-        json={"dataframe_records": [audio_bytes_encoded], "params": asr_params_dict},
-    )
-    if not resp.ok:
-        raise ASRError(resp.content.decode())
-    return resp.json()
 
 
 class ASRTask(RecordingTask):
@@ -59,12 +42,19 @@ class ASRTask(RecordingTask):
         await update_with_duration(db, recording_id, duration)
 
         # Run celery task
-        result = await task_to_async(timeout=timeout)(asr_task)(
-            args=[base64.b64encode(audio_bytes).decode(), params.asr.model_dump()]
+        audio_bytes_encoded = base64.b64encode(audio_bytes).decode()
+        resp_data = await async_request_with_timeout(
+            f"{MLFLOW_ASR_URL}/invocations",
+            {
+                "dataframe_records": [audio_bytes_encoded],
+                "params": params.asr.model_dump(),
+            },
+            timeout,
+            ASRError,
         )
 
         # Write results to DB
-        transcript_raw = result["predictions"][0]
+        transcript_raw = resp_data["predictions"][0]
         transcript = Transcript.model_validate({"entries": transcript_raw})
         await update_with_transcript(db, recording_id, transcript)
         return transcript
