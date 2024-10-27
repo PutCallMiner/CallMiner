@@ -64,3 +64,21 @@ services:
       - OPENAI_API_KEY=${AZURE_API_KEY}
       - OPENAI_API_VERSION=${AZURE_API_VERSION}
       - OPENAI_DEPLOYMENT_NAME=${AZURE_GPT_4O_MINI_ENDPOINT}
+
+  conformity_check:
+    restart: always
+    image: conformity_check
+    container_name: conformity_check
+    build:
+      context: ./Models/conformity_check
+    ports:
+      - "1238:1234"
+    env_file:
+      - .env
+    environment:
+      - MODEL=${CONFORMITY_CHECK_MODEL}
+      - OPENAI_API_TYPE=${OPENAI_API_TYPE}
+      - OPENAI_API_BASE=${AZURE_API_BASE}
+      - OPENAI_API_KEY=${AZURE_API_KEY}
+      - OPENAI_API_VERSION=${AZURE_API_VERSION}
+      - OPENAI_DEPLOYMENT_NAME=${AZURE_GPT_4O_MINI_ENDPOINT}
