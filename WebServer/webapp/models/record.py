@@ -16,6 +16,13 @@ class RecordingBase(BaseModel):
     duration: int | None
     ner: NER | None
 
+    def get_agent_speaker_id(self) -> int:
+        assert self.speaker_mapping is not None, "Speaker mapping is None"
+        for key, value in self.speaker_mapping.items():
+            if value == "agent":
+                return int(key.strip()[-1])
+        return 0
+
 
 class Recording(RecordingBase):
     id: PyObjectId = Field(alias="_id")

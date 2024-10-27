@@ -43,3 +43,7 @@ class NERError(Exception):
 
 class SpeakerClassifierError(Exception):
     pass
+
+
+class ConformityCheckError(Exception):
+    pass

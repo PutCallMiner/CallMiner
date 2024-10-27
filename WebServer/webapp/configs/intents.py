@@ -1,4 +1,4 @@
-INTENTS: list[dict[str, str | list[str]]] = [
+PREDEFINED_INTENTS: list[dict[str, str | list[str]]] = [
     {
         "intent_name": "recommendation",
         "intent": "Klient powinien zostać zachęcony przez agenta do polecenia biura innym",

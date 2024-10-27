@@ -1,7 +1,13 @@
+import json
+from json import JSONDecodeError
+
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.configs.globals import VECTOR_STORAGE_COLLECTION_NAME
-from webapp.configs.intents import INTENTS
+from webapp.configs.globals import (
+    MLFLOW_CONFORMITY_CHECK_URL,
+    VECTOR_STORAGE_COLLECTION_NAME,
+)
+from webapp.configs.intents import PREDEFINED_INTENTS
 from webapp.crud.common import get_vector_storage_client, get_vector_storage_collection
 from webapp.crud.recordings import get_recording_by_id
 from webapp.crud.vector_storage_manage import (
@@ -9,10 +15,12 @@ from webapp.crud.vector_storage_manage import (
     generate_speaker_entries_embeddings,
     retrieve_speaker_entries_intents,
 )
+from webapp.errors import ConformityCheckError
 from webapp.task_exec.tasks.base import (
     AnalyzeParams,
     RecordingTask,
 )
+from webapp.task_exec.utils import async_request_with_timeout
 
 
 class ConformityCheckTask(RecordingTask):
@@ -25,7 +33,7 @@ class ConformityCheckTask(RecordingTask):
         return False
 
     @staticmethod
-    def _parse_defined_intents(
+    def _parse_predefined_intents(
         defined_intents: list[dict[str, str | list[str]]],
     ) -> str:
         result = []
@@ -73,13 +81,32 @@ class ConformityCheckTask(RecordingTask):
         )
         speaker_intents = await retrieve_speaker_entries_intents(
             vector_storage_collection=vector_storage_collection,
-            intents=INTENTS,
+            intents=PREDEFINED_INTENTS,
             recording_id=recording_id,
             speaker=speaker,
         )
 
-        defined_intents_parsed = self._parse_defined_intents(INTENTS)  # noqa: F841
+        predefined_intents_parsed = self._parse_predefined_intents(PREDEFINED_INTENTS)  # noqa: F841
         speaker_intents_parsed = self._parse_speaker_intents(speaker_intents)  # noqa: F841
 
-        # TODO: Conformity check API call
+        resp_data = await async_request_with_timeout(
+            f"{MLFLOW_CONFORMITY_CHECK_URL}/invocations",
+            {
+                "instances": [
+                    {
+                        "predefined_intents": [predefined_intents_parsed],
+                        "speaker_intents": [speaker_intents_parsed],
+                    }
+                ]
+            },
+            timeout,
+            ConformityCheckError,
+        )
+        try:
+            conformity_check: dict = json.loads(resp_data["predictions"][0])  # noqa: F841
+        except JSONDecodeError as _:
+            raise ConformityCheckError(
+                "Failed to load JSON from speaker classifier results"
+            )
+
         # TODO: Conformity check db results saving
