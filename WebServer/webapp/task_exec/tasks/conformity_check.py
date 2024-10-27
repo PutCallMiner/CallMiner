@@ -16,7 +16,9 @@ from webapp.task_exec.tasks.base import (
 
 
 class ConformityCheckTask(RecordingTask):
-    async def is_result_in_db(self, db: AsyncIOMotorDatabase, recording_id: str):
+    async def is_result_in_db(
+        self, db: AsyncIOMotorDatabase, recording_id: str
+    ) -> bool:
         recording = await get_recording_by_id(db, recording_id)
         assert recording is not None
         # TODO: check db entry existence
@@ -76,8 +78,8 @@ class ConformityCheckTask(RecordingTask):
             speaker=speaker,
         )
 
-        defined_intents = self._parse_defined_intents(INTENTS)  # noqa: F841
-        speaker_intents = self._parse_speaker_intents(speaker_intents)  # noqa: F841
+        defined_intents_parsed = self._parse_defined_intents(INTENTS)  # noqa: F841
+        speaker_intents_parsed = self._parse_speaker_intents(speaker_intents)  # noqa: F841
 
         # TODO: Conformity check API call
         # TODO: Conformity check db results saving

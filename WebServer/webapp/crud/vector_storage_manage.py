@@ -35,13 +35,13 @@ async def generate_embeddings(
     ids: list[str],
     documents: list[str],
     metadatas: list[dict[str, int | float | str]],
-):
+) -> None:
     await vector_storage_collection.add(ids, documents=documents, metadatas=metadatas)
 
 
 async def delete_embeddings(
     vector_storage_collection: AsyncCollection, recording_id: str
-):
+) -> None:
     await vector_storage_collection.delete(where={"recording_id": recording_id})
 
 
@@ -62,7 +62,7 @@ async def retrieve_speaker_entries_intents(
     intents: list[dict[str, str | list[str]]],
     recording_id: str,
     speaker: int,
-):
+) -> dict[int, str]:
     result = {}
     where_condition = metadata_to_where_condition(
         {"recording_id": recording_id, "speaker": speaker}
