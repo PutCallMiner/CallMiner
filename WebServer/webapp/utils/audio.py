@@ -1,6 +1,6 @@
 import io
 
-from pydub import AudioSegment
+from pydub import AudioSegment  # type: ignore[import]
 
 
 def get_audio_duration(audio: bytes) -> int:

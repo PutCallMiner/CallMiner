@@ -104,3 +104,13 @@ async def update_with_speaker_mapping(
         update={"$set": {"speaker_mapping": speaker_mapping}},
     )
     return update_result
+
+
+async def update_with_duration(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, duration: int
+):
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"duration": duration}},
+    )
+    return update_result
