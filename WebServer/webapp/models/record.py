@@ -6,13 +6,15 @@ from webapp.models.ner import NER
 from webapp.models.transcript import Transcript
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
+SpeakerClass = Literal["agent", "client"]
+SpeakerMapping = dict[int, SpeakerClass]
 
 
 class RecordingBase(BaseModel):
     recording_url: str
     transcript: Transcript | None
     summary: str | None
-    speaker_mapping: dict[str, Literal["agent", "client"]] | None
+    speaker_mapping: SpeakerMapping | None
     duration: int | None
     ner: NER | None
 

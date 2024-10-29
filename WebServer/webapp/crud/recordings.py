@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal
+from typing import Any
 
 import bson
 import bson.errors
@@ -8,7 +8,7 @@ from pymongo.results import InsertManyResult, UpdateResult
 
 from webapp.errors import RecordingAlreadyExistsError
 from webapp.models.ner import NER
-from webapp.models.record import PyObjectId, Recording, RecordingBase
+from webapp.models.record import PyObjectId, Recording, RecordingBase, SpeakerMapping
 from webapp.models.transcript import Transcript
 
 
@@ -95,13 +95,19 @@ async def update_with_ner(
 
 
 async def update_with_speaker_mapping(
-    db: AsyncIOMotorDatabase,
-    recording_id: PyObjectId,
-    speaker_mapping: dict[str, Literal["agent", "client"]],
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, speaker_mapping: SpeakerMapping
 ) -> UpdateResult:
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
-        update={"$set": {"speaker_mapping": speaker_mapping}},
+        update={
+            "$set": {
+                "speaker_mapping": {
+                    # mongo doesn't accept int as key so we convert it to str
+                    str(key): val
+                    for key, val in speaker_mapping.items()
+                }
+            }
+        },
     )
     return update_result
 
