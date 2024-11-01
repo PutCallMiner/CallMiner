@@ -4,9 +4,9 @@ from webapp.task_exec.tasks import NERTask
 
 def test_parse_ner_output():
     ner_output = (
-        "<|Speaker 1|> My name is <persName>John</persName> I live in <placeName>"
+        "<|agent|> My name is <persName>John</persName> I live in <placeName>"
         "Poznań</placeName> what is your name?\n"
-        "<|Speaker 2|> Hi I am <persName>Eve</persName>\n"
+        "<|client|> Hi I am <persName>Eve</persName>\n"
     )
 
     res = NERTask.parse_ner_output(ner_output)

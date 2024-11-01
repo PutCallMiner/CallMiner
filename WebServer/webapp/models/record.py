@@ -18,17 +18,19 @@ class RecordingBase(BaseModel):
     duration: int | None
     ner: NER | None
 
-    def get_conversation_text(self, sep="\n") -> str:
+    def get_conversation_text(self, sep="\n", left="", right=": ") -> str:
         """Converts the recording transcript to a single string in a form:
         agent: Hello how can I help you\n
         client: Hi, I would like to...
 
-        all the conversation entries are separated by `sep`
+        all the conversation entries are separated by `sep`, additionally
+        you can add specific characters to be added before and after speaker
+        class like: if `left="<|"` and `right"=|>"` the we will get <|client|>
         """
         assert self.transcript is not None
         assert self.speaker_mapping is not None
         return sep.join(
-            f"{self.speaker_mapping[entry.speaker]}: {entry.text}"
+            f"{left}{self.speaker_mapping[entry.speaker]}{right}{entry.text}"
             for entry in self.transcript.entries
         )
 
