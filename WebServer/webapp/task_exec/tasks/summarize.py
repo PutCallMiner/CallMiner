@@ -27,7 +27,7 @@ class SummarizeTask(RecordingTask):
         assert recording is not None
         assert recording.transcript is not None
 
-        text = recording.transcript.get_text_with_speakers()
+        text = recording.get_conversation_text()
 
         resp_data = await async_request_with_timeout(
             f"{MLFLOW_SUMMARIZER_URL}/invocations",

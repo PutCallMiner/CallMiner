@@ -18,6 +18,20 @@ class RecordingBase(BaseModel):
     duration: int | None
     ner: NER | None
 
+    def get_conversation_text(self, sep="\n") -> str:
+        """Converts the recording transcript to a single string in a form:
+        agent: Hello how can I help you\n
+        client: Hi, I would like to...
+
+        all the conversation entries are separated by `sep`
+        """
+        assert self.transcript is not None
+        assert self.speaker_mapping is not None
+        return sep.join(
+            f"{self.speaker_mapping[entry.speaker]}: {entry.text}"
+            for entry in self.transcript.entries
+        )
+
 
 class Recording(RecordingBase):
     id: PyObjectId = Field(alias="_id")
