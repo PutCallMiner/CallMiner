@@ -1,11 +1,15 @@
 import asyncio
-from typing import Iterable
+from typing import Iterable, Literal
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from pydantic import conint
 
 from webapp.configs.globals import logger
 from webapp.models.analysis import AnalyzeParams
 from webapp.task_exec.common import Scheduler, TaskType, get_task_by_type
+
+
+RerunMode = Literal["none", "selected", "all"]
 
 
 class RecordingProcessor:
@@ -31,11 +35,12 @@ class RecordingProcessor:
         self,
         required_tasks: Iterable[TaskType],
         analyze_params: AnalyzeParams,
-        force_rerun: bool,
+        force_rerun: RerunMode,
         task_timeout: float | None = None,
     ) -> None:
         logger.info(f"[id: {self.recording_id}] Required Tasks: {required_tasks}")
-        schedule = Scheduler.get_execution_schedule(set(required_tasks))
+        required = set(required_tasks)
+        schedule = Scheduler.get_execution_schedule(required)
         logger.info(f"[id: {self.recording_id}] Schedule constructed: {schedule}")
         for step in schedule:
             coroutines = []
@@ -47,8 +52,14 @@ class RecordingProcessor:
                     logger.info(
                         f"[id: {self.recording_id}] Result of '{task_t}' already in DB."
                     )
-                if force_rerun or not result_in_db:
-                    coroutines.append(
-                        self.execute_task(task_t, analyze_params, task_timeout)
-                    )
+
+                    if force_rerun == "none":
+                        continue
+
+                    if force_rerun == "selected" and task_t not in required:
+                        continue
+
+                coroutines.append(
+                    self.execute_task(task_t, analyze_params, task_timeout)
+                )
             await asyncio.gather(*coroutines)
