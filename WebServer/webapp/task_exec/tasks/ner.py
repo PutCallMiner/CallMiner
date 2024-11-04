@@ -27,7 +27,7 @@ class NERTask(RecordingTask):
         characters relative to the current transcript entry
         """
         ner = NER(entries=[])
-        components = re.finditer(r"<\|Speaker (?P<speaker>\d+)\|> (?P<text>.+)", text)
+        components = re.finditer(r"<\|(?P<speaker_class>.+?)\|> (?P<text>.+)", text)
         for component in components:
             ner_entries = []
             tags_chars = 0
@@ -60,7 +60,7 @@ class NERTask(RecordingTask):
         assert recording is not None
         assert recording.transcript is not None
 
-        text = recording.transcript.get_text_with_speakers(special=True)
+        text = recording.get_conversation_text(left="<|", right="|> ")
         resp_data = await async_request_with_timeout(
             f"{MLFLOW_NER_URL}/invocations",
             {"instances": [text]},

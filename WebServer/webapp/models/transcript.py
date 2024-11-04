@@ -11,19 +11,6 @@ class TranscriptEntry(BaseModel):
 class Transcript(BaseModel):
     entries: list[TranscriptEntry]
 
-    def get_text_with_speakers(self, special=False) -> str:
-        left = ""
-        right = ":"
-        if special:
-            left, right = "<|", "|>"
-
-        return "\n".join(
-            [
-                f"{left}Speaker {entry.speaker}{right} {entry.text}"
-                for entry in self.entries
-            ]
-        )
-
     def get_n_entries_text_with_speakers(self, n: int) -> str:
         n_entries = self.entries[:n]
         return "\n".join(

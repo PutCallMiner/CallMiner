@@ -39,7 +39,7 @@ class Scheduler:
     dep_dag = DAG(
         {
             TaskType.ASR: set(),
-            TaskType.NER: {TaskType.ASR},
+            TaskType.NER: {TaskType.ASR, TaskType.SPEAKER_CLASS},
             TaskType.SPEAKER_CLASS: {TaskType.ASR},
             TaskType.SUMMARY: {TaskType.ASR, TaskType.SPEAKER_CLASS},
             TaskType.CONFORMITY: {TaskType.ASR, TaskType.SPEAKER_CLASS},

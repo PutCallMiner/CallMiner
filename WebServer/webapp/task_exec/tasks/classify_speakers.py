@@ -1,5 +1,7 @@
 import json
 from json import JSONDecodeError
+import re
+from typing import cast
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -13,7 +15,19 @@ from webapp.task_exec.tasks.base import (
     AnalyzeParams,
     RecordingTask,
 )
+from webapp.models.record import SpeakerMapping, SpeakerClass
 from webapp.task_exec.utils import async_request_with_timeout
+
+
+def parse_speaker_mapping(input_dict: dict[str, str]) -> SpeakerMapping:
+    """Function to parse dict from {"speaker 0": "client" ...} to {0: "client"}"""
+    result: SpeakerMapping = {}
+    for key, value in input_dict.items():
+        match = re.match(r"speaker (\d+)", key, re.IGNORECASE)
+        if match:
+            speaker_number = int(match.group(1))
+            result[speaker_number] = cast(SpeakerClass, value)
+    return result
 
 
 class SpeakerClassifyTask(RecordingTask):
@@ -44,9 +58,11 @@ class SpeakerClassifyTask(RecordingTask):
             SpeakerClassifierError,
         )
         try:
-            speaker_classifier_mapping: dict = json.loads(resp_data["predictions"][0])
+            speaker_mapping = parse_speaker_mapping(
+                json.loads(resp_data["predictions"][0])
+            )
         except JSONDecodeError as _:
             raise SpeakerClassifierError(
                 "Failed to load JSON from speaker classifier results"
             )
-        await update_with_speaker_mapping(db, recording.id, speaker_classifier_mapping)
+        await update_with_speaker_mapping(db, recording.id, speaker_mapping)
