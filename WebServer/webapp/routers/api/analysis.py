@@ -7,7 +7,7 @@ from webapp.crud.redis_manage import update_task_status
 from webapp.models.analysis import RunAnalysisResponse
 from webapp.models.task_status import TaskStatus
 from webapp.task_exec.common import TaskType
-from webapp.task_exec.processing import RecordingProcessor
+from webapp.task_exec.processing import RecordingProcessor, RerunMode
 from webapp.task_exec.tasks.base import AnalyzeParams
 
 router = APIRouter(prefix="/api/analysis", tags=["API"])
@@ -17,7 +17,7 @@ async def background_analyze(
     recording_id: str,
     required_tasks: list[TaskType],
     analyze_params: AnalyzeParams,
-    force_rerun: bool,
+    force_rerun: RerunMode,
     task_timeout: float | None = None,
 ):
     """Runs the required analysis components (and their dependencies if needed)"""
@@ -42,7 +42,7 @@ async def run_recording_analysis(
     analyze_params: Annotated[AnalyzeParams, Body(...)],
     required_tasks: list[TaskType],
     background_tasks: BackgroundTasks,
-    force_rerun: Annotated[bool, Body(...)] = False,
+    force_rerun: Annotated[RerunMode, Body(...)] = "none",
     task_timeout: Annotated[
         float | None, Body(...)
     ] = 600,  # NOTE: fastapi doesn't allow the default in Body() for some reason
