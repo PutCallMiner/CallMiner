@@ -7,15 +7,16 @@ from webapp.configs.globals import (
     MLFLOW_CONFORMITY_CHECK_URL,
     VECTOR_STORAGE_COLLECTION_NAME,
 )
-from webapp.configs.intents import PREDEFINED_INTENTS
+from webapp.configs.intents import PREDEFINED_INTENTS, Intent
 from webapp.crud.common import get_vector_storage_client, get_vector_storage_collection
-from webapp.crud.recordings import get_recording_by_id
+from webapp.crud.recordings import get_recording_by_id, update_with_conformity
 from webapp.crud.vector_storage_manage import (
     delete_embeddings,
     generate_speaker_entries_embeddings,
     retrieve_speaker_entries_intents,
 )
 from webapp.errors import ConformityCheckError
+from webapp.models.conformity import ConformityResults
 from webapp.task_exec.tasks.base import (
     AnalyzeParams,
     RecordingTask,
@@ -29,12 +30,11 @@ class ConformityCheckTask(RecordingTask):
     ) -> bool:
         recording = await get_recording_by_id(db, recording_id)
         assert recording is not None
-        # TODO: check db entry existence
-        return False
+        return recording.conformity_results is not None
 
     @staticmethod
     def _parse_predefined_intents(
-        defined_intents: list[dict[str, str | list[str]]],
+        defined_intents: list[Intent],
     ) -> str:
         result = []
         for intent in defined_intents:
@@ -109,4 +109,7 @@ class ConformityCheckTask(RecordingTask):
                 "Failed to load JSON from speaker classifier results"
             )
 
-        # TODO: Conformity check db results saving
+        conformity_results = ConformityResults.model_validate(
+            {"results": conformity_check}
+        )
+        await update_with_conformity(db, recording_id, conformity_results)

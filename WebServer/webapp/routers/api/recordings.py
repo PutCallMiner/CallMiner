@@ -52,6 +52,7 @@ async def add_recordings(
             speaker_mapping=None,
             duration=None,
             ner=None,
+            conformity_results=None,
         )
         for rec_url in recording_urls
     ]

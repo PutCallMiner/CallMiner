@@ -1,4 +1,13 @@
-PREDEFINED_INTENTS: list[dict[str, str | list[str]]] = [
+from typing import TypedDict
+
+
+class Intent(TypedDict):
+    intent_name: str
+    intent: str
+    examples: list[str]
+
+
+PREDEFINED_INTENTS: list[Intent] = [
     {
         "intent_name": "recommendation",
         "intent": "Klient powinien zostać zachęcony przez agenta do polecenia biura innym",

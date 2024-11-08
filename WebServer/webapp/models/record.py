@@ -2,6 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, BeforeValidator, Field
 
+from webapp.models.conformity import ConformityResults
 from webapp.models.ner import NER
 from webapp.models.transcript import Transcript
 
@@ -15,6 +16,7 @@ class RecordingBase(BaseModel):
     speaker_mapping: dict[str, Literal["agent", "client"]] | None
     duration: int | None
     ner: NER | None
+    conformity_results: ConformityResults | None
 
     def get_agent_speaker_id(self) -> int:
         assert self.speaker_mapping is not None, "Speaker mapping is None"
