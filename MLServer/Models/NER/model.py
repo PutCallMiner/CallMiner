@@ -1,15 +1,14 @@
 import logging
 import os
-from typing import List
 
-import mlflow.pyfunc
+import mlflow.pyfunc.model
 import pandas as pd
 import spacy
 
 logging.getLogger().setLevel(logging.INFO)
 
 
-class NERModelWrapper(mlflow.pyfunc.PythonModel):
+class NERModelWrapper(mlflow.pyfunc.model.PythonModel):
     def load_context(self, context):
         logging.info("Starting loading NER model context")
         ner_model_name = context.model_config["ner_model"]
@@ -19,21 +18,9 @@ class NERModelWrapper(mlflow.pyfunc.PythonModel):
         self.ner = spacy.load(ner_model_name)
         logging.info("Loaded NER model context")
 
-    def predict(self, context, model_input: pd.DataFrame) -> List[str]:
+    def predict(self, context, model_inputs: pd.DataFrame):
         logging.info("Starting NER inference")
         result = []
-        i = 0
-        for _, text in model_input.itertuples():
-            text_copy = text
-            doc_text = self.ner(text_copy)
-            for ent in sorted(doc_text.ents, key=lambda x: x.end_char, reverse=True):
-                text_copy = (
-                    text_copy[: ent.start_char]
-                    + f"<{ent.label_}>{ent.text}</{ent.label_}>"
-                    + text_copy[ent.end_char :]
-                )
-            result.append(text_copy)
-            i += 1
-            logging.info(f"Processed {i}/{len(model_input)} input records")
-        logging.info("Finished NER inference")
+        for _, text in model_inputs.itertuples():
+            result.append(self.ner(text).to_json())
         return result

@@ -1,4 +1,5 @@
 import mlflow
+import mlflow.models
 from model import NERModelWrapper
 
 model_config = {
@@ -7,7 +8,26 @@ model_config = {
 
 signature = mlflow.models.infer_signature(
     model_input=["text"],
-    model_output=[["text"]],
+    model_output=[
+        {
+            "text": "Poznań",
+            "ents": [{"start": 0, "end": 6, "label": "placeName"}],
+            "sents": [{"start": 0, "end": 6}],
+            "tokens": [
+                {
+                    "id": 0,
+                    "start": 0,
+                    "end": 6,
+                    "tag": "SUBST",
+                    "pos": "PROPN",
+                    "morph": "Animacy=Inan|Case=Nom|Gender=Masc|Number=Sing",
+                    "lemma": "Poznań",
+                    "dep": "ROOT",
+                    "head": 0,
+                }
+            ],
+        }
+    ],
 )
 
 

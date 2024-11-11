@@ -1,5 +1,3 @@
-import re
-
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import MLFLOW_NER_URL
@@ -20,33 +18,39 @@ class NERTask(RecordingTask):
         return recording.ner is not None
 
     @staticmethod
-    def parse_ner_output(text: str) -> NER:
-        """Takes output from NER model in the following form: <|Speaker x|> Text <entity>text</entity>\n...
-        Converts it into list of lists of NER Entries to match the transcript, each entry in the outer
-        list matches entry in transcript and each entry in the inner lists is an entity with addresses of
-        characters relative to the current transcript entry
+    def parse_ner_output(text: str, ents) -> NER:
+        """Takes the text that was used for NER and entities that were found
+        Parses the entities and adjusts start and end positions to match the
+        positions in conversation split by paragraphs
         """
         ner = NER(entries=[])
-        components = re.finditer(r"<\|(?P<speaker_class>.+?)\|> (?P<text>.+)", text)
-        for component in components:
-            ner_entries = []
-            tags_chars = 0
-            matches = re.finditer(
-                r"<(?P<entity>[a-zA-Z]+)>.*?</(?P=entity)>", component.group("text")
-            )
-            for match in matches:
-                entity = match.group("entity")
-                start_char = match.span()[0] - tags_chars
-                tags_chars = tags_chars + 5 + 2 * len(entity)
-                end_char = match.span()[1] - tags_chars
-                ner_entries.append(
-                    NEREntry(
-                        entity=entity,
-                        start_char=start_char,
-                        end_char=end_char,
+
+        par_start = 0
+        i = 0
+        for paragraph in text.split("\n"):
+            entities = []
+            speaker_label = paragraph.split(": ")[0]
+            speaker_label_len = len(speaker_label) + 2
+            par_end = par_start + len(paragraph) + 1
+
+            while True:
+                if i >= len(ents):
+                    break
+                cur_ent = ents[i]
+
+                if cur_ent["end"] < par_end:
+                    entities.append(
+                        NEREntry(
+                            entity=cur_ent["label"],
+                            start_char=cur_ent["start"] - par_start - speaker_label_len,
+                            end_char=cur_ent["end"] - par_start - speaker_label_len,
+                        )
                     )
-                )
-            ner.entries.append(ner_entries)
+                    i += 1
+                else:
+                    break
+            ner.entries.append(entities)
+            par_start = par_end
         return ner
 
     async def run(
@@ -60,12 +64,12 @@ class NERTask(RecordingTask):
         assert recording is not None
         assert recording.transcript is not None
 
-        text = recording.get_conversation_text(left="<|", right="|> ")
+        text = recording.get_conversation_text(sep="\n")
         resp_data = await async_request_with_timeout(
             f"{MLFLOW_NER_URL}/invocations",
             {"instances": [text]},
             timeout,
             NERError,
         )
-        ner = self.parse_ner_output(resp_data["predictions"][0])
+        ner = self.parse_ner_output(text, resp_data["predictions"][0]["ents"])
         await update_with_ner(db, recording.id, ner)
