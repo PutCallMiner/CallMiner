@@ -24,7 +24,7 @@ class RecordingBase(BaseModel):
         assert self.speaker_mapping is not None, "Speaker mapping is None"
         for key, value in self.speaker_mapping.items():
             if value == "agent":
-                return int(key.strip()[-1])
+                return key
         return 0
 
     def get_conversation_text(self, sep="\n", left="", right=": ") -> str:
