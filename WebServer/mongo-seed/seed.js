@@ -19,6 +19,7 @@ recordings = audio_files.map(rec => ({
     speaker_mapping: null,
     duration: null,
     ner: null,
+    conformity_results: null
 }))
 
 db = db.getSiblingDB("callminer");

@@ -7,6 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.results import InsertManyResult, UpdateResult
 
 from webapp.errors import RecordingAlreadyExistsError
+from webapp.models.conformity import ConformityResults
 from webapp.models.ner import NER
 from webapp.models.record import PyObjectId, Recording, RecordingBase, SpeakerMapping
 from webapp.models.transcript import Transcript
@@ -118,5 +119,17 @@ async def update_with_duration(
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
         update={"$set": {"duration": duration}},
+    )
+    return update_result
+
+
+async def update_with_conformity(
+    db: AsyncIOMotorDatabase,
+    recording_id: PyObjectId,
+    conformity_results: ConformityResults,
+):
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)},
+        update={"$set": {"conformity_results": conformity_results.model_dump()}},
     )
     return update_result

@@ -4,6 +4,7 @@ from typing import TypeAlias
 
 from webapp.task_exec.tasks import (
     ASRTask,
+    ConformityCheckTask,
     NERTask,
     RecordingTask,
     SpeakerClassifyTask,
@@ -27,7 +28,7 @@ def get_task_by_type(task_type: TaskType):
         TaskType.NER: NERTask,
         TaskType.SPEAKER_CLASS: SpeakerClassifyTask,
         TaskType.SUMMARY: SummarizeTask,
-        # TODO: add conformity check
+        TaskType.CONFORMITY: ConformityCheckTask,
     }
     return component_to_task[task_type]
 

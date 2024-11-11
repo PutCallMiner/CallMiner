@@ -1,10 +1,15 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+import chromadb
 import redis.asyncio as redis
+from chromadb import AsyncClientAPI
+from chromadb.api.models.AsyncCollection import AsyncCollection
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from webapp.configs.globals import (
+    CHROMADB_HOST,
+    CHROMADB_PORT,
     MONGO_CONNECTION_STRING,
     MONGO_DB_NAME,
     REDIS_TASKS_DB,
@@ -41,3 +46,15 @@ async def get_tasks_db() -> AsyncGenerator[redis.Redis, None]:
 
 
 get_tasks_db_context = asynccontextmanager(get_tasks_db)
+
+
+async def get_vector_storage_client() -> AsyncClientAPI:
+    client = await chromadb.AsyncHttpClient(host=CHROMADB_HOST, port=int(CHROMADB_PORT))
+    return client
+
+
+async def get_vector_storage_collection(
+    client: AsyncClientAPI, collection_name: str
+) -> AsyncCollection:
+    collection = await client.get_or_create_collection(collection_name)
+    return collection
