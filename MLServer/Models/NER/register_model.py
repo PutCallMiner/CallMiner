@@ -3,7 +3,7 @@ import mlflow.models
 from model import NERModelWrapper
 
 model_config = {
-    "ner_model": "pl_core_news_md",
+    "ner_model": "pl_core_news_lg",
 }
 
 signature = mlflow.models.infer_signature(
