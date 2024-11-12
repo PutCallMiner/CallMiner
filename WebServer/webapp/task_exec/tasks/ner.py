@@ -34,9 +34,7 @@ class NERTask(RecordingTask):
             speaker_label_len = len(speaker_label) + 2
             par_end = par_start + len(paragraph) + 1
 
-            while True:
-                if i >= len(array):
-                    break
+            while i < len(array):
                 cur = array[i]
 
                 if cur["end"] < par_end:
@@ -54,7 +52,7 @@ class NERTask(RecordingTask):
         return fixed_entries
 
     @staticmethod
-    def combine_spacy(ents: list, tokens: list) -> NER:
+    def parse_ner_endpoint_results(ents: list, tokens: list) -> NER:
         """Combines the output of spacy pipeline into a NER object"""
         ner = NER(entries=[])
         for ent_entries, token_entries in zip(ents, tokens):
@@ -101,5 +99,5 @@ class NERTask(RecordingTask):
         ents = self.fix_locations(text, prediction["ents"])
         tokens = self.fix_locations(text, prediction["tokens"])
 
-        ner = self.combine_spacy(ents, tokens)
-        await update_with_ner(db, recording.id, ner)
+        ner_results = self.parse_ner_endpoint_results(ents, tokens)
+        await update_with_ner(db, recording.id, ner_results)
