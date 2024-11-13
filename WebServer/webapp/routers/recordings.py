@@ -99,7 +99,6 @@ async def get_content(
 
 @router.get("/{recording_id}/audio")
 async def audio(
-    request: Request,
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
 ) -> StreamingResponse:
