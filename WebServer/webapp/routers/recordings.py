@@ -1,10 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
+from webapp.configs.globals import AZURE_SAS_TOKEN
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
@@ -12,6 +13,7 @@ from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
+from webapp.utils.azure import stream_azure_blob
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -92,6 +94,23 @@ async def get_content(
         request=request,
         name="recording_content.html.jinja2",
         context={"recording": recording, "content": content, "delay": delay + 1},
+    )
+
+
+@router.get("/{recording_id}/audio")
+async def audio(
+    request: Request,
+    recording_id: str,
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+) -> StreamingResponse:
+    recording = await get_recording_by_id(recording_db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
+    return StreamingResponse(
+        stream_azure_blob(recording.recording_url, AZURE_SAS_TOKEN),
+        media_type="audio/wav",
     )
 
 
