@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import httpx
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -13,7 +14,6 @@ from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
-from webapp.utils.azure import stream_azure_blob
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -108,8 +108,17 @@ async def audio(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{recording.recording_url}?{AZURE_SAS_TOKEN}")
+
+    response_headers = {
+        "Accept-Ranges": resp.headers.get("Accept-Ranges"),
+        "Content-Length": resp.headers.get("Content-Length"),
+    }
+
     return StreamingResponse(
-        stream_azure_blob(recording.recording_url, AZURE_SAS_TOKEN),
+        resp.aiter_bytes(),
+        headers=response_headers,
         media_type="audio/wav",
     )
 
