@@ -11,6 +11,12 @@
         {% if tab == 0 %}{{ transcript() }}{% endif %}
     </section>
     {% if tab == 0 %}
+        <aside id="audio-player">
+            <audio controls>
+                <source src="/recordings/{{recording.id}}/audio" type="audio/wav">
+                Your browser does not support the audio element.
+            </audio>
+        </aside>
         <aside>
             <h3>Details</h3>
             <dl>
