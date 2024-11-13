@@ -49,7 +49,11 @@
         </aside>
         <aside>
             <h3>Summary</h3>
-            {{ summary() }}
+            <p class="progress" hx-ext="sse" sse-connect="/sse/{{recording.id}}" sse-swap="message">
+                <svg viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+            </p>
         </aside>
     {% elif tab == 1 %}
     {% elif tab == 2 %}
@@ -66,7 +70,9 @@
                 </nav>
                 <div></div>
             </header>
-            <article id="recording-details" class="tabs">{{ component() }}</article>
+            <article id="recording-details" class="tabs">
+                {{ component() }}
+            </article>
             <footer>
             </footer>
         </main>

@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import MLFLOW_SUMMARIZER_URL
+from webapp.crud.common import get_tasks_db_context
 from webapp.crud.recordings import get_recording_by_id, update_with_summary
 from webapp.errors import SummarizerError
 from webapp.task_exec.tasks.base import (
@@ -36,5 +37,8 @@ class SummarizeTask(RecordingTask):
             SummarizerError,
         )
         summary = resp_data["predictions"][0]
+
+        async with get_tasks_db_context() as tasks_db:
+            await tasks_db.publish(recording_id + "_summary", summary)
 
         await update_with_summary(db, recording.id, summary)
