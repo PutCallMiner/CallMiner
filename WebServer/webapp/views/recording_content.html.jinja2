@@ -3,7 +3,7 @@
 {%- macro transcript() -%}
     {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript)) -%}
         {% for entry in recording.transcript.entries %}
-            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }}>
+            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{entry.start_time / 1000}})">
                 <object class="avatar"></object>
                 <header>
                     {% set speaker = recording.speaker_mapping["speaker " ~ entry.speaker] %}
