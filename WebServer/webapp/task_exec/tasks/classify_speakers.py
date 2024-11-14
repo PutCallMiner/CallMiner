@@ -1,6 +1,6 @@
 import json
-from json import JSONDecodeError
 import re
+from json import JSONDecodeError
 from typing import cast
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -11,11 +11,11 @@ from webapp.configs.globals import (
 )
 from webapp.crud.recordings import get_recording_by_id, update_with_speaker_mapping
 from webapp.errors import SpeakerClassifierError
+from webapp.models.record import SpeakerClass, SpeakerMapping
 from webapp.task_exec.tasks.base import (
     AnalyzeParams,
     RecordingTask,
 )
-from webapp.models.record import SpeakerMapping, SpeakerClass
 from webapp.task_exec.utils import async_request_with_timeout
 
 

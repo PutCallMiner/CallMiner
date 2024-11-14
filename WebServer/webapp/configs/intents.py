@@ -27,10 +27,25 @@ PREDEFINED_INTENTS: list[Intent] = [
     },
     {
         "intent_name": "client_identity_confirmation",
-        "intent": "Agent powinien potwierdzić tożsamość klienta",
+        "intent": "Agent powinien potwierdzić tożsamość klienta, pytając go o imię i/lub nazwisko, aby upewnić się, że rozmawia z właściwą osobą.",
         "examples": [
             "Czy rozmawiam z Panią Joanną?",
-            "Dzień dobry czy mam przyjemność rozmawiać z Panem Grzegorzem Gibą?",
+            "Dzień dobry, czy mam przyjemność rozmawiać z Panem Andrzejem Kowalskim?",
+            "Czy to Pani Agnieszka Kowalska?",
+            "Czy z tej strony jest pan Karłowski?"
+            "Czy dobrze rozumiem, że rozmawiam z Panem Janem Nowakiem?",
+        ],
+    },
+    {
+        "intent_name": "contact_for_questions",
+        "intent": "Agent zachęca klienta do kontaktu w przypadku jakichkolwiek pytań",
+        "examples": [
+            "Jeśli ma Pan pytania, proszę dzwonić na ten numer.",
+            "W razie pytań, zapraszam do kontaktu mailowego lub telefonicznego.",
+            "Proszę się ze mną kontaktować, jeśli pojawią się dodatkowe pytania.",
+            "W razie jakichkolwiek pytań, jestem do dyspozycji.",
+            "W razie potrzeby proszę dzwonić lub pisać do nas.",
+            "Jakby pojawiły się jakieś pytania, to proszę do nas dzwonić albo pisać maile.",
         ],
     },
 ]
