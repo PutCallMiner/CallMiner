@@ -44,7 +44,7 @@ class ConformityCheckTask(RecordingTask):
             result.append(
                 f"Intent name: {intent_name}\nIntent description: {intent_description}\nIntent examples: {intent_examples}"
             )
-        return "\n".join(result)
+        return "\n\n".join(result)
 
     @staticmethod
     def _parse_speaker_intents(speaker_intents: dict[int, str]) -> str:
