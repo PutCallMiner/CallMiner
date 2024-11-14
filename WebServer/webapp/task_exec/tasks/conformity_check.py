@@ -51,7 +51,7 @@ class ConformityCheckTask(RecordingTask):
         result = []
         for entry_id, text in sorted(speaker_intents.items()):
             result.append(f"Entry ID: {entry_id}\nEntry Text: {text}")
-        return "\n".join(result)
+        return "\n\n".join(result)
 
     async def run(
         self,
