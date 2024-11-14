@@ -1,10 +1,12 @@
 from typing import Annotated
 
+import httpx
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
+from webapp.configs.globals import AZURE_SAS_TOKEN
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
@@ -92,6 +94,31 @@ async def get_content(
         request=request,
         name="recording_content.html.jinja2",
         context={"recording": recording, "content": content, "delay": delay + 1},
+    )
+
+
+@router.get("/{recording_id}/audio")
+async def audio(
+    recording_id: str,
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+) -> StreamingResponse:
+    recording = await get_recording_by_id(recording_db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{recording.recording_url}?{AZURE_SAS_TOKEN}")
+
+    response_headers = {
+        "Accept-Ranges": resp.headers.get("Accept-Ranges"),
+        "Content-Length": resp.headers.get("Content-Length"),
+    }
+
+    return StreamingResponse(
+        resp.aiter_bytes(),
+        headers=response_headers,
+        media_type="audio/wav",
     )
 
 
