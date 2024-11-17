@@ -69,34 +69,3 @@
         </div>
     {% endfor %}
 {%- endmacro -%}
-{%- macro ner(text, entries) -%}
-    {% if entries|count == 0 %}
-        {{ text }}
-    {% else %}
-        {%- for i in range(entries|count) -%}
-            {%- set start_char = 0 if i == 0 else entries[i - 1].end_char -%}
-            {{- text[start_char:entries[i].start_char] -}}
-            <mark style="background-color: var(--ner-{{ entries[i].entity }});">{{- text[entries[i].start_char:entries[i].end_char] -}}</mark>
-        {%- endfor -%}
-        {{- text[entries[-1].end_char:] -}}
-    {% endif %}
-{%- endmacro -%}
-{%- macro ner_details(entity, transcript_entries, ner_entries) -%}
-    <details>
-        <summary>
-            <span>{{ entity[0] }}<span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span></span>
-        </summary>
-        <ul>
-            {%- set seen = [] -%}
-            {%- for i in range(transcript_entries|count) -%}
-                {%- for entry in ner_entries[i] -%}
-                    {%- set text = transcript_entries[i].text[entry.start_char:entry.end_char] -%}
-                    {%- if entry.entity == entity[1] and text not in seen -%}
-                        <li hx-get="#entry-{{ transcript_entries[i].start_time }}" hx-swap="none">{{ text }}</li>
-                        {% do seen.append(text) %}
-                    {%- endif -%}
-                {%- endfor -%}
-            {%- endfor -%}
-        </ul>
-    </details>
-{%- endmacro -%}
