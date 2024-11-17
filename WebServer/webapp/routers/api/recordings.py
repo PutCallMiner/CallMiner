@@ -1,18 +1,17 @@
 from typing import Annotated
 
+import bson
+from azure.storage.blob.aio import BlobServiceClient
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.crud.common import get_rec_db
+from webapp.crud.common import get_blob_storage_client, get_rec_db
 from webapp.crud.recordings import (
     get_recording_by_id,
     get_recordings,
-    insert_recordings,
 )
 from webapp.models.record import (
-    LoadRecordingsResponse,
     Recording,
-    RecordingBase,
     RecordingsResponse,
 )
 
@@ -58,3 +57,21 @@ async def add_recordings(
     ]
     insert_result = await insert_recordings(db, recordings)
     return LoadRecordingsResponse(num_inserted=len(insert_result.inserted_ids))
+
+
+@router.delete("/{id}")
+async def delete_recording(
+    id: str,
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    blob_service_client: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
+):
+    recording = await get_recording_by_id(db, id)
+    if not recording:
+        raise HTTPException(status_code=404, detail=f"Recording {id} not found!")
+
+    blob_client = blob_service_client.get_blob_client(
+        "audio-records", recording.blob_name
+    )
+    await blob_client.delete_blob()
+    await db["recordings"].delete_one({"_id": bson.ObjectId(id)})
+    return {"message": f"Recording {id} deleted!"}
