@@ -1,17 +1,9 @@
 {% import "components.html.jinja2" as components %}
 {%- macro transcript() -%}
     {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript or not recording.speaker_mapping)) -%}
-        {% for entry in recording.transcript.entries %}
-            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{entry.start_time / 1000}})">
-                <object class="avatar"></object>
-                <header>
-                    {% set speaker = recording.speaker_mapping["speaker " ~ entry.speaker] %}
-                    <span class="{{ speaker }}">{{ speaker }}</span>
-                    <span>{{ components.time_to_min(entry.start_time) }}</span>
-                </header>
-                <p>{{ entry.text }}</p>
-            </div>
-        {% endfor %}
+        {%- call(i) components.transcript(recording) -%}
+            {{ recording.transcript.entries[i].text }}
+        {%- endcall -%}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro summary() -%}
@@ -21,19 +13,9 @@
 {%- endmacro -%}
 {%- macro ner() -%}
     {%- call components.progress_circle(link=recording.id ~ "/ner?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
-        {% for i in range(recording.transcript.entries|count) %}
-            {%- set transcript_entry = recording.transcript.entries[i] -%}
-            {%- set ner_entries = recording.ner.entries[i] -%}
-            <div class="transcript-entry" id={{ "entry-" ~ transcript_entry.start_time }}>
-                <object class="avatar"></object>
-                <header>
-                    {% set speaker = recording.speaker_mapping["speaker " ~ transcript_entry.speaker] %}
-                    <span class="{{ speaker }}">{{ speaker }}</span>
-                    <span>{{ components.time_to_min(transcript_entry.start_time) }}</span>
-                </header>
-                <p>{{ components.ner(transcript_entry.text, ner_entries) }}</p>
-            </div>
-        {% endfor %}
+        {%- call(i) components.transcript(recording) -%}
+            {{ components.ner(recording.transcript.entries[i].text, recording.ner.entries[i]) }}
+        {%- endcall -%}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro ner_details() -%}

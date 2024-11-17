@@ -55,6 +55,20 @@
 {%- macro time_to_min(secs) -%}
     {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
 {%- endmacro -%}
+{%- macro transcript(recording) -%}
+    {% for i in range(recording.transcript.entries|count) %}
+        {%- set entry = recording.transcript.entries[i] -%}
+        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{ entry.start_time / 1000 }})">
+            <object class="avatar"></object>
+            <header>
+                {% set speaker = recording.speaker_mapping[entry.speaker] %}
+                <span class="{{ speaker }}">{{ speaker }}</span>
+                <span>{{ time_to_min(entry.start_time) }}</span>
+            </header>
+            <p>{{ caller(i) }}</p>
+        </div>
+    {% endfor %}
+{%- endmacro -%}
 {%- macro ner(text, entries) -%}
     {% if entries|count == 0 %}
         {{ text }}
