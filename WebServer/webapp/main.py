@@ -12,6 +12,7 @@ from webapp.routers.api.dashboard import router as dashboard_api_router
 from webapp.routers.api.recordings import router as recordings_api_router
 from webapp.routers.dashboard import router as dashboard_router
 from webapp.routers.recordings import router as recordings_router
+from webapp.routers.upload import router as upload_router
 
 
 async def lifespan(app: FastAPI):
@@ -49,6 +50,7 @@ app.mount("/public", StaticFiles(directory="public"), name="public")
 # routes
 app.include_router(dashboard_router)
 app.include_router(recordings_router)
+app.include_router(upload_router)
 
 # api routes
 app.include_router(dashboard_api_router)

@@ -17,4 +17,5 @@ templates.env.add_extension("jinja2.ext.loopcontrols")
 nav_links = [
     NavLink("/", "Dashboard", "View call data and statistics"),
     NavLink("/recordings", "Recordings", "View call recordings"),
+    NavLink("/upload", "Upload", "Upload new call recordings"),
 ]
