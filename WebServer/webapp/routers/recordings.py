@@ -12,7 +12,6 @@ from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
-from webapp.models.record import Recording
 from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
@@ -32,14 +31,11 @@ async def table(
 
     return templates.TemplateResponse(
         request=request,
-        name=(
-            "recordings.html.jinja2"
-            if not request.headers.get("hx-request")
-            else "recordings_table.html.jinja2"
-        ),
+        name="recordings.html.jinja2",
         context={
             "nav_links": nav_links,
             "current": 1,
+            "partial": request.headers.get("hx-request"),
             "recordings": recordings,
             "total": total,
             "take": take,
@@ -72,28 +68,6 @@ async def detail(
             "tab": tab,
             "delay": 0,
         },
-    )
-
-
-async def get_content(
-    request: Request,
-    recording: Recording,
-    content: str,
-    not_in_db: bool,
-    delay: int,
-    tasks_db: Redis,
-) -> HTMLResponse:
-    if not_in_db:
-        status = await get_key_value(tasks_db, recording.id)
-        if status != TaskStatus.IN_PROGRESS:
-            return HTMLResponse(
-                content=f"<p>{content.capitalize()} not found, please run the analysis first.</p>",
-            )
-
-    return templates.TemplateResponse(
-        request=request,
-        name="recording_content.html.jinja2",
-        context={"recording": recording, "content": content, "delay": delay + 1},
     )
 
 
@@ -136,11 +110,22 @@ async def content(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
-    return await get_content(
-        request,
-        recording,
-        content,
-        getattr(recording, content, None) is None,
-        delay,
-        tasks_db,
+    attr = content.split("-")[0]
+    attr_name = attr.upper() if attr in ["ner"] else attr.capitalize()
+
+    if getattr(recording, attr, None) is None:
+        status = await get_key_value(tasks_db, recording.id)
+        if status != TaskStatus.IN_PROGRESS:
+            return HTMLResponse(
+                content=f"<p>{attr_name} not found, please run the analysis first.</p>",
+            )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="recording_content.html.jinja2",
+        context={
+            "recording": recording,
+            "content": content.replace("-", "_"),
+            "delay": delay + 1,
+        },
     )

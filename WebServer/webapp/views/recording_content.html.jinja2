@@ -1,18 +1,9 @@
 {% import "components.html.jinja2" as components %}
-{% from "recording_utils.html.jinja2" import time_to_min %}
 {%- macro transcript() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript)) -%}
-        {% for entry in recording.transcript.entries %}
-            <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{entry.start_time / 1000}})">
-                <object class="avatar"></object>
-                <header>
-                    {% set speaker = recording.speaker_mapping["speaker " ~ entry.speaker] %}
-                    <span class="{{ speaker }}">{{ speaker }}</span>
-                    <span>{{ time_to_min(entry.start_time) }}</span>
-                </header>
-                <p>{{ entry.text }}</p>
-            </div>
-        {% endfor %}
+    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript or not recording.speaker_mapping)) -%}
+        {%- call(i) components.transcript(recording) -%}
+            {{ recording.transcript.entries[i].text }}
+        {%- endcall -%}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro summary() -%}
@@ -20,8 +11,72 @@
         <p>{{ recording.summary }}</p>
     {%- endcall -%}
 {%- endmacro -%}
+{%- macro ner() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/ner?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
+        {%- call(i) components.transcript(recording) -%}
+            {%- set entries = recording.ner.entries[i] -%}
+            {%- set text = recording.transcript.entries[i].text -%}
+            {% if recording.ner.entries[i]|count == 0 %}
+                {{ text }}
+            {% else %}
+                {%- for i in range(entries|count) -%}
+                    {%- set start_char = 0 if i == 0 else entries[i - 1].end_char -%}
+                    {{- text[start_char:entries[i].start_char] -}}
+                    <mark style="background-color: var(--ner-{{ entries[i].entity }});">{{- text[entries[i].start_char:entries[i].end_char] -}}</mark>
+                {%- endfor -%}
+                {{- text[entries[-1].end_char:] -}}
+            {% endif %}
+        {%- endcall -%}
+    {%- endcall -%}
+{%- endmacro -%}
+{%- macro ner_details() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/ner-details?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
+        {%- set transcript_entries = recording.transcript.entries -%}
+        {%- set ner_entries = recording.ner.entries -%}
+        {%- set seen = [] -%}
+        {%- for i in range(transcript_entries|count) -%}
+            {%- for entry in ner_entries[i] -%}
+                {%- set text = entry.lemmas|join(" ") -%}
+                {%- set ns = namespace(is_new=True) -%}
+                {%- for j in range(seen|count) -%}
+                    {%- if seen[j][0] != entry.entity -%}
+                        {%- continue -%}
+                    {%- elif text in seen[j][2] -%}
+                        {%- set ns.is_new = False -%}
+                    {%- elif seen[j][2] in text -%}
+                        {% do seen.__setitem__(j, (entry.entity, i, text)) %}
+                        {%- set ns.is_new = False -%}
+                    {%- endif -%}
+                {%- endfor -%}
+                {%- if ns.is_new -%}
+                    {% do seen.append((entry.entity, i, text)) %}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endfor -%}
+        {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
+            {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
+                {%- continue -%}
+            {%- endif -%}
+            <details>
+                <summary>
+                    <span>{{ entity[0] }}<span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span></span>
+                </summary>
+                <ul>
+                    {%- for s in seen -%}
+                        {%- if s[0] == entity[1] -%}
+                            <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
+                                hx-swap="none">{{ s[2] }}</li>
+                        {%- endif -%}
+                    {%- endfor -%}
+                </ul>
+            </details>
+        {%- endfor -%}
+    {%- endcall -%}
+{%- endmacro -%}
 {% if content == "transcript" %}
     {{ transcript() }}
 {% elif content == "summary" %}
     {{ summary() }}
+{% elif content == "ner" %}
+    {{ ner() }}
 {% endif %}
