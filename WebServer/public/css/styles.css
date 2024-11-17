@@ -489,7 +489,7 @@ dl {
   overflow-y: auto;
   background-color: inherit;
 
-  & > div {
+  & > .dots {
     background-color: inherit;
 
     &::after {
@@ -698,6 +698,19 @@ body > main#recordings {
       }
     }
   }
+}
+
+#tags {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+#tags a {
+  max-width: 120px;
+  text-align: center;
+  border-radius: 7px;
+  padding: 3px;
 }
 
 body > main#recording {
