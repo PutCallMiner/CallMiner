@@ -593,12 +593,9 @@ body > header {
   }
 }
 
-body > main {
+body > main#recordings {
   margin: 2rem 3rem;
   height: calc(100% - 10rem);
-}
-
-body > main#recordings {
   display: flex;
   flex-direction: column;
 
@@ -656,7 +653,8 @@ body > main#recordings {
 }
 
 body > main#recording {
-  margin-bottom: 0;
+  height: calc(100% - 8rem);
+  margin: 2rem 3rem 0 3rem;
   display: flex;
   flex-direction: column;
 
@@ -684,7 +682,7 @@ body > main#recording {
   }
 
   article {
-    height: calc(100% - 7rem);
+    height: calc(100% - 8rem);
     margin-block: 1rem;
     display: grid;
     grid-template-columns: 40px 1.25fr 1fr;
@@ -781,6 +779,6 @@ body > main#recording {
 
   footer {
     display: flex;
-    height: 3rem;
+    height: 4rem;
   }
 }
