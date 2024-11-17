@@ -3,11 +3,15 @@ from contextlib import asynccontextmanager
 
 import chromadb
 import redis.asyncio as redis
-from chromadb import AsyncClientAPI
+from azure.core.credentials import AzureSasCredential
+from azure.storage.blob.aio import BlobServiceClient
+from chromadb.api import AsyncClientAPI
 from chromadb.api.models.AsyncCollection import AsyncCollection
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from webapp.configs.globals import (
+    AZURE_BLOB_STORAGE_URL,
+    AZURE_SAS_TOKEN,
     CHROMADB_HOST,
     CHROMADB_PORT,
     MONGO_CONNECTION_STRING,
@@ -34,7 +38,7 @@ get_rec_db_context = asynccontextmanager(get_rec_db)
 async def init_rec_db():
     # NOTE: we have to keep the generator, so the connection doesn't close prematurely
     async with get_rec_db_context() as db:
-        await db["recordings"].create_index([("recording_url", 1)], unique=True)
+        await db["recordings"].create_index([("blob_name", 1)], unique=True)
 
 
 async def get_tasks_db() -> AsyncGenerator[redis.Redis, None]:
@@ -58,3 +62,15 @@ async def get_vector_storage_collection(
 ) -> AsyncCollection:
     collection = await client.get_or_create_collection(collection_name)
     return collection
+
+
+async def get_blob_storage_client() -> AsyncGenerator[BlobServiceClient, None]:
+    sas = AzureSasCredential(AZURE_SAS_TOKEN)
+    client = BlobServiceClient(AZURE_BLOB_STORAGE_URL, sas)
+    try:
+        yield client
+    finally:
+        await client.close()
+
+
+get_blob_storage_client_context = asynccontextmanager(get_blob_storage_client)

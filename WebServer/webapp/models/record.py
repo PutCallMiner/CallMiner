@@ -12,7 +12,7 @@ SpeakerMapping = dict[int, SpeakerClass]
 
 
 class RecordingBase(BaseModel):
-    recording_url: str
+    blob_name: str
     transcript: Transcript | None
     summary: str | None
     speaker_mapping: SpeakerMapping | None

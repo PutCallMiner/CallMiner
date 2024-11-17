@@ -1,5 +1,4 @@
-blob_url = "https://callminer.blob.core.windows.net/audio-records/";
-audio_files = [
+blobs = [
   "SCCNext_2024_04_17__15_39_40.wav",
   "SCCNext_2024_04_17__15_40_33.wav",
   "SCCNext_2024_04_17__15_40_48.wav",
@@ -12,8 +11,8 @@ audio_files = [
   "SCCNext_2024_04_17__15_42_52.wav",
 ];
 
-recordings = audio_files.map((rec) => ({
-  recording_url: blob_url + rec,
+recordings = blobs.map((name) => ({
+  blob_name: name,
   transcript: null,
   summary: null,
   speaker_mapping: null,

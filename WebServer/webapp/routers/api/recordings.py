@@ -41,12 +41,12 @@ async def show_recording(
 
 @router.post("/")
 async def add_recordings(
-    recording_urls: list[str], db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)]
+    blob_names: list[str], db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)]
 ) -> LoadRecordingsResponse:
     """Create new (not analyzed yet) recordings into the database"""
     recordings = [
         RecordingBase(
-            recording_url=rec_url,
+            blob_name=blob_name,
             transcript=None,
             summary=None,
             speaker_mapping=None,
@@ -54,7 +54,7 @@ async def add_recordings(
             ner=None,
             conformity=None,
         )
-        for rec_url in recording_urls
+        for blob_name in blob_names
     ]
     insert_result = await insert_recordings(db, recordings)
     return LoadRecordingsResponse(num_inserted=len(insert_result.inserted_ids))

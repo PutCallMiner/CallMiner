@@ -2,10 +2,10 @@ from webapp.models.record import PyObjectId
 
 
 class RecordingAlreadyExistsError(Exception):
-    def __init__(self, recording_url: str):
-        msg = f"Recording with url '{recording_url}' already exists"
+    def __init__(self, blob_name: str):
+        msg = f"Recording with name '{blob_name}' already exists"
         super().__init__(msg)
-        self.recording_url = recording_url
+        self.blob_name = blob_name
 
 
 class RecordingNotFoundError(Exception):
@@ -13,13 +13,6 @@ class RecordingNotFoundError(Exception):
         msg = f"Recording with id '{recording_id}' doesn't exist"
         super().__init__(msg)
         self.recording_id = recording_id
-
-
-class BlobDownloadError(Exception):
-    def __init__(self, url: str):
-        msg = f"Could not download blob at URL '{url}'"
-        super().__init__(msg)
-        self.url = url
 
 
 class AnalysisInProgressError(Exception):

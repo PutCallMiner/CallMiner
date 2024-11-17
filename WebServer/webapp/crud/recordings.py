@@ -51,13 +51,13 @@ async def get_recording_by_id(db: AsyncIOMotorDatabase, id: str) -> Recording | 
 async def insert_recordings(
     db: AsyncIOMotorDatabase, recordings: list[RecordingBase]
 ) -> InsertManyResult:
-    recording_urls = [rec.recording_url for rec in recordings]
+    blob_names = [rec.blob_name for rec in recordings]
     prev_recording_doc = await db["recordings"].find_one(
-        {"recording_url": {"$in": list(recording_urls)}}
+        {"blob_name": {"$in": list(blob_names)}}
     )
     if prev_recording_doc is not None:
         raise RecordingAlreadyExistsError(
-            Recording.model_validate(prev_recording_doc).recording_url
+            Recording.model_validate(prev_recording_doc).blob_name
         )
     recording_docs = [rec.model_dump() for rec in recordings]
     result = await db["recordings"].insert_many(recording_docs)
