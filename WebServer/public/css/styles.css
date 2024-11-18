@@ -715,6 +715,7 @@ body > main#recording {
 
     section {
       overflow-y: auto;
+      scroll-behavior: smooth;
       height: 100%;
       padding-inline: 2rem;
       display: flex;
