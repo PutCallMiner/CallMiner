@@ -125,7 +125,7 @@ async def content(
         name="recording_content.html.jinja2",
         context={
             "recording": recording,
-            "content": content.replace("-", "_"),
+            "content": content,
             "delay": delay + 1,
         },
     )
