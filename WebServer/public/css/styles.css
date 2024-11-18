@@ -337,7 +337,7 @@ a.icon-button {
 
   .avatar {
     grid-column: 1;
-    grid-row: 1 3;
+    grid-row: 1;
     margin-top: 0.5rem;
   }
 
@@ -439,7 +439,6 @@ dl {
   gap: 1rem;
   max-width: 100%;
   overflow-x: hidden;
-  margin-block: 2rem;
   background-color: inherit;
 
   & > div {
@@ -478,7 +477,7 @@ dl {
 }
 
 details {
-  padding: 1rem;
+  padding-block: 1rem;
 
   summary {
     font-weight: 700;
@@ -490,6 +489,7 @@ details {
   summary::after {
     content: " ▼";
     font-size: 0.75rem;
+    margin-block: auto;
   }
 
   &[open] {
@@ -706,42 +706,43 @@ body > main#recording {
     aside {
       display: flex;
       flex-direction: column;
+      gap: 1.5rem;
       background-color: var(--card);
       box-shadow: 0 0 1px var(--border);
       border-radius: var(--large-border-radius);
       grid-column: 3;
-      padding-inline: 4rem;
+      padding-top: 2rem;
+      padding-inline: 3rem;
       overflow-y: auto;
       overflow-x: hidden;
 
-      &:only-of-type {
-        grid-row: 1 / 3;
-      }
-
       h3 {
         margin: 0;
-        margin-top: 2rem;
-        text-align: center;
+        text-align: start;
         color: var(--primary);
       }
 
       p {
-        margin: 2rem auto;
         text-align: justify;
       }
+    }
+
+    .ner-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      overflow-y: auto;
+      grid-row: 1/3;
 
       details {
-        &:not(:last-child) {
-          margin-bottom: 1rem;
-        }
-
-        &:first-of-type {
-          margin-top: 3rem;
-        }
+        padding-inline: 1.5rem;
+        background-color: var(--card);
+        box-shadow: 0 0 1px var(--border);
+        border-radius: var(--standard-border-radius);
 
         summary span {
           display: flex;
-          gap: 0.5rem;
+          gap: 1.5rem;
 
           span.circle {
             height: 16px;

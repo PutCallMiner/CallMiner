@@ -57,10 +57,7 @@
             {{ content.summary() }}
         </aside>
     {% elif tab == 1 %}
-        <aside>
-            <h3>Named-Entity Recognition</h3>
-            {{ content.ner_details() }}
-        </aside>
+        {{ content.ner_details() }}
     {% elif tab == 2 %}
         <aside>
             <h3>Conformity Check</h3>

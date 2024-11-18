@@ -53,24 +53,26 @@
                 {%- endif -%}
             {%- endfor -%}
         {%- endfor -%}
-        {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
-            {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
-                {%- continue -%}
-            {%- endif -%}
-            <details>
-                <summary>
-                    <span>{{ entity[0] }}<span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span></span>
-                </summary>
-                <ul>
-                    {%- for s in seen -%}
-                        {%- if s[0] == entity[1] -%}
-                            <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
-                                hx-swap="none">{{ s[2] }}</li>
-                        {%- endif -%}
-                    {%- endfor -%}
-                </ul>
-            </details>
-        {%- endfor -%}
+        <div class="ner-details">
+            {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
+                {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
+                    {%- continue -%}
+                {%- endif -%}
+                <details>
+                    <summary>
+                        <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
+                    </summary>
+                    <ul>
+                        {%- for s in seen -%}
+                            {%- if s[0] == entity[1] -%}
+                                <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
+                                    hx-swap="none">{{ s[2] }}</li>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    </ul>
+                </details>
+            {%- endfor -%}
+        </div>
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro conformity() -%}
