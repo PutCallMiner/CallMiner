@@ -108,7 +108,8 @@
                             <span><span class="icon" style="color: #3fe03f;">check_circle</span>{{ map[result.intent_name] }}</span>
                         </summary>
                         <ul>
-                            <li>{{ result.entry_id }}</li>
+                            <li hx-get="#entry-{{ recording.transcript.entries[result.entry_id].start_time }}"
+                                hx-swap="none">{{ result.entry_id }}</li>
                         </ul>
                     </details>
                 {%- else -%}
@@ -130,4 +131,6 @@
     {{ ner_details() }}
 {% elif content == "conformity" %}
     {{ conformity() }}
+{%- elif content == "conformity-details" -%}
+    {{ conformity_details() }}
 {% endif %}
