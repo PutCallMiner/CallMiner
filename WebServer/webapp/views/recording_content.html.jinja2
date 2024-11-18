@@ -94,8 +94,30 @@
             {{ components.rating(score) }}
             <h5>Conformity Rating</h5>
         </div>
-        <div></div>
-        <div></div>
+        <div>
+            {%- set map = {
+                "recommendation": "Recommendation",
+                "greeting": "Greeting",
+                "client_identity_confirmation": "Client's identity confirmation",
+                "contact_for_questions": "Contact for questions"
+            } -%}
+            {%- for result in recording.conformity.results -%}
+                {%- if result.passed -%}
+                    <details>
+                        <summary>
+                            <span><span class="icon" style="color: #3fe03f;">check_circle</span>{{ map[result.intent_name] }}</span>
+                        </summary>
+                        <ul>
+                            <li>{{ result.entry_id }}</li>
+                        </ul>
+                    </details>
+                {%- else -%}
+                    <div>
+                        <span class="icon" style="color: red;">cancel</span>{{ map[result.intent_name] }}
+                    </div>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
     {%- endcall %}
 {%- endmacro -%}
 {% if content == "transcript" %}
