@@ -12,6 +12,7 @@
         {% elif tab == 1 %}
             {{ content.ner() }}
         {% elif tab == 2 %}
+            {{ content.conformity() }}
         {% endif %}
     </section>
     {% if tab == 0 %}
@@ -61,6 +62,9 @@
             {{ content.ner_details() }}
         </aside>
     {% elif tab == 2 %}
+        <aside>
+            <h3>Conformity Check</h3>
+        </aside>
     {% endif %}
 {%- endmacro %}
 {% if not partial %}

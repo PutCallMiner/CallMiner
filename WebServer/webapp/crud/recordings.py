@@ -126,10 +126,10 @@ async def update_with_duration(
 async def update_with_conformity(
     db: AsyncIOMotorDatabase,
     recording_id: PyObjectId,
-    conformity_results: ConformityResults,
+    conformity: ConformityResults,
 ):
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
-        update={"$set": {"conformity_results": conformity_results.model_dump()}},
+        update={"$set": {"conformity": conformity.model_dump()}},
     )
     return update_result

@@ -73,6 +73,13 @@
         {%- endfor -%}
     {%- endcall -%}
 {%- endmacro -%}
+{%- macro conformity() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/conformity?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
+        {%- call(i) components.transcript(recording) -%}
+            {{ recording.transcript.entries[i].text }}
+        {%- endcall -%}
+    {%- endcall -%}
+{%- endmacro -%}
 {% if content == "transcript" %}
     {{ transcript() }}
 {% elif content == "summary" %}

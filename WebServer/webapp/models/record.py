@@ -18,7 +18,7 @@ class RecordingBase(BaseModel):
     speaker_mapping: SpeakerMapping | None
     duration: int | None
     ner: NER | None
-    conformity_results: ConformityResults | None
+    conformity: ConformityResults | None
 
     def get_agent_speaker_id(self) -> int:
         assert self.speaker_mapping is not None, "Speaker mapping is None"
