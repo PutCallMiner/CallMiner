@@ -797,14 +797,10 @@ body > main#recording {
 
     aside.conformity {
       display: grid;
-      gap: 2rem;
       grid-template-rows: 1fr 2fr;
 
       & > div:first-child {
         grid-row: 1;
-        background-color: var(--card);
-        box-shadow: 0 0 1px var(--border);
-        border-radius: var(--standard-border-radius);
         display: flex;
         flex-direction: column;
         justify-content: center;
