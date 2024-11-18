@@ -264,34 +264,44 @@ button.chip {
 .rating {
   width: 48px;
   height: 48px;
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 100%;
-  overflow: hidden;
+  background-color: var(--secondary);
+  border-radius: 50%;
 
-  span {
-    z-index: 2;
-  }
+  div {
+    width: 95%;
+    height: 95%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    overflow: hidden;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0px;
-    border-radius: inherit;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    z-index: -1;
-  }
+    span {
+      z-index: 2;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    background: var(--background);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: inherit;
-    z-index: 1;
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0px;
+      border-radius: inherit;
+      z-index: -1;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      background: var(--secondary);
+      border-radius: inherit;
+      z-index: 1;
+    }
   }
 }
 
@@ -371,11 +381,24 @@ a.icon-button {
     grid-row: 2;
     padding: 0.25rem;
     margin: 0;
+    position: relative;
 
     &:hover {
       background-color: rgba(11, 87, 208, 0.08);
       border-radius: 2px;
       cursor: pointer;
+    }
+
+    &.conformity:has(.icon) {
+      border-left: 1px solid var(--accent);
+
+      .icon {
+        cursor: default;
+        color: var(--accent);
+        position: absolute;
+        top: calc(50% - 0.65rem);
+        left: -1.5rem;
+      }
     }
   }
 }
@@ -678,7 +701,6 @@ body > main#recording {
     margin-block: 1rem;
     display: grid;
     grid-template-columns: 40px 1.25fr 1fr;
-    grid-template-rows: 0.75fr 1fr;
     gap: 2rem;
 
     nav {
@@ -688,7 +710,6 @@ body > main#recording {
       align-items: center;
       gap: 1rem;
       padding-top: 6rem;
-      grid-row: 1 / 3;
       grid-column: 1;
     }
 
@@ -699,40 +720,45 @@ body > main#recording {
       display: flex;
       flex-direction: column;
       gap: 30px;
-      grid-row: 1 / 3;
       grid-column: 2;
     }
 
-    aside {
+    aside.details {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      background-color: var(--card);
-      box-shadow: 0 0 1px var(--border);
-      border-radius: var(--large-border-radius);
-      grid-column: 3;
-      padding-top: 2rem;
-      padding-inline: 3rem;
-      overflow-y: auto;
-      overflow-x: hidden;
+      gap: 2rem;
 
-      h3 {
-        margin: 0;
-        text-align: start;
-        color: var(--primary);
-      }
+      & > div {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background-color: var(--card);
+        box-shadow: 0 0 1px var(--border);
+        border-radius: var(--large-border-radius);
+        grid-column: 3;
+        padding-top: 2rem;
+        padding-inline: 3rem;
+        overflow-y: auto;
+        overflow-x: hidden;
 
-      p {
-        text-align: justify;
+        h3 {
+          margin: 0;
+          text-align: start;
+          color: var(--primary);
+        }
+
+        p {
+          text-align: justify;
+        }
       }
     }
 
-    .ner-details {
+    aside.ner {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
       overflow-y: auto;
-      grid-row: 1/3;
 
       details {
         padding-inline: 1.5rem;
@@ -766,6 +792,48 @@ body > main#recording {
             }
           }
         }
+      }
+    }
+
+    aside.conformity {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 2fr;
+
+      & > div:not(:last-child) {
+        grid-row: 1;
+        background-color: var(--card);
+        box-shadow: 0 0 1px var(--border);
+        border-radius: var(--standard-border-radius);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+
+        .rating {
+          height: 128px;
+          width: 128px;
+
+          span {
+            font-size: 3rem;
+          }
+        }
+
+        h5 {
+          margin: 0;
+          color: var(--primary);
+        }
+      }
+
+      & > div:last-child {
+        grid-column: 1/3;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        overflow-y: auto;
       }
     }
   }

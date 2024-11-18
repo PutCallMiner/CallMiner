@@ -53,34 +53,50 @@
                 {%- endif -%}
             {%- endfor -%}
         {%- endfor -%}
-        <div class="ner-details">
-            {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
-                {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
-                    {%- continue -%}
-                {%- endif -%}
-                <details>
-                    <summary>
-                        <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
-                    </summary>
-                    <ul>
-                        {%- for s in seen -%}
-                            {%- if s[0] == entity[1] -%}
-                                <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
-                                    hx-swap="none">{{ s[2] }}</li>
-                            {%- endif -%}
-                        {%- endfor -%}
-                    </ul>
-                </details>
-            {%- endfor -%}
-        </div>
+        {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
+            {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
+                {%- continue -%}
+            {%- endif -%}
+            <details>
+                <summary>
+                    <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
+                </summary>
+                <ul>
+                    {%- for s in seen -%}
+                        {%- if s[0] == entity[1] -%}
+                            <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
+                                hx-swap="none">{{ s[2] }}</li>
+                        {%- endif -%}
+                    {%- endfor -%}
+                </ul>
+            </details>
+        {%- endfor -%}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro conformity() -%}
     {%- call components.progress_circle(link=recording.id ~ "/conformity?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
-        {%- call(i) components.transcript(recording) -%}
+        {%- call(i) components.transcript(recording, "conformity") -%}
+            {%- for result in recording.conformity.results -%}
+                {%- if result.entry_id == i -%}
+                    <span class="icon">check_circle</span>
+                {%- endif -%}
+            {%- endfor -%}
             {{ recording.transcript.entries[i].text }}
         {%- endcall -%}
     {%- endcall -%}
+{%- endmacro -%}
+{%- macro conformity_details() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/conformity-details?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
+        {%- set transcript_entries = recording.transcript.entries -%}
+        {%- set conformity_results = recording.conformity.results -%}
+        <div>
+            {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
+            {{ components.rating(score) }}
+            <h5>Conformity Rating</h5>
+        </div>
+        <div></div>
+        <div></div>
+    {%- endcall %}
 {%- endmacro -%}
 {% if content == "transcript" %}
     {{ transcript() }}
@@ -90,4 +106,6 @@
     {{ ner() }}
 {% elif content == "ner-details" %}
     {{ ner_details() }}
+{% elif content == "conformity" %}
+    {{ conformity() }}
 {% endif %}

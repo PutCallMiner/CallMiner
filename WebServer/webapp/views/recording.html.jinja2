@@ -16,51 +16,55 @@
         {% endif %}
     </section>
     {% if tab == 0 %}
-        <aside>
-            <h3>Details</h3>
-            <dl>
-                <div>
-                    <dt>Title</dt>
-                    <dd>
-                        {{ components.recording_url(recording.recording_url) }}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Agent</dt>
-                    <dd>
-                        <object class="avatar"></object>
-                        Unknown
-                    </dd>
-                </div>
-                <div>
-                    <dt>Duration</dt>
-                    <dd>
-                        ??? min
-                    </dd>
-                </div>
-                <div>
-                    <dt>Created At</dt>
-                    <dd>
-                        ???
-                    </dd>
-                </div>
-                <div>
-                    <dt>Tags</dt>
-                    <dd>
-                        <a>#???</a> <a>#???</a>
-                    </dd>
-                </div>
-            </dl>
-        </aside>
-        <aside>
-            <h3>Summary</h3>
-            {{ content.summary() }}
+        <aside class="details">
+            <div>
+                <h3>Details</h3>
+                <dl>
+                    <div>
+                        <dt>Title</dt>
+                        <dd>
+                            {{ components.recording_url(recording.recording_url) }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Agent</dt>
+                        <dd>
+                            <object class="avatar"></object>
+                            Unknown
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Duration</dt>
+                        <dd>
+                            ??? min
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Created At</dt>
+                        <dd>
+                            ???
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Tags</dt>
+                        <dd>
+                            <a>#???</a> <a>#???</a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            <div>
+                <h3>Summary</h3>
+                {{ content.summary() }}
+            </div>
         </aside>
     {% elif tab == 1 %}
-        {{ content.ner_details() }}
+        <aside class="ner">
+            {{ content.ner_details() }}
+        </aside>
     {% elif tab == 2 %}
-        <aside>
-            <h3>Conformity Check</h3>
+        <aside class="conformity">
+            {{ content.conformity_details() }}
         </aside>
     {% endif %}
 {%- endmacro %}
