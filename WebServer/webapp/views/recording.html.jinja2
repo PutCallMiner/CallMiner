@@ -80,6 +80,10 @@
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>
+                <audio controls id="recording-audio">
+                    <source src="{{ recording.id ~ "/audio" }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
             </footer>
         </main>
     {% endblock %}

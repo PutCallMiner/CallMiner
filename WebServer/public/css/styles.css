@@ -522,6 +522,14 @@ details {
   }
 }
 
+audio {
+  width: 100%;
+
+  &::-webkit-media-controls-enclosure {
+    background-color: transparent;
+  }
+}
+
 /* Layout styles */
 
 body {
@@ -749,6 +757,10 @@ body > main#recording {
           }
         }
       }
+    }
+
+    aside {
+      min-height: 0;
     }
 
     aside.details {
