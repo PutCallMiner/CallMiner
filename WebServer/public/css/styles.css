@@ -838,6 +838,10 @@ body > main#recording {
           font-weight: 700;
           display: flex;
           gap: 1.5rem;
+
+          &[hx-get] {
+            cursor: pointer;
+          }
         }
       }
     }
