@@ -105,7 +105,7 @@
                 {%- if result.passed -%}
                     <div hx-get="#entry-{{ transcript_entries[result.entry_id].start_time }}"
                          hx-swap="none">
-                        <span class="icon" style="color: #3fe03f;">check_circle</span>{{ map[result.intent_name] }}
+                        <span class="icon" style="color: #3fe03f;">check_circle</span><u>{{ map[result.intent_name] }}</u>
                     </div>
                 {%- else -%}
                     <div>

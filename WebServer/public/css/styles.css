@@ -830,7 +830,7 @@ body > main#recording {
         }
 
         h5 {
-          margin: 0;
+          margin: 1rem;
           color: var(--primary);
         }
       }
