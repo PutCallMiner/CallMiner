@@ -12,55 +12,60 @@
         {% elif tab == 1 %}
             {{ content.ner() }}
         {% elif tab == 2 %}
+            {{ content.conformity() }}
         {% endif %}
     </section>
     {% if tab == 0 %}
-        <aside>
-            <h3>Details</h3>
-            <dl>
-                <div>
-                    <dt>Title</dt>
-                    <dd>
-                        {{ components.recording_url(recording.recording_url) }}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Agent</dt>
-                    <dd>
-                        <object class="avatar"></object>
-                        Unknown
-                    </dd>
-                </div>
-                <div>
-                    <dt>Duration</dt>
-                    <dd>
-                        ??? min
-                    </dd>
-                </div>
-                <div>
-                    <dt>Created At</dt>
-                    <dd>
-                        ???
-                    </dd>
-                </div>
-                <div>
-                    <dt>Tags</dt>
-                    <dd>
-                        <a>#???</a> <a>#???</a>
-                    </dd>
-                </div>
-            </dl>
-        </aside>
-        <aside>
-            <h3>Summary</h3>
-            {{ content.summary() }}
+        <aside class="details">
+            <div>
+                <h3>Details</h3>
+                <dl>
+                    <div>
+                        <dt>Title</dt>
+                        <dd>
+                            {{ components.recording_url(recording.recording_url) }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Agent</dt>
+                        <dd>
+                            <object class="avatar"></object>
+                            Unknown
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Duration</dt>
+                        <dd>
+                            ??? min
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Created At</dt>
+                        <dd>
+                            ???
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Tags</dt>
+                        <dd>
+                            <a>#???</a> <a>#???</a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            <div>
+                <h3>Summary</h3>
+                {{ content.summary() }}
+            </div>
         </aside>
     {% elif tab == 1 %}
-        <aside>
-            <h3>Named-Entity Recognition</h3>
+        <aside class="ner">
             {{ content.ner_details() }}
         </aside>
     {% elif tab == 2 %}
+        <aside class="conformity">
+            {{ content.conformity_details() }}
+        </aside>
     {% endif %}
 {%- endmacro %}
 {% if not partial %}
@@ -75,6 +80,10 @@
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>
+                <audio controls id="recording-audio">
+                    <source src="{{ recording.id ~ "/audio" }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
             </footer>
         </main>
     {% endblock %}

@@ -59,7 +59,7 @@
             {%- endif -%}
             <details>
                 <summary>
-                    <span>{{ entity[0] }}<span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span></span>
+                    <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
                 </summary>
                 <ul>
                     {%- for s in seen -%}
@@ -73,10 +73,59 @@
         {%- endfor -%}
     {%- endcall -%}
 {%- endmacro -%}
+{%- macro conformity() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/conformity?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
+        {%- call(i) components.transcript(recording, "conformity") -%}
+            {%- for result in recording.conformity.results -%}
+                {%- if result.entry_id == i -%}
+                    <span class="icon">check_circle</span>
+                {%- endif -%}
+            {%- endfor -%}
+            {{ recording.transcript.entries[i].text }}
+        {%- endcall -%}
+    {%- endcall -%}
+{%- endmacro -%}
+{%- macro conformity_details() -%}
+    {%- call components.progress_circle(link=recording.id ~ "/conformity-details?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
+        {%- set transcript_entries = recording.transcript.entries -%}
+        {%- set conformity_results = recording.conformity.results -%}
+        <div>
+            {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
+            {{ components.rating(score) }}
+            <h5>Conformity Rating</h5>
+        </div>
+        <div>
+            {%- set map = {
+                "recommendation": "Recommendation",
+                "greeting": "Greeting",
+                "client_identity_confirmation": "Client's identity confirmation",
+                "contact_for_questions": "Contact for questions"
+            } -%}
+            {%- for result in recording.conformity.results -%}
+                {%- if result.passed -%}
+                    <div hx-get="#entry-{{ transcript_entries[result.entry_id].start_time }}"
+                         hx-swap="none">
+                        <span class="icon" style="color: #3fe03f;">check_circle</span><u>{{ map[result.intent_name] }}</u>
+                    </div>
+                {%- else -%}
+                    <div>
+                        <span class="icon" style="color: red;">cancel</span>{{ map[result.intent_name] }}
+                    </div>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    {%- endcall %}
+{%- endmacro -%}
 {% if content == "transcript" %}
     {{ transcript() }}
 {% elif content == "summary" %}
     {{ summary() }}
 {% elif content == "ner" %}
     {{ ner() }}
+{% elif content == "ner-details" %}
+    {{ ner_details() }}
+{% elif content == "conformity" %}
+    {{ conformity() }}
+{%- elif content == "conformity-details" -%}
+    {{ conformity_details() }}
 {% endif %}

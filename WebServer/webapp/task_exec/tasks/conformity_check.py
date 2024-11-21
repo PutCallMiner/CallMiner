@@ -30,7 +30,7 @@ class ConformityCheckTask(RecordingTask):
     ) -> bool:
         recording = await get_recording_by_id(db, recording_id)
         assert recording is not None
-        return recording.conformity_results is not None
+        return recording.conformity is not None
 
     @staticmethod
     def _parse_predefined_intents(
@@ -109,7 +109,5 @@ class ConformityCheckTask(RecordingTask):
                 "Failed to load JSON from speaker classifier results"
             )
 
-        conformity_results = ConformityResults.model_validate(
-            {"results": conformity_check}
-        )
-        await update_with_conformity(db, recording_id, conformity_results)
+        conformity = ConformityResults.model_validate({"results": conformity_check})
+        await update_with_conformity(db, recording_id, conformity)

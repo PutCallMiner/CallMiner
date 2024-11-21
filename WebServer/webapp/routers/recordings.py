@@ -84,6 +84,11 @@ async def audio(
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{recording.recording_url}?{AZURE_SAS_TOKEN}")
 
+    if resp.status_code != 200:
+        return StreamingResponse(
+            content=resp.content, status_code=resp.status_code, media_type="audio/wav"
+        )
+
     response_headers = {
         "Accept-Ranges": resp.headers.get("Accept-Ranges"),
         "Content-Length": resp.headers.get("Content-Length"),
@@ -125,7 +130,7 @@ async def content(
         name="recording_content.html.jinja2",
         context={
             "recording": recording,
-            "content": content.replace("-", "_"),
+            "content": content,
             "delay": delay + 1,
         },
     )
