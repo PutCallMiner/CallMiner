@@ -5,21 +5,37 @@ function skipToTime(timeInSeconds) {
   audioPlayer.play()
 }
 
-let transcriptEntries = Array.from(
-  document.getElementsByClassName("transcript-entry")
-);
-
-const entries = transcriptEntries.map((div) => {
-  const id = div.id;
-  const startTimeMs = parseInt(id.replace('entry-', ''));
-  return { div, startTimeMs };
-});
-
-entries.sort((a, b) => a.startTimeMs - b.startTimeMs);
-
+let entries = []
 let previousIndex = -1;
 
+function clearEntries() {
+  entries = [];
+  previousIndex = -1;
+}
+
+function setupEntries() {
+  console.log("Seting up")
+  let transcriptEntries = Array.from(
+    document.getElementsByClassName("transcript-entry")
+  );
+  
+  entries = transcriptEntries.map((div) => {
+    const id = div.id;
+    const startTimeMs = parseInt(id.replace('entry-', ''));
+    return { div, startTimeMs };
+  });
+  
+  entries.sort((a, b) => a.startTimeMs - b.startTimeMs);
+  previousIndex = -1; 
+}
+
+setupEntries()
+
 function updateHighlight() {
+  if (entries.length === 0) {
+    setupEntries();
+  }
+
   const currentTimeMs = audioPlayer.currentTime * 1000;
   let newIndex = findCurrentIndex(currentTimeMs);
   if (newIndex !== previousIndex) {
