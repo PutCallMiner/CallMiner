@@ -1,5 +1,6 @@
+let audioPlayer = document.getElementById("recording-audio");
+
 function skipToTime(timeInSeconds) {
-  let audio = document.getElementById("recording-audio");
-  audio.currentTime = timeInSeconds;
-  audio.play()
+  audioPlayer.currentTime = timeInSeconds;
+  audioPlayer.play()
 }
