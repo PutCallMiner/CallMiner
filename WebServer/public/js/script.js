@@ -37,14 +37,20 @@ function updateHighlight() {
 }
 
 function findCurrentIndex(currentTimeMs) {
+  let low = 0;
+  let high = entries.length - 1;
   let index = -1;
-  for (let i = 0; i < entries.length; i++) {
-    if (entries[i].startTimeMs <= currentTimeMs) {
-      index = i;
+
+  while (low <= high) {
+    let mid = Math.floor((low + high) / 2);
+    if (entries[mid].startTimeMs <= currentTimeMs) {
+      index = mid;
+      low = mid + 1;
     } else {
-      break;
+      high = mid - 1;
     }
   }
+
   return index;
 }
 
