@@ -72,3 +72,13 @@ function findCurrentIndex(currentTimeMs) {
 
 audioPlayer.addEventListener('timeupdate', updateHighlight);
 audioPlayer.addEventListener('seeked', updateHighlight);
+
+function pulse(id) {
+  entry = document.getElementById(id);
+  entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // refresh animation
+  entry.classList.remove('entry-pulse');
+  void entry.offsetWidth;
+  entry.classList.add('entry-pulse');
+}
