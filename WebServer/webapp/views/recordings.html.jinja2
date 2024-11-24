@@ -32,7 +32,7 @@
                                 Unknown
                             </button>
                         </td>
-                        <td>{{ "???" ~ " min" }}</td>
+                        <td>{{components.format_duration(recording.duration)}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
