@@ -5,6 +5,14 @@ function skipToTime(timeInSeconds) {
   audioPlayer.play()
 }
 
+function togglePlayback() {
+  if (audioPlayer.paused) {
+    audioPlayer.play();
+  } else {
+    audioPlayer.pause();
+  }
+}
+
 let entries = []
 let previousIndex = -1;
 
@@ -72,6 +80,12 @@ function findCurrentIndex(currentTimeMs) {
 
 audioPlayer.addEventListener('timeupdate', updateHighlight);
 audioPlayer.addEventListener('seeked', updateHighlight);
+document.addEventListener('keydown', function(event) {
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault();
+    togglePlayback();
+  }
+});
 
 function pulse(id) {
   entry = document.getElementById(id);
