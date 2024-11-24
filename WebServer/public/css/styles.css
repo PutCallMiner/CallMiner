@@ -403,6 +403,11 @@ a.icon-button {
   }
 }
 
+.highlighted-entry p {
+  background-color: var(--secondary);
+  border-radius: 10px;
+}
+
 .progress {
   display: flex;
   flex-direction: column;
