@@ -14,7 +14,7 @@
     </a>
 {%- endmacro -%}
 {%- macro progress_circle(link, delay = 0, load = True) -%}
-    {%- if load -%}
+{%- if load -%}
         <div class="progress"
              hx-get="{{ link }}"
              hx-target="this"
@@ -81,3 +81,85 @@
         </div>
     </div>
 {%- endmacro -%}
+{% macro analyze_form(recording_id) %}
+    <form id="analyze-form" class="analyze">
+        <button type="button" onclick="sendAnalyzeRequest()">Analyze</button>
+        <label for="force_rerun">Force Rerun:</label>
+        <select id="force_rerun" name="force_rerun" required>
+            <option value="none" selected>None</option>
+            <option value="all">All</option>
+            <option value="selected">Selected</option>
+        </select>
+        <label><input type="checkbox" name="required_tasks" value="asr,speaker_class">Transcript</label>
+        <label><input type="checkbox" name="required_tasks" value="ner">NER</label>
+        <label><input type="checkbox" name="required_tasks" value="summary">Summary</label>
+        <label><input type="checkbox" name="required_tasks" value="conformity">Conformity Check</label>
+
+        <script>
+            function sendAnalyzeRequest() {
+                const recordingId = "{{ recording_id }}";
+                const forceRerun = document.querySelector('#force_rerun').value;
+                const requiredTasks = Array.from(document.querySelectorAll('input[name="required_tasks"]:checked'))
+                    .map(input => input.value.split(",")).flat();
+
+                const payload = {
+                    recording_id: recordingId,
+                    analyze_params: {
+                        asr: {
+                            language: "pl",
+                            num_speakers: 2,
+                            whisper_prompt: null
+                        }
+                    },
+                    required_tasks: requiredTasks,
+                    force_rerun: forceRerun,
+                    task_timeout: 600
+                };
+
+                // TODO: THIS WHOLE CODE IS GARBAGE PROBABLY OMG
+                fetch("/api/analysis", {
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                })
+                .then((res) => {
+                    console.log(res);
+                    htmx.ajax("GET", document.querySelector("a.icon-button.active").getAttribute("hx-get"), ".tabs")
+                    .catch((res)=>{console.log(res);});
+                })
+                .catch((res) => {
+                    console.log(res);
+                })
+
+            }
+
+            {# document.querySelector("#analyze-form").addEventListener("htmx:configRequest", function (event) {
+                console.log("Running Listener");
+                const recordingId = "{{ recording_id }}";
+                const forceRerun = document.querySelector('#force_rerun').value;
+                const requiredTasks = Array.from(document.querySelectorAll('input[name="required_tasks"]:checked'))
+                    .map(input => input.value.split(",")).flat();
+
+                const payload = {
+                    recording_id: recordingId,
+                    analyze_params: {
+                        asr: {
+                            language: "pl",
+                            num_speakers: 2,
+                            whisper_prompt: null
+                        }
+                    },
+                    required_tasks: requiredTasks,
+                    force_rerun: forceRerun,
+                    task_timeout: 600
+                };
+                event.detail.headers["Content-Type"] = "application/json";
+                event.detail.body = JSON.stringify(payload);
+                console.log(event.detail);
+            }); #}
+        </script>
+    </form>
+{% endmacro %}

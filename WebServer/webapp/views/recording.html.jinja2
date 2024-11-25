@@ -76,7 +76,9 @@
                 <nav>
                     <a href="/recordings"><span class="icon">arrow_back</span></a>
                 </nav>
-                <div></div>
+                <div id="recording-header">
+                    {{ components.analyze_form(recording.id) }}
+                </div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>
