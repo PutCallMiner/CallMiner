@@ -84,6 +84,12 @@ document.addEventListener('keydown', function(event) {
   if (event.code === 'Space' || event.key === ' ') {
     event.preventDefault();
     togglePlayback();
+  } else if (event.code === 'ArrowLeft') {
+    event.preventDefault();
+    audioPlayer.currentTime = audioPlayer.currentTime - 5
+  } else if (event.code === 'ArrowRight') {
+    event.preventDefault();
+    audioPlayer.currentTime = audioPlayer.currentTime + 5;
   }
 });
 
