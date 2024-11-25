@@ -52,6 +52,28 @@ class NERTask(RecordingTask):
         return fixed_entries
 
     @staticmethod
+    def merge_siblings(ents: list) -> list:
+        """Merges sibling entities with the same label"""
+        merged_ents = []
+        for ent_list in ents:
+            new_list = []
+            i = 0
+            while i < len(ent_list) - 1:
+                ent1 = ent_list[i]
+                ent2 = ent_list[i + 1]
+                if ent1["label"] == ent2["label"] and ent1["end"] == ent2["start"]:
+                    ent1["end"] = ent2["end"]
+                    new_list.append(ent1)
+                    i += 2
+                else:
+                    new_list.append(ent1)
+                    i += 1
+            if i == len(ent_list) - 1:
+                new_list.append(ent_list[-1])
+            merged_ents.append(new_list)
+        return merged_ents
+
+    @staticmethod
     def parse_ner_endpoint_results(ents: list, tokens: list) -> NER:
         """Combines the output of spacy pipeline into a NER object"""
         ner = NER(entries=[])
@@ -99,5 +121,6 @@ class NERTask(RecordingTask):
         ents = self.fix_locations(text, prediction["ents"])
         tokens = self.fix_locations(text, prediction["tokens"])
 
-        ner_results = self.parse_ner_endpoint_results(ents, tokens)
+        merged = self.merge_siblings(ents)
+        ner_results = self.parse_ner_endpoint_results(merged, tokens)
         await update_with_ner(db, recording.id, ner_results)
