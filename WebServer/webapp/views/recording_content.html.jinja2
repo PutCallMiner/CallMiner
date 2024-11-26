@@ -64,7 +64,7 @@
                 <ul>
                     {%- for s in seen -%}
                         {%- if s[0] == entity[1] -%}
-                            <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
+                            <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
                                 hx-swap="none">{{ s[2] }}</li>
                         {%- endif -%}
                     {%- endfor -%}
@@ -103,9 +103,9 @@
             } -%}
             {%- for result in recording.conformity.results -%}
                 {%- if result.passed -%}
-                    <div hx-get="#entry-{{ transcript_entries[result.entry_id].start_time }}"
+                    <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
                          hx-swap="none">
-                        <span class="icon" style="color: #3fe03f;">check_circle</span><u>{{ map[result.intent_name] }}</u>
+                        <span class="icon" style="color: #3fe03f;">check_circle</span><span>{{ map[result.intent_name] }}</span>
                     </div>
                 {%- else -%}
                     <div>

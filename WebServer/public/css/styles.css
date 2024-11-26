@@ -31,6 +31,7 @@
   --border: #c0c0c0;
   --card: #f2f2f6;
   --input-active: #ebebf4;
+  --entry-active: 11, 87, 208;
 
   --small-border-radius: 8px;
   --standard-border-radius: 16px;
@@ -382,11 +383,10 @@ a.icon-button {
     padding: 0.25rem;
     margin: 0;
     position: relative;
+    cursor: pointer;
 
     &:hover {
-      background-color: rgba(11, 87, 208, 0.08);
-      border-radius: 2px;
-      cursor: pointer;
+      background-color: rgba(var(--entry-active), 0.08);
     }
 
     &.conformity:has(.icon) {
@@ -404,8 +404,27 @@ a.icon-button {
 }
 
 .highlighted-entry p {
-  background-color: var(--secondary);
-  border-radius: 10px;
+  background-color: rgba(var(--entry-active), 0.08);
+
+  &:hover {
+    background-color: rgba(var(--entry-active), 0.12);
+  }
+}
+
+.pulsing-entry {
+  animation: pulseAnim 1s ease-out;
+}
+
+@keyframes pulseAnim {
+  0% {
+    box-shadow: 0 0 0 var(--secondary);
+  }
+  50% {
+    box-shadow: 0 0 8px var(--secondary);
+  }
+  100% {
+    box-shadow: 0 0 0 var(--secondary);
+  }
 }
 
 .progress {
@@ -467,6 +486,7 @@ dl {
   gap: 1rem;
   max-width: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
   background-color: inherit;
 
   & > div {
@@ -493,7 +513,7 @@ dl {
   dd {
     margin-inline-start: 0;
     float: right;
-    padding-left: 0.5rem;
+    padding-inline: 0.5rem;
     position: relative;
     z-index: 1;
     display: inline-flex;
@@ -766,6 +786,7 @@ body > main#recording {
 
     aside {
       min-height: 0;
+      grid-column: 3;
     }
 
     aside.details {
@@ -781,11 +802,9 @@ body > main#recording {
         background-color: var(--card);
         box-shadow: 0 0 1px var(--border);
         border-radius: var(--large-border-radius);
-        grid-column: 3;
         padding-top: 2rem;
         padding-inline: 3rem;
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: hidden;
 
         h3 {
           margin: 0;
@@ -795,6 +814,8 @@ body > main#recording {
 
         p {
           text-align: justify;
+          overflow-y: auto;
+          padding-right: 0.5rem;
         }
       }
     }
@@ -804,6 +825,7 @@ body > main#recording {
       flex-direction: column;
       gap: 1.5rem;
       overflow-y: auto;
+      padding-right: 0.5rem;
 
       span.circle {
         height: 16px;
@@ -846,6 +868,7 @@ body > main#recording {
         flex-direction: column;
         gap: 1.5rem;
         overflow-y: auto;
+        padding-right: 0.5rem;
 
         div {
           padding: 1rem 1.5rem;
@@ -856,8 +879,12 @@ body > main#recording {
           display: flex;
           gap: 1.5rem;
 
-          &[hx-get] {
+          &[onclick] {
             cursor: pointer;
+
+            &:hover span:last-child {
+              text-decoration: underline;
+            }
           }
         }
       }

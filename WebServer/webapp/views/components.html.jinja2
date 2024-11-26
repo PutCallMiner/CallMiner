@@ -59,7 +59,7 @@
 {%- macro transcript(recording, paragraph_class = "") -%}
     {% for i in range(recording.transcript.entries|count) %}
         {%- set entry = recording.transcript.entries[i] -%}
-        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{ entry.start_time / 1000 }})">
+        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{ entry.start_time }})">
             <object class="avatar"></object>
             <header>
                 {% set speaker = recording.speaker_mapping[entry.speaker] %}
