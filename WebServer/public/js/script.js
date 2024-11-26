@@ -2,7 +2,7 @@ let audioPlayer = document.getElementById("recording-audio");
 
 function skipToTime(timeInSeconds) {
   audioPlayer.currentTime = timeInSeconds;
-  audioPlayer.play()
+  audioPlayer.play();
 }
 
 function togglePlayback() {
@@ -13,7 +13,7 @@ function togglePlayback() {
   }
 }
 
-let entries = []
+let entries = [];
 let previousIndex = -1;
 
 function clearEntries() {
@@ -22,22 +22,22 @@ function clearEntries() {
 }
 
 function setupEntries() {
-  console.log("Seting up")
+  console.log("Seting up");
   let transcriptEntries = Array.from(
-    document.getElementsByClassName("transcript-entry")
+    document.getElementsByClassName("transcript-entry"),
   );
-  
+
   entries = transcriptEntries.map((div) => {
     const id = div.id;
-    const startTimeMs = parseInt(id.replace('entry-', ''));
+    const startTimeMs = parseInt(id.replace("entry-", ""));
     return { div, startTimeMs };
   });
-  
+
   entries.sort((a, b) => a.startTimeMs - b.startTimeMs);
-  previousIndex = -1; 
+  previousIndex = -1;
 }
 
-setupEntries()
+setupEntries();
 
 function updateHighlight() {
   if (entries.length === 0) {
@@ -48,12 +48,15 @@ function updateHighlight() {
   let newIndex = findCurrentIndex(currentTimeMs);
   if (newIndex !== previousIndex) {
     if (previousIndex >= 0) {
-      entries[previousIndex].div.classList.remove('highlighted-entry');
+      entries[previousIndex].div.classList.remove("highlighted-entry");
     }
 
     if (newIndex >= 0) {
-      entries[newIndex].div.classList.add('highlighted-entry');
-      entries[newIndex].div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      entries[newIndex].div.classList.add("highlighted-entry");
+      entries[newIndex].div.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
 
     previousIndex = newIndex;
@@ -78,27 +81,44 @@ function findCurrentIndex(currentTimeMs) {
   return index;
 }
 
-audioPlayer.addEventListener('timeupdate', updateHighlight);
-audioPlayer.addEventListener('seeked', updateHighlight);
-document.addEventListener('keydown', function(event) {
-  if (event.code === 'Space' || event.key === ' ') {
+audioPlayer.addEventListener("timeupdate", updateHighlight);
+audioPlayer.addEventListener("seeked", updateHighlight);
+document.addEventListener("keydown", function (event) {
+  if (event.code === "Space" || event.key === " ") {
     event.preventDefault();
     togglePlayback();
-  } else if (event.code === 'ArrowLeft') {
+  } else if (event.code === "ArrowLeft") {
     event.preventDefault();
-    audioPlayer.currentTime = audioPlayer.currentTime - 5
-  } else if (event.code === 'ArrowRight') {
+    audioPlayer.currentTime = audioPlayer.currentTime - 5;
+  } else if (event.code === "ArrowRight") {
     event.preventDefault();
     audioPlayer.currentTime = audioPlayer.currentTime + 5;
   }
 });
 
 function pulse(id) {
-  entry = document.getElementById(id);
-  entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const entry = document.getElementById(id);
+  const container = entry.parentElement;
 
-  // refresh animation
-  entry.classList.remove('entry-pulse');
-  void entry.offsetWidth;
-  entry.classList.add('entry-pulse');
+  function pulseEntry() {
+    entry.classList.add("pulsing-entry");
+    setTimeout(() => {
+      entry.classList.remove("pulsing-entry");
+    }, 1000);
+  }
+
+  if (entry.classList.contains("pulsing-entry")) {
+    return;
+  }
+
+  if (
+    entry.offsetTop > container.scrollTop + container.clientHeight ||
+    entry.offsetTop < container.scrollTop
+  ) {
+    entry.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    container.addEventListener("scrollend", pulseEntry, { once: true });
+  } else {
+    pulseEntry();
+  }
 }
