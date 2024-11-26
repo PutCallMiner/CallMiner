@@ -1,8 +1,10 @@
 let audioPlayer = document.getElementById("recording-audio");
+let entries = [];
+let previousIndex = -1;
 
-function skipToTime(timeInSeconds) {
-  audioPlayer.currentTime = timeInSeconds;
-  audioPlayer.play();
+function skipToTime(time) {
+  audioPlayer.currentTime = time / 1000;
+  updateHighlight(undefined, time);
 }
 
 function togglePlayback() {
@@ -12,9 +14,6 @@ function togglePlayback() {
     audioPlayer.pause();
   }
 }
-
-let entries = [];
-let previousIndex = -1;
 
 function clearEntries() {
   entries = [];
@@ -37,15 +36,20 @@ function setupEntries() {
   previousIndex = -1;
 }
 
-setupEntries();
-
-function updateHighlight() {
+function updateHighlight(_, entryTime) {
   if (entries.length === 0) {
     setupEntries();
   }
 
-  const currentTimeMs = audioPlayer.currentTime * 1000;
-  let newIndex = findCurrentIndex(currentTimeMs);
+  let newIndex = -1;
+
+  if (entryTime !== undefined) {
+    newIndex = entries.findIndex((entry) => entry.startTimeMs === entryTime);
+  } else {
+    const currentTimeMs = audioPlayer.currentTime * 1000;
+    newIndex = findCurrentIndex(currentTimeMs);
+  }
+
   if (newIndex !== previousIndex) {
     if (previousIndex >= 0) {
       entries[previousIndex].div.classList.remove("highlighted-entry");
@@ -81,21 +85,6 @@ function findCurrentIndex(currentTimeMs) {
   return index;
 }
 
-audioPlayer.addEventListener("timeupdate", updateHighlight);
-audioPlayer.addEventListener("seeked", updateHighlight);
-document.addEventListener("keydown", function (event) {
-  if (event.code === "Space" || event.key === " ") {
-    event.preventDefault();
-    togglePlayback();
-  } else if (event.code === "ArrowLeft") {
-    event.preventDefault();
-    audioPlayer.currentTime = audioPlayer.currentTime - 5;
-  } else if (event.code === "ArrowRight") {
-    event.preventDefault();
-    audioPlayer.currentTime = audioPlayer.currentTime + 5;
-  }
-});
-
 function pulse(id) {
   const entry = document.getElementById(id);
   const container = entry.parentElement;
@@ -122,3 +111,18 @@ function pulse(id) {
     pulseEntry();
   }
 }
+
+audioPlayer.addEventListener("timeupdate", updateHighlight);
+audioPlayer.addEventListener("seeked", updateHighlight);
+document.addEventListener("keydown", function (event) {
+  if (event.code === "Space" || event.key === " ") {
+    event.preventDefault();
+    togglePlayback();
+  } else if (event.code === "ArrowLeft") {
+    event.preventDefault();
+    audioPlayer.currentTime = audioPlayer.currentTime - 5;
+  } else if (event.code === "ArrowRight") {
+    event.preventDefault();
+    audioPlayer.currentTime = audioPlayer.currentTime + 5;
+  }
+});
