@@ -486,6 +486,7 @@ dl {
   gap: 1rem;
   max-width: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
   background-color: inherit;
 
   & > div {
@@ -512,7 +513,7 @@ dl {
   dd {
     margin-inline-start: 0;
     float: right;
-    padding-left: 0.5rem;
+    padding-inline: 0.5rem;
     position: relative;
     z-index: 1;
     display: inline-flex;
@@ -785,6 +786,7 @@ body > main#recording {
 
     aside {
       min-height: 0;
+      grid-column: 3;
     }
 
     aside.details {
@@ -800,11 +802,9 @@ body > main#recording {
         background-color: var(--card);
         box-shadow: 0 0 1px var(--border);
         border-radius: var(--large-border-radius);
-        grid-column: 3;
         padding-top: 2rem;
         padding-inline: 3rem;
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: hidden;
 
         h3 {
           margin: 0;
@@ -814,6 +814,8 @@ body > main#recording {
 
         p {
           text-align: justify;
+          overflow-y: auto;
+          padding-right: 0.5rem;
         }
       }
     }
@@ -823,6 +825,7 @@ body > main#recording {
       flex-direction: column;
       gap: 1.5rem;
       overflow-y: auto;
+      padding-right: 0.5rem;
 
       span.circle {
         height: 16px;
@@ -865,6 +868,7 @@ body > main#recording {
         flex-direction: column;
         gap: 1.5rem;
         overflow-y: auto;
+        padding-right: 0.5rem;
 
         div {
           padding: 1rem 1.5rem;
@@ -875,8 +879,12 @@ body > main#recording {
           display: flex;
           gap: 1.5rem;
 
-          &[hx-get] {
+          &[onclick] {
             cursor: pointer;
+
+            &:hover span:last-child {
+              text-decoration: underline;
+            }
           }
         }
       }

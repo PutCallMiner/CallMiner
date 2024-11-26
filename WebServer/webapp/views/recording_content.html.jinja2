@@ -105,7 +105,7 @@
                 {%- if result.passed -%}
                     <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
                          hx-swap="none">
-                        <span class="icon" style="color: #3fe03f;">check_circle</span><u>{{ map[result.intent_name] }}</u>
+                        <span class="icon" style="color: #3fe03f;">check_circle</span><span>{{ map[result.intent_name] }}</span>
                     </div>
                 {%- else -%}
                     <div>
