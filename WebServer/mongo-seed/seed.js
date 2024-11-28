@@ -46,7 +46,7 @@ recordings = blobs.map((name, index) => {
     duration: null,
     ner: null,
     conformity: null,
-    created_at: createdAt,
+    created: createdAt,
     agent: {
       id: 0,
       name: "Ewelina",

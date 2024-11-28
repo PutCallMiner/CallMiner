@@ -9,9 +9,12 @@ from webapp.crud.common import get_blob_storage_client, get_rec_db
 from webapp.crud.recordings import (
     get_recording_by_id,
     get_recordings,
+    insert_recordings,
 )
 from webapp.models.record import (
+    LoadRecordingsResponse,
     Recording,
+    RecordingBase,
     RecordingsResponse,
 )
 
@@ -52,6 +55,8 @@ async def add_recordings(
             duration=None,
             ner=None,
             conformity=None,
+            agent=None,
+            tags=[],
         )
         for blob_name in blob_names
     ]

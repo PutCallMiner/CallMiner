@@ -1,13 +1,5 @@
 {% import "components.html.jinja2" as components %}
-<<<<<<< HEAD
 {% import "recording_content.html.jinja2" as content with context %}
-||||||| parent of d257515 (feat: Add some metadata fields to record)
-{% from "recording_utils.html.jinja2" import time_to_min %}
-{% from "recording_content.html.jinja2" import transcript, summary with context %}
-=======
-{% from "recording_utils.html.jinja2" import time_to_min, tags %}
-{% from "recording_content.html.jinja2" import transcript, summary with context %}
->>>>>>> d257515 (feat: Add some metadata fields to record)
 {%- macro component() %}
     <nav class="tabs-control">
         {{ components.tab_button(0, tab, true, "description", "Summary") }}
@@ -38,7 +30,7 @@
                         <dt>Agent</dt>
                         <dd>
                             <object class="avatar"></object>
-                            {{ recording.agent_name }}
+                            {{ recording.agent.name }}
                         </dd>
                     </div>
                     <div>
@@ -48,9 +40,9 @@
                         </dd>
                     </div>
                     <div>
-                        <dt>Created At</dt>
+                        <dt>Created On</dt>
                         <dd>
-                            {{ recording.created_at }}
+                            {{ recording.created.strftime("%a, %d %b %Y") }}
                         </dd>
                     </div>
                     <div>

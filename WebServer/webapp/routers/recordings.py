@@ -101,8 +101,7 @@ async def audio(
         if len(ranges) != 2:
             raise HTTPException(status_code=416, detail="Invalid Range header format")
 
-        if ranges[0]:
-            start = int(ranges[0])
+        start = int(ranges[0])
         if ranges[1]:
             end = int(ranges[1])
         else:
@@ -119,11 +118,6 @@ async def audio(
         end = blob_size - 1
         content_length = blob_size
         status_code = 200
-
-    if resp.status_code != 200:
-        return StreamingResponse(
-            content=resp.content, status_code=resp.status_code, media_type="audio/wav"
-        )
 
     response_headers = {
         "Content-Type": "audio/wav",

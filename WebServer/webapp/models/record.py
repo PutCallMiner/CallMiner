@@ -18,11 +18,6 @@ class Agent(BaseModel):
     email: str
 
 
-class Tag(BaseModel):
-    name: str
-    color: str
-
-
 class RecordingBase(BaseModel):
     blob_name: str
     transcript: Transcript | None
@@ -31,9 +26,9 @@ class RecordingBase(BaseModel):
     duration: int | None
     ner: NER | None
     conformity: ConformityResults | None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    agent: Agent
-    tags: list[Tag] = []
+    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    agent: Agent | None
+    tags: list[str] = []
 
     def get_agent_speaker_id(self) -> int:
         assert self.speaker_mapping is not None, "Speaker mapping is None"

@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_blob_storage_client, get_rec_db
-from webapp.models.record import Agent, RecordingBase, Tag
+from webapp.models.record import Agent, RecordingBase
 
 router = APIRouter(prefix="/upload", tags=["Jinja", "Recordings"])
 
@@ -26,7 +26,6 @@ async def upload(
     agent_name: Annotated[str, Form()],
     email: Annotated[str, Form()],
     tag: Annotated[str, Form()],
-    tag_color: Annotated[str, Form()],
     file: Annotated[UploadFile, File()],
     blob_service_client: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
@@ -41,9 +40,9 @@ async def upload(
         speaker_mapping=None,
         duration=None,
         ner=None,
-        conformity_results=None,
+        conformity=None,
         agent=Agent(id=2, name=agent_name, email=email),
-        tags=[Tag(name=tag, color=tag_color)],
+        tags=[tag],
     )
 
     await recording_db["recordings"].insert_one(recording.model_dump())

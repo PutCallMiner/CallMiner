@@ -23,7 +23,7 @@
                     <tr>
                         <td>
                             <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
-                                {{ components.recording_url(recording.recording_url) }}<span class="icon">north_east</span>
+                                {{ recording.blob_name }}<span class="icon">north_east</span>
                             </a>
                         </td>
                         <td>
@@ -41,7 +41,7 @@
             <div>
                 <span>Show</span>
                 <select name="take"
-                        hx-get="{{ components.link(search) }}"
+                        hx-get="{{ components.link(search=search) }}"
                         hx-target="#recordings">
                     {% for t in [5, 10, 20, 50] %}
                         <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
