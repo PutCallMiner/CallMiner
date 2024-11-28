@@ -82,18 +82,20 @@
     </div>
 {%- endmacro -%}
 {% macro analyze_form(recording_id) %}
-    <form id="analyze-form" class="analyze">
+    <div class="analyze-row">
         <button type="button" onclick="sendAnalyzeRequest()">Analyze</button>
-        <label for="force_rerun">Force Rerun:</label>
-        <select id="force_rerun" name="force_rerun" required>
-            <option value="none" selected>None</option>
-            <option value="all">All</option>
-            <option value="selected">Selected</option>
-        </select>
-        <label><input type="checkbox" name="required_tasks" value="asr,speaker_class">Transcript</label>
-        <label><input type="checkbox" name="required_tasks" value="ner">NER</label>
-        <label><input type="checkbox" name="required_tasks" value="summary">Summary</label>
-        <label><input type="checkbox" name="required_tasks" value="conformity">Conformity Check</label>
+        <label>
+            Force Rerun:
+            <select id="force_rerun" name="force_rerun" required>
+                <option value="none" selected>None</option>
+                <option value="all">All</option>
+                <option value="selected">Selected</option>
+            </select>
+        </label>
+        <label><input type="checkbox" name="required_tasks" value="asr,speaker_class" checked>Transcript</label>
+        <label><input type="checkbox" name="required_tasks" value="ner" checked>NER</label>
+        <label><input type="checkbox" name="required_tasks" value="summary" checked>Summary</label>
+        <label><input type="checkbox" name="required_tasks" value="conformity" checked>Conformity Check</label>
 
         <script>
             function sendAnalyzeRequest() {
@@ -161,5 +163,5 @@
                 console.log(event.detail);
             }); #}
         </script>
-    </form>
+    </div>
 {% endmacro %}
