@@ -29,14 +29,20 @@
                     <div>
                         <dt>Agent</dt>
                         <dd>
-                            <object class="avatar"></object>
-                            {{ recording.agent.name }}
+                            <button class="chip">
+                                <object class="avatar"></object>
+                                {% if recording.agent %}
+                                    {{ recording.agent.name }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </button>
                         </dd>
                     </div>
                     <div>
                         <dt>Duration</dt>
                         <dd>
-                            ??? min
+                            {{ components.time_to_min(recording.duration) }} min
                         </dd>
                     </div>
                     <div>
@@ -48,7 +54,7 @@
                     <div>
                         <dt>Tags</dt>
                         <dd>
-                            <a>#???</a> <a>#???</a>
+                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
                         </dd>
                     </div>
                 </dl>

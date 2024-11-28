@@ -340,6 +340,16 @@ a.icon-button {
   background: url("../assets/account.svg") no-repeat center;
 }
 
+.tag {
+  padding: 0.25rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    font-weight: 700;
+  }
+}
+
 .transcript-entry {
   display: grid;
   grid-template-columns: 24px 1fr;
@@ -674,10 +684,6 @@ body > main#recordings {
     }
 
     td {
-      .recording-tag {
-        margin: 2px 2px;
-      }
-
       a {
         width: 100%;
         display: flow;
@@ -809,6 +815,7 @@ body > main#recording {
 
       & > div {
         flex-grow: 1;
+        flex-basis: 0;
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
@@ -944,3 +951,4 @@ body > main#recording {
     width: 50%;
   }
 }
+
