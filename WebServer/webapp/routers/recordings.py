@@ -12,7 +12,6 @@ from webapp.crud.common import get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
-from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -124,7 +123,6 @@ async def content(
     request: Request,
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
-    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
     content: str = "transcript",
 ) -> HTMLResponse:
     recording = await get_recording_by_id(recording_db, recording_id)
@@ -136,11 +134,9 @@ async def content(
     attr_name = attr.upper() if attr in ["ner"] else attr.capitalize()
 
     if getattr(recording, attr, None) is None:
-        status = await get_key_value(tasks_db, recording.id)
-        if status != TaskStatus.IN_PROGRESS:
-            return HTMLResponse(
-                content=f"<p>{attr_name} not found, please run the analysis first.</p>",
-            )
+        return HTMLResponse(
+            content=f"<p>{attr_name} not found, please run the analysis first.</p>",
+        )
 
     return templates.TemplateResponse(
         request=request,

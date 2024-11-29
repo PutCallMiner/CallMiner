@@ -9,11 +9,11 @@
     </nav>
     <section>
         {% if tab == 0 %}
-            {{ content.transcript() }}
+            {{ content.render_content("transcript") }}
         {% elif tab == 1 %}
-            {{ content.ner() }}
+            {{ content.render_content("ner") }}
         {% elif tab == 2 %}
-            {{ content.conformity() }}
+            {{ content.render_content("conformity") }}
         {% endif %}
     </section>
     {% if tab == 0 %}
@@ -56,16 +56,16 @@
             </div>
             <div>
                 <h3>Summary</h3>
-                {{ content.summary() }}
+                {{ content.render_content("summary") }}
             </div>
         </aside>
     {% elif tab == 1 %}
         <aside class="ner">
-            {{ content.ner_details() }}
+            {{ content.render_content("ner-details") }}
         </aside>
     {% elif tab == 2 %}
         <aside class="conformity">
-            {{ content.conformity_details() }}
+            {{ content.render_content("conformity-details") }}
         </aside>
     {% endif %}
 {%- endmacro %}
