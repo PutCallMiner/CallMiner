@@ -8,6 +8,15 @@
                hx-get=" {{ components.link(take=take) }} "
                hx-target="#recordings"
                hx-trigger="search">
+        <div id="table-toolbar">
+            <button class="text-button"
+                    hx-get="recordings/upload"
+                    hx-target="body"
+                    hx-swap="beforeend">
+                <span class="icon">cloud_upload</span>
+                <span>Upload</span>
+            </button>
+        </div>
     </div>
     <div id="recordings-table" class="table">
         <table>
@@ -58,7 +67,8 @@
                     <span>results</span>
                 </div>
                 <div>
-                    <a hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
+                    <a href=""
+                       hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
                        hx-target="#recordings"
                        class="{% if skip <= 0 %}disabled{% endif %}">
                         <span class="icon">chevron_left</span><span>Previous</span>
@@ -71,7 +81,8 @@
                         {% endfor %}
                     </select>
                     <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
-                    <a hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
+                    <a href=""
+                       hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
                        hx-target="#recordings"
                        class="{% if skip + take + 1 > total %}disabled{% endif %}">
                         <span>Next</span><span class="icon">chevron_right</span>

@@ -1,24 +1,46 @@
-<dialog id="upload" open>
-    <h2>Upload a new audio file with metadata</h2>
+<dialog id="upload"
+        hx-get="#recordings"
+        hx-target="#upload"
+        hx-trigger="close"
+        hx-swap="delete"
+        hx-on:htmx:load="openDialog('upload')">
+    <h1>Upload a new audio</h1>
     <form action="upload" enctype="multipart/form-data" method="post">
         <label>
-            Agent name
-            <input type="text" name="agent_name" required>
+            <span>Agent name</span>
+            <div>
+                <input type="text" name="agent_name" required>
+                <span class="helper-text">Name of the agent in this recording</span>
+            </div>
         </label>
         <label>
-            Agent email
-            <input type="email" name="agent_email" required>
+            <span>Agent email</span>
+            <div>
+                <input type="email" name="agent_email" required>
+                <span class="helper-text">Email of the agent in this recording</span>
+            </div>
         </label>
         <label>
-            Tags
-            <input type="text" name="tags">
+            <span>Tags</span>
+            <div>
+                <input type="text" name="tags">
+                <span class="helper-text">List of related tags, separated by commas</span>
+            </div>
         </label>
-        <label>
-            Select audio file
-            <input type="file" name="file" required>
-        </label>
-        <label>
-            <button type="submit">Upload</button>
-        </label>
+        <div>
+            <div>
+                <input type="file" name="file" required accept="audio/*">
+                <span class="icon">upload</span>
+                <p>Select or drag and drop to upload your file</p>
+            </div>
+            <span class="helper-text">Accepts audio files</span>
+        </div>
+        <div>
+            <button class="text-button"
+                    hx-get="#recordings"
+                    hx-target="#upload"
+                    hx-swap="delete">Cancel</button>
+            <button class="filled-button primary" type="submit">Upload</button>
+        </div>
     </form>
 </dialog>

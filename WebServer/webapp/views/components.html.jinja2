@@ -60,7 +60,9 @@
 {%- macro transcript(recording, paragraph_class = "") -%}
     {% for i in range(recording.transcript.entries|count) %}
         {%- set entry = recording.transcript.entries[i] -%}
-        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{ entry.start_time }})">
+        <div class="transcript-entry"
+             id="{{ "entry-" ~ entry.start_time }}"
+             hx-on:click="skipToTime({{ entry.start_time }})">
             <object class="avatar"></object>
             <header>
                 {% set speaker = recording.speaker_mapping[entry.speaker] %}
@@ -81,7 +83,7 @@
     </div>
 {%- endmacro -%}
 {%- macro agent(agent) -%}
-    <button class="chip">
+    <button class="chip" tabindex="1">
         <object class="avatar"></object>
         {% if agent %}
             {{ agent.name }}

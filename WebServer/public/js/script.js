@@ -112,6 +112,11 @@ function pulse(id) {
   }
 }
 
+function openDialog(id) {
+  const dialog = document.getElementById(id);
+  dialog.showModal();
+}
+
 audioPlayer.addEventListener("timeupdate", updateHighlight);
 audioPlayer.addEventListener("seeked", updateHighlight);
 document.addEventListener("keydown", function (event) {
