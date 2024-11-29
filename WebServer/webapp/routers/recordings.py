@@ -101,6 +101,24 @@ async def audio(
     )
 
 
+@router.get("/{recording_id}/analyze_status")
+async def analyze_status(
+    request: Request,
+    recording_id: str,
+    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+) -> HTMLResponse:
+    task_status = await get_key_value(tasks_db, recording_id)
+    return templates.TemplateResponse(
+        request=request,
+        name="_analysis_indicator.html.jinja2",
+        context={
+            "request": request,
+            "recording_id": recording_id,
+            "status": task_status,
+        },
+    )
+
+
 @router.get("/{recording_id}/{content}")
 async def content(
     request: Request,
@@ -108,7 +126,6 @@ async def content(
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     tasks_db: Annotated[Redis, Depends(get_tasks_db)],
     content: str = "transcript",
-    delay: int = 0,
 ) -> HTMLResponse:
     recording = await get_recording_by_id(recording_db, recording_id)
 
@@ -131,6 +148,5 @@ async def content(
         context={
             "recording": recording,
             "content": content,
-            "delay": delay + 1,
         },
     )

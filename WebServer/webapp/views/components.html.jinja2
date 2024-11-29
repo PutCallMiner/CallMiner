@@ -83,7 +83,7 @@
 {%- endmacro -%}
 {% macro analyze_form(recording_id) %}
     <div class="analyze-row">
-        <button type="button" onclick="sendAnalyzeRequest()">Analyze</button>
+        <button id="analyze-button" type="button" onclick="sendAnalyzeRequest()">Analyze</button>
         <label>
             Force Rerun:
             <select id="force_rerun" name="force_rerun" required>
@@ -92,11 +92,10 @@
                 <option value="selected">Selected</option>
             </select>
         </label>
-        <label><input type="checkbox" name="required_tasks" value="asr,speaker_class" checked>Transcript</label>
+        <label><input type="checkbox" name="required_tasks" value="asr,speaker_class" checked disabled readonly>Transcript</label>
         <label><input type="checkbox" name="required_tasks" value="ner" checked>NER</label>
         <label><input type="checkbox" name="required_tasks" value="summary" checked>Summary</label>
         <label><input type="checkbox" name="required_tasks" value="conformity" checked>Conformity Check</label>
-
         <script>
             function sendAnalyzeRequest() {
                 const recordingId = "{{ recording_id }}";

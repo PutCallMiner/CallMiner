@@ -707,6 +707,7 @@ body > main#recording {
     #recording-header {
       display: flex;
       align-items: center;
+      gap: 0.5rem;
       
       div.analyze-row {
         /* Container styling for better layout */
@@ -751,6 +752,32 @@ body > main#recording {
         input[type="checkbox"] {
           margin-right: 5px; /* Space between checkbox and text */
           accent-color: var(--primary); /* Match checkbox color with button */
+        }
+      }
+
+      #analysis-indicator {
+        height: 100%;
+        width: auto;
+
+        img {
+          object-fit: contain;
+          height: 100%;
+        }
+
+        svg:has(circle) {
+          width: 3.25em;
+          transform-origin: center;
+          animation: rotate4 2s linear infinite;
+      
+          circle {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            animation: dash4 1.5s ease-in-out infinite;
+          }
         }
       }
     } 

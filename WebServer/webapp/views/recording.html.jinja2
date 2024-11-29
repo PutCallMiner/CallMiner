@@ -1,5 +1,6 @@
 {% import "components.html.jinja2" as components %}
 {% import "recording_content.html.jinja2" as content with context %}
+{% import "_analysis_indicator.html.jinja2" as indicator %}
 {%- macro component() %}
     <nav class="tabs-control">
         {{ components.tab_button(0, tab, true, "description", "Summary") }}
@@ -78,6 +79,7 @@
                 </nav>
                 <div id="recording-header">
                     {{ components.analyze_form(recording.id) }}
+                    {{ indicator.analysis_indicator(recording.id, "in_progress") }}
                 </div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
