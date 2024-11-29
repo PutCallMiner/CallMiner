@@ -78,8 +78,8 @@ async def upload(
     )
 
     await recording_db["recordings"].insert_one(recording.model_dump())
-    # blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
-    # await blob_client.upload_blob(file.file)
+    blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
+    await blob_client.upload_blob(file.file)
 
     return RedirectResponse(url="/recordings", status_code=303)
 
