@@ -72,11 +72,21 @@
         </div>
     {% endfor %}
 {%- endmacro -%}
-{%- macro rating(score) -%}
-    <div class="rating">
+{%- macro rating(score, background = "secondary") -%}
+    <div class="rating" style="background-color: var(--{{ background }});">
         <div style="{{ 'background-image: conic-gradient(var(--primary) ' ~ score ~ '%, transparent 0 100%);
                     ' }}">
             <span>{{ score }}</span>
         </div>
     </div>
+{%- endmacro -%}
+{%- macro agent(agent) -%}
+    <button class="chip">
+        <object class="avatar"></object>
+        {% if agent %}
+            {{ agent.name }}
+        {% else %}
+            Unknown
+        {% endif %}
+    </button>
 {%- endmacro -%}

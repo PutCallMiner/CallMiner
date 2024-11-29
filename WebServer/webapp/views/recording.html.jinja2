@@ -29,14 +29,7 @@
                     <div>
                         <dt>Agent</dt>
                         <dd>
-                            <button class="chip">
-                                <object class="avatar"></object>
-                                {% if recording.agent %}
-                                    {{ recording.agent.name }}
-                                {% else %}
-                                    Unknown
-                                {% endif %}
-                            </button>
+                            {{ components.agent(recording.agent) }}
                         </dd>
                     </div>
                     <div>
