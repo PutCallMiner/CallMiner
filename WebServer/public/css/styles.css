@@ -538,7 +538,7 @@ a.icon-button {
         cursor: default;
         color: var(--accent);
         position: absolute;
-        top: 50%;
+        top: calc(50% - 0.5rem);
         left: -3rem;
         transform: translateY(-50%);
       }
@@ -1077,19 +1077,32 @@ body > main#recording {
         overflow-y: auto;
         padding-right: 0.5rem;
 
-        div {
+        & > div {
           padding: 1rem 1.5rem;
           background-color: var(--card);
           box-shadow: 0 0 1px var(--border);
           border-radius: var(--standard);
-          font-weight: 700;
           display: flex;
           gap: 1.5rem;
+
+          div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            span:first-child {
+              font-weight: 700;
+            }
+
+            span:last-child {
+              font-size: 0.9rem;
+            }
+          }
 
           &[onclick] {
             cursor: pointer;
 
-            &:hover span:last-child {
+            &:hover div span:first-child {
               text-decoration: underline;
             }
           }

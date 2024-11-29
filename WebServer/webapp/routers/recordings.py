@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
 from webapp.configs.globals import AZURE_BLOB_STORAGE_URL, AZURE_SAS_TOKEN
+from webapp.configs.intents import PREDEFINED_INTENTS
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_blob_storage_client, get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
@@ -100,6 +101,7 @@ async def detail(
             "partial": request.headers.get("hx-request"),
             "tab": tab,
             "delay": 0,
+            "intents": PREDEFINED_INTENTS,
         },
     )
 
@@ -199,5 +201,6 @@ async def content(
             "recording": recording,
             "content": content,
             "delay": delay + 1,
+            "intents": PREDEFINED_INTENTS,
         },
     )
