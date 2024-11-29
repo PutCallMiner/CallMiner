@@ -51,7 +51,7 @@
     {%- endif -%}
 {%- endmacro -%}
 {%- macro time_to_min(secs) -%}
-    {% if not secs %}
+    {% if secs is none %}
         {{ "???" }}
     {% else %}
         {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
@@ -60,17 +60,14 @@
 {%- macro transcript(recording, paragraph_class = "") -%}
     {% for i in range(recording.transcript.entries|count) %}
         {%- set entry = recording.transcript.entries[i] -%}
-        <div class="transcript-entry"
+        {%- set speaker = recording.speaker_mapping[entry.speaker] -%}
+        <div class="transcript-entry {{ speaker }}"
              id="{{ "entry-" ~ entry.start_time }}"
              hx-on:click="skipToTime({{ entry.start_time }})">
-            <object class="avatar"></object>
-            <header>
-                {% set speaker = recording.speaker_mapping[entry.speaker] %}
-                <span class="{{ speaker }}">{{ speaker }}</span>
-                <span>{{ time_to_min(entry.start_time) }}</span>
-            </header>
-            <p class={{ paragraph_class }}>{{ caller(i) }}
+            <p class={{ paragraph_class }}>
+                {{ caller(i) }}
             </p>
+            <span>{{ time_to_min(entry.start_time) }}</span>
         </div>
     {% endfor %}
 {%- endmacro -%}

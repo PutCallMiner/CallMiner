@@ -358,7 +358,7 @@ button.outlined {
 }
 
 button.filled {
-  color: white;
+  color: var(--text-contrast);
   border-radius: var(--large);
 
   &:hover,
@@ -487,89 +487,82 @@ a.icon-button {
 }
 
 .transcript-entry {
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  grid-template-rows: 2rem 1fr;
-  gap: 0 1rem;
+  display: flex;
+  flex-direction: column;
 
-  .avatar {
-    grid-column: 1;
-    grid-row: 1;
-    margin-top: 0.5rem;
+  &.client {
+    align-items: flex-start;
+
+    p {
+      background-color: var(--secondary);
+      color: var(--text);
+    }
   }
 
-  header {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
+  &.agent {
+    align-items: flex-end;
 
-    span:first-child {
-      font-weight: 700;
-      position: relative;
+    p {
+      background-color: var(--primary);
+      color: var(--text-contrast);
     }
+  }
 
-    span:last-child {
-      font-size: 0.75rem;
-    }
-
-    span.agent::after {
-      content: "•";
-      color: var(--accent);
-      position: absolute;
-      top: -8px;
-      right: -8px;
-    }
+  span {
+    font-size: 0.75rem;
+    margin: 0.5rem;
   }
 
   p {
-    grid-column: 2;
-    grid-row: 2;
-    padding: 0.25rem;
+    width: 60%;
+    padding: 0.5rem 1rem;
     margin: 0;
     position: relative;
     cursor: pointer;
+    border-radius: var(--standard);
+
+    mark {
+      color: var(--text);
+      padding: 0 0.1rem;
+    }
 
     &:hover {
-      background-color: rgba(var(--hover), 0.08);
+      box-shadow: 0 0 2px black;
     }
 
     &.conformity:has(.icon) {
       border-left: 1px solid var(--accent);
 
       .icon {
+        font-size: 2rem;
         cursor: default;
         color: var(--accent);
         position: absolute;
-        top: calc(50% - 0.65rem);
-        left: -1.5rem;
+        top: 50%;
+        left: -3rem;
+        transform: translateY(-50%);
       }
     }
   }
-}
 
-.highlighted-entry p {
-  background-color: rgba(var(--hover), 0.08);
-
-  &:hover {
-    background-color: rgba(var(--hover), 0.12);
+  &.highlighted p {
+    box-shadow: 0 0 2px var(--accent);
   }
-}
 
-.pulsing-entry {
-  animation: pulseAnim 1s ease-out;
+  &.pulse p {
+    animation: pulseAnim 1s ease-out;
+  }
 }
 
 @keyframes pulseAnim {
   0% {
-    box-shadow: 0 0 0 var(--secondary);
+    box-shadow: 0 0 0 var(--accent);
   }
   50% {
-    box-shadow: 0 0 8px var(--secondary);
+    box-shadow: 0 0 16px var(--accent);
   }
   100% {
-    box-shadow: 0 0 0 var(--secondary);
+    box-shadow: 0 0 0 var(--accent);
   }
 }
 
@@ -967,7 +960,6 @@ body > main#recording {
       padding-inline: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 30px;
       grid-column: 2;
     }
 
