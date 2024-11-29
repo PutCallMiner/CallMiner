@@ -1,21 +1,17 @@
 from typing import Annotated, Optional
 
-from azure.core.credentials import AzureSasCredential
 from azure.storage.blob.aio import BlobServiceClient
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
-from webapp.configs.globals import (
-    AZURE_BLOB_STORAGE_URL,
-    AZURE_SAS_TOKEN,
-)
 from webapp.configs.views import nav_links, templates
-from webapp.crud.common import get_rec_db, get_tasks_db
+from webapp.crud.common import get_blob_storage_client, get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
+from webapp.models.record import Agent, RecordingBase
 from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
@@ -49,6 +45,45 @@ async def table(
     )
 
 
+@router.get("/upload")
+async def upload_form(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="upload.html.jinja2",
+    )
+
+
+@router.post("/upload")
+async def upload(
+    agent_name: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    tags: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()],
+    blob_service_client: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+):
+    if not file.filename:
+        raise ValueError("No file provided")
+
+    recording = RecordingBase(
+        blob_name=file.filename,
+        transcript=None,
+        summary=None,
+        speaker_mapping=None,
+        duration=None,
+        ner=None,
+        conformity=None,
+        agent=Agent(id=2, name=agent_name, email=email),
+        tags=[tag.strip() for tag in tags.split(",")],
+    )
+
+    await recording_db["recordings"].insert_one(recording.model_dump())
+    blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
+    await blob_client.upload_blob(file.file)
+
+    return RedirectResponse(url="recordings", status_code=303)
+
+
 @router.get("/{recording_id}")
 async def detail(
     request: Request,
@@ -79,10 +114,9 @@ async def detail(
 async def audio(
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    blob_storage: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
     range: Optional[str] = None,
 ) -> StreamingResponse:
-    sas = AzureSasCredential(AZURE_SAS_TOKEN)
-    blob_storage = BlobServiceClient(AZURE_BLOB_STORAGE_URL, sas)
     recording = await get_recording_by_id(recording_db, recording_id)
 
     if recording is None:

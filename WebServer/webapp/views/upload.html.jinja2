@@ -1,31 +1,24 @@
-{% extends "layout.html.jinja2" %}
-{% block content %}
-    <main id="upload">
-        <h2>Upload a new audio file with metadata</h2>
-        <form action="/upload" enctype="multipart/form-data" method="post">
-            <div>
-                <label for="agent_name">Agent name:</label>
-                <input type="text" name="agent_name" required>
-            </div>
-            <div>
-                <label for="email">Agent email:</label>
-                <input type="email" name="email" required>
-            </div>
-            <div>
-                <label for="file">Tag</label>
-                <input type="text" name="tag">
-            </div>
-            <div>
-                <label for="color">Tag color</label>
-                <input type="color" name="tag_color" value=#11FF11>
-            </div>
-            <div>
-                <label for="file">Select audio file:</label>
-                <input type="file" name="file" required>
-            </div>
-            <div>
-                <button type="submit">Upload</button>
-            </div>
-        </form>
-    </main>
-{% endblock %}
+<dialog id="upload" open>
+    <h2>Upload a new audio file with metadata</h2>
+    <form action="upload" enctype="multipart/form-data" method="post">
+        <label>
+            Agent name
+            <input type="text" name="agent_name" required>
+        </label>
+        <label>
+            Agent email
+            <input type="email" name="agent_email" required>
+        </label>
+        <label>
+            Tags
+            <input type="text" name="tags">
+        </label>
+        <label>
+            Select audio file
+            <input type="file" name="file" required>
+        </label>
+        <label>
+            <button type="submit">Upload</button>
+        </label>
+    </form>
+</dialog>
