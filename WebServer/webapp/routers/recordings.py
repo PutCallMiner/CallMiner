@@ -56,7 +56,7 @@ async def upload_form(request: Request):
 @router.post("/upload")
 async def upload(
     agent_name: Annotated[str, Form()],
-    email: Annotated[str, Form()],
+    agent_email: Annotated[str, Form()],
     tags: Annotated[str, Form()],
     file: Annotated[UploadFile, File()],
     blob_service_client: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
@@ -73,15 +73,15 @@ async def upload(
         duration=None,
         ner=None,
         conformity=None,
-        agent=Agent(id=2, name=agent_name, email=email),
+        agent=Agent(id=2, name=agent_name, email=agent_email),
         tags=[tag.strip() for tag in tags.split(",")],
     )
 
     await recording_db["recordings"].insert_one(recording.model_dump())
-    blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
-    await blob_client.upload_blob(file.file)
+    # blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
+    # await blob_client.upload_blob(file.file)
 
-    return RedirectResponse(url="recordings", status_code=303)
+    return RedirectResponse(url="/recordings", status_code=303)
 
 
 @router.get("/{recording_id}")

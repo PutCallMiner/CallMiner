@@ -5,7 +5,9 @@
         hx-swap="delete"
         hx-on:htmx:load="openDialog('upload')">
     <h1>Upload a new audio</h1>
-    <form action="upload" enctype="multipart/form-data" method="post">
+    <form action="recordings/upload"
+          enctype="multipart/form-data"
+          method="post">
         <label>
             <span>Agent name</span>
             <div>
