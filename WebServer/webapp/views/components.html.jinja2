@@ -67,7 +67,7 @@
             <p class={{ paragraph_class }}>
                 {{ caller(i) }}
             </p>
-            <span>{{ time_to_min(entry.start_time) }}</span>
+            <span><span>{{ speaker }}</span> {{ time_to_min(entry.start_time) }}</span>
         </div>
     {% endfor %}
 {%- endmacro -%}

@@ -506,11 +506,23 @@ a.icon-button {
       background-color: var(--primary);
       color: var(--text-contrast);
     }
+
+    & > span {
+      flex-direction: row-reverse;
+    }
   }
 
-  span {
+  & > span {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.75rem;
     margin: 0.5rem;
+
+    span:first-child {
+      font-weight: 700;
+    }
   }
 
   p {
@@ -538,7 +550,7 @@ a.icon-button {
         cursor: default;
         color: var(--accent);
         position: absolute;
-        top: calc(50% - 0.5rem);
+        top: 50%;
         left: -3rem;
         transform: translateY(-50%);
       }
@@ -546,7 +558,7 @@ a.icon-button {
   }
 
   &.highlighted p {
-    box-shadow: 0 0 2px var(--accent);
+    box-shadow: 0 0 16px var(--accent);
   }
 
   &.pulse p {
@@ -556,12 +568,15 @@ a.icon-button {
 
 @keyframes pulseAnim {
   0% {
+    transform: scale(1);
     box-shadow: 0 0 0 var(--accent);
   }
   50% {
+    transform: scale(1.05);
     box-shadow: 0 0 16px var(--accent);
   }
   100% {
+    transform: scale(1);
     box-shadow: 0 0 0 var(--accent);
   }
 }
@@ -957,7 +972,7 @@ body > main#recording {
       overflow-y: auto;
       scroll-behavior: smooth;
       height: 100%;
-      padding-inline: 2rem;
+      padding: 1rem 2rem;
       display: flex;
       flex-direction: column;
       grid-column: 2;
