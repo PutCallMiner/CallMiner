@@ -1,11 +1,13 @@
 from typing import Annotated, Optional
 
+from azure.core.credentials import AzureSasCredential
 from azure.storage.blob.aio import BlobServiceClient
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
+from webapp.configs.globals import AZURE_BLOB_STORAGE_URL, AZURE_SAS_TOKEN
 from webapp.configs.views import nav_links, templates
 from webapp.crud.common import get_blob_storage_client, get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
@@ -114,9 +116,10 @@ async def detail(
 async def audio(
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
-    blob_storage: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
     range: Optional[str] = None,
 ) -> StreamingResponse:
+    sas = AzureSasCredential(AZURE_SAS_TOKEN)
+    blob_storage = BlobServiceClient(AZURE_BLOB_STORAGE_URL, sas)
     recording = await get_recording_by_id(recording_db, recording_id)
 
     if recording is None:
