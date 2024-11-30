@@ -11,17 +11,12 @@ blobs = [
   "SCCNext_2024_04_17__15_42_52.wav",
 ];
 
-holandia = { name: "Holandia", color: "purple" };
-rekomendacja = { name: "Rekomendacja", color: "green" };
-rozliczenie = { name: "Rozliczenie", color: "blue" };
-niemcy = { name: "Niemcy", color: "orange" };
-
 tags = [
-  [holandia, rekomendacja, rozliczenie],
-  [niemcy, rozliczenie],
-  [holandia],
+  ["holandia", "rekomendacja", "rozliczenie"],
+  ["niemcy", "rozliczenie"],
+  ["holandia"],
   [],
-  [niemcy],
+  ["niemcy"],
   [],
   [],
   [],
