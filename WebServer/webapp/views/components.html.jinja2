@@ -50,16 +50,19 @@
         skip={{ skip }}
     {%- endif -%}
 {%- endmacro -%}
-{%- macro recording_url(value) -%}
-    {{ value.split("/")[-1] .split(".")[0] }}
-{%- endmacro -%}
 {%- macro time_to_min(secs) -%}
-    {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
+    {% if not secs %}
+        {{ "???" }}
+    {% else %}
+        {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
+    {% endif %}
 {%- endmacro -%}
 {%- macro transcript(recording, paragraph_class = "") -%}
     {% for i in range(recording.transcript.entries|count) %}
         {%- set entry = recording.transcript.entries[i] -%}
-        <div class="transcript-entry" id={{ "entry-" ~ entry.start_time }} hx-on:click="skipToTime({{ entry.start_time }})">
+        <div class="transcript-entry"
+             id="{{ "entry-" ~ entry.start_time }}"
+             hx-on:click="skipToTime({{ entry.start_time }})">
             <object class="avatar"></object>
             <header>
                 {% set speaker = recording.speaker_mapping[entry.speaker] %}
@@ -71,11 +74,21 @@
         </div>
     {% endfor %}
 {%- endmacro -%}
-{%- macro rating(score) -%}
-    <div class="rating">
+{%- macro rating(score, background = "secondary") -%}
+    <div class="rating" style="background-color: var(--{{ background }});">
         <div style="{{ 'background-image: conic-gradient(var(--primary) ' ~ score ~ '%, transparent 0 100%);
                     ' }}">
             <span>{{ score }}</span>
         </div>
     </div>
+{%- endmacro -%}
+{%- macro agent(agent) -%}
+    <button class="chip" tabindex="1">
+        <object class="avatar"></object>
+        {% if agent %}
+            {{ agent.name }}
+        {% else %}
+            Unknown
+        {% endif %}
+    </button>
 {%- endmacro -%}

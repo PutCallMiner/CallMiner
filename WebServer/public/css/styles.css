@@ -22,6 +22,7 @@
 }
 
 :root {
+  /* Colors */
   --text: #04080d;
   --text-contrast: #ffffff;
   --background: #e7ecf1;
@@ -30,13 +31,15 @@
   --accent: #ff5c82;
   --border: #c0c0c0;
   --card: #f2f2f6;
-  --input-active: #ebebf4;
-  --entry-active: 11, 87, 208;
+  --active: #ebebf4;
+  --hover: 2, 39, 89;
 
-  --small-border-radius: 8px;
-  --standard-border-radius: 16px;
-  --large-border-radius: 24px;
+  /* Border-radius */
+  --small: 8px;
+  --standard: 16px;
+  --large: 24px;
 
+  /* NER colors */
   --ner-persName: #b4ffd2;
   --ner-placeName: #fff2a9;
   --ner-orgName: #cca9ff;
@@ -95,12 +98,13 @@ small {
 * {
   &::-webkit-scrollbar {
     width: 4px;
+    height: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
     cursor: pointer;
     background-color: var(--secondary);
-    border-radius: var(--large-border-radius);
+    border-radius: var(--large);
   }
 
   &::-webkit-scrollbar-track {
@@ -121,7 +125,7 @@ input {
 
   &:focus-visible,
   &:hover {
-    background-color: var(--input-active);
+    background-color: var(--active);
   }
 
   &::placeholder {
@@ -135,7 +139,7 @@ input {
     padding-left: 36px;
     padding-right: 16px;
 
-    border-radius: var(--large-border-radius);
+    border-radius: var(--large);
     background-image: url("../assets/search.svg");
     background-repeat: no-repeat;
     background-position: 8px 50%;
@@ -148,19 +152,89 @@ input {
       padding-left: 16px;
     }
   }
+
+  &[type="text"],
+  &[type="password"],
+  &[type="email"] {
+    min-width: 250px;
+    height: 36px;
+    padding-inline: 0.5rem;
+
+    border-radius: var(--small);
+  }
+
+  &:user-invalid {
+    box-shadow: 0 0 4px red;
+    border-color: red;
+  }
+
+  &:user-valid {
+    box-shadow: 0 0 4px green;
+    border-color: green;
+  }
+}
+
+*:has(> input[type="file"]) {
+  position: relative;
+  height: 150px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1;
+
+  gap: 15px;
+  border-radius: var(--small);
+  text-align: center;
+  border: 1px solid var(--border);
+
+  span.icon {
+    font-size: 2rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  input[type="file"] {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    position: absolute;
+    cursor: pointer;
+  }
+
+  &:hover,
+  &:focus-within {
+    background-color: var(--active);
+    border-color: var(--primary);
+  }
+
+  &:has(input:user-invalid) {
+    border-color: red;
+    box-shadow: 0 0 4px red;
+  }
+
+  &:has(input:valid) {
+    border-color: green;
+    box-shadow: 0 0 4px green;
+  }
 }
 
 .table {
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
 
   justify-content: space-between;
 
   background-color: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--standard-border-radius);
+  border-radius: var(--standard);
 
   &::-webkit-scrollbar-track {
     margin: 5px 0;
@@ -169,11 +243,13 @@ input {
 
   table {
     border-collapse: collapse;
+    table-layout: fixed;
 
     thead {
       position: sticky;
       top: 0;
       background-color: var(--card);
+      z-index: 999;
     }
 
     td,
@@ -187,6 +263,7 @@ input {
     position: sticky;
     bottom: 0;
     padding: 16px 0;
+    z-index: 999;
 
     display: flex;
     justify-content: center;
@@ -205,6 +282,8 @@ input {
         align-items: center;
         color: var(--text);
         cursor: pointer;
+        outline: none;
+        text-decoration: none;
 
         &.disabled {
           visibility: hidden;
@@ -214,7 +293,8 @@ input {
           text-decoration: underline;
         }
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
           font-weight: 700;
         }
 
@@ -236,20 +316,76 @@ input {
   font-family: "Material Icons";
 }
 
+button {
+  all: unset;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  span.icon {
+    font-size: 1.25rem;
+  }
+}
+
+button.text {
+  border-radius: var(--large);
+
+  &:hover,
+  &:focus-visible {
+    background-color: rgba(var(--hover), 0.08);
+  }
+
+  &.primary {
+    color: var(--primary);
+  }
+}
+
+button.outlined {
+  border: 1px solid black;
+  border-radius: var(--large);
+
+  &:hover,
+  &:focus-visible {
+    background-color: rgba(var(--hover), 0.08);
+  }
+
+  &.primary {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+}
+
+button.filled {
+  color: white;
+  border-radius: var(--large);
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: 0 0 1px black;
+  }
+
+  &.primary {
+    background-color: var(--primary);
+  }
+}
+
 .chip {
   height: 32px;
   width: auto;
   padding: 0 8px;
   display: inline-flex;
   align-items: center;
+  font-size: 0.75rem;
 
   background-color: var(--background);
   border: 1px solid var(--border);
-  border-radius: var(--small-border-radius);
+  border-radius: var(--small);
 
   &:has(.avatar) {
     padding-left: 4px;
-    border-radius: var(--large-border-radius);
+    border-radius: var(--large);
     gap: 4px;
   }
 }
@@ -268,7 +404,6 @@ button.chip {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--secondary);
   border-radius: 50%;
 
   div {
@@ -280,6 +415,7 @@ button.chip {
     align-items: center;
     border-radius: 100%;
     overflow: hidden;
+    background-color: inherit;
 
     span {
       z-index: 2;
@@ -299,7 +435,7 @@ button.chip {
       content: "";
       position: absolute;
       inset: 2px;
-      background: var(--secondary);
+      background-color: inherit;
       border-radius: inherit;
       z-index: 1;
     }
@@ -338,6 +474,16 @@ a.icon-button {
   height: 24px;
   width: 24px;
   background: url("../assets/account.svg") no-repeat center;
+}
+
+.tag {
+  padding: 0.25rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    font-weight: 700;
+  }
 }
 
 .transcript-entry {
@@ -386,7 +532,7 @@ a.icon-button {
     cursor: pointer;
 
     &:hover {
-      background-color: rgba(var(--entry-active), 0.08);
+      background-color: rgba(var(--hover), 0.08);
     }
 
     &.conformity:has(.icon) {
@@ -404,10 +550,10 @@ a.icon-button {
 }
 
 .highlighted-entry p {
-  background-color: rgba(var(--entry-active), 0.08);
+  background-color: rgba(var(--hover), 0.08);
 
   &:hover {
-    background-color: rgba(var(--entry-active), 0.12);
+    background-color: rgba(var(--hover), 0.12);
   }
 }
 
@@ -489,7 +635,7 @@ dl {
   overflow-y: auto;
   background-color: inherit;
 
-  & > div {
+  & > .dots {
     background-color: inherit;
 
     &::after {
@@ -552,6 +698,68 @@ audio {
 
   &::-webkit-media-controls-enclosure {
     background-color: transparent;
+  }
+}
+
+dialog[open] {
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background-color: var(--card);
+  border: none;
+  border-radius: var(--large);
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  & > h1 {
+    color: var(--primary);
+    font-size: 1.75rem;
+  }
+
+  & > *:nth-child(2) {
+    padding: 2rem 4rem 1rem 4rem;
+    width: 100%;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+
+    &:has(input[required]) > span::after {
+      content: "*";
+      color: red;
+    }
+  }
+
+  div:has(> .helper-text) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .helper-text {
+    font-size: 0.65rem;
+    color: darkgrey;
+    padding: 2px 4px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
   }
 }
 
@@ -646,14 +854,21 @@ body > main#recordings {
   height: calc(100% - 10rem);
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 
   #recordings-controls {
-    margin-bottom: 1rem;
-
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     input[type="search"] {
       max-width: 30%;
+    }
+
+    #table-toolbar {
+      display: flex;
+      gap: 1rem;
+      margin-inline: 2rem;
     }
   }
 
@@ -666,29 +881,28 @@ body > main#recordings {
     }
 
     th:first-child,
-    td:first-child {
-      width: 500px;
-      max-width: 500px;
+    td:first-child,
+    th:last-child,
+    td:last-child {
+      width: 400px;
       overflow-x: hidden;
       white-space: nowrap;
     }
 
     td {
-      .recording-tag {
-        margin: 2px 2px;
-      }
-
       a {
         width: 100%;
         display: flow;
         color: var(--text);
+        outline: none;
 
         span.icon {
           display: none;
           font-size: 0.75rem;
         }
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
           font-weight: 700;
 
           span.icon {
@@ -761,7 +975,7 @@ body > main#recording {
       padding-inline: 1.5rem;
       background-color: var(--card);
       box-shadow: 0 0 1px var(--border);
-      border-radius: var(--standard-border-radius);
+      border-radius: var(--standard);
 
       summary span {
         display: flex;
@@ -796,12 +1010,13 @@ body > main#recording {
 
       & > div {
         flex-grow: 1;
+        flex-basis: 0;
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
         background-color: var(--card);
         box-shadow: 0 0 1px var(--border);
-        border-radius: var(--large-border-radius);
+        border-radius: var(--large);
         padding-top: 2rem;
         padding-inline: 3rem;
         overflow: hidden;
@@ -874,7 +1089,7 @@ body > main#recording {
           padding: 1rem 1.5rem;
           background-color: var(--card);
           box-shadow: 0 0 1px var(--border);
-          border-radius: var(--standard-border-radius);
+          border-radius: var(--standard);
           font-weight: 700;
           display: flex;
           gap: 1.5rem;
@@ -894,5 +1109,13 @@ body > main#recording {
   footer {
     display: flex;
     height: 4rem;
+  }
+}
+
+body > dialog#upload form {
+  width: 600px;
+
+  & > *:nth-child(4) {
+    margin: 2rem auto 0 auto;
   }
 }

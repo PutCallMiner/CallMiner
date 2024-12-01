@@ -1,17 +1,19 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
-import httpx
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from azure.core.credentials import AzureSasCredential
+from azure.storage.blob.aio import BlobServiceClient
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
-from webapp.configs.globals import AZURE_SAS_TOKEN
+from webapp.configs.globals import AZURE_BLOB_STORAGE_URL, AZURE_SAS_TOKEN
 from webapp.configs.views import nav_links, templates
-from webapp.crud.common import get_rec_db, get_tasks_db
+from webapp.crud.common import get_blob_storage_client, get_rec_db, get_tasks_db
 from webapp.crud.recordings import count_recordings, get_recording_by_id, get_recordings
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
+from webapp.models.record import Agent, RecordingBase
 from webapp.models.task_status import TaskStatus
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
@@ -25,7 +27,7 @@ async def table(
     skip: int = 0,
     take: int = 20,
 ) -> HTMLResponse:
-    query = {"recording_url": {"$regex": search, "$options": "i"}} if search else None
+    query = {"blob_name": {"$regex": search, "$options": "i"}} if search else None
     total = await count_recordings(db, query=query)
     recordings = await get_recordings(db, query=query, skip=skip, take=take)
 
@@ -43,6 +45,37 @@ async def table(
             "search": search,
         },
     )
+
+
+@router.post("/upload")
+async def upload(
+    agent_name: Annotated[str, Form()],
+    agent_email: Annotated[str, Form()],
+    tags: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()],
+    blob_service_client: Annotated[BlobServiceClient, Depends(get_blob_storage_client)],
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+):
+    if not file.filename:
+        raise ValueError("No file provided")
+
+    recording = RecordingBase(
+        blob_name=file.filename,
+        transcript=None,
+        summary=None,
+        speaker_mapping=None,
+        duration=None,
+        ner=None,
+        conformity=None,
+        agent=Agent(id=2, name=agent_name, email=agent_email),
+        tags=[tag.strip() for tag in tags.split(",")],
+    )
+
+    await recording_db["recordings"].insert_one(recording.model_dump())
+    blob_client = blob_service_client.get_blob_client("audio-records", file.filename)
+    await blob_client.upload_blob(file.file, overwrite=True)
+
+    return RedirectResponse(url="/recordings", status_code=303)
 
 
 @router.get("/{recording_id}")
@@ -75,29 +108,63 @@ async def detail(
 async def audio(
     recording_id: str,
     recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    range: Optional[str] = None,
 ) -> StreamingResponse:
+    sas = AzureSasCredential(AZURE_SAS_TOKEN)
+    blob_storage = BlobServiceClient(AZURE_BLOB_STORAGE_URL, sas)
     recording = await get_recording_by_id(recording_db, recording_id)
 
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{recording.recording_url}?{AZURE_SAS_TOKEN}")
+    blob_client = blob_storage.get_blob_client("audio-records", recording.blob_name)
+    properties = await blob_client.get_blob_properties()
+    blob_size = properties.size
 
-    if resp.status_code != 200:
-        return StreamingResponse(
-            content=resp.content, status_code=resp.status_code, media_type="audio/wav"
-        )
+    if range is not None:
+        bytes_unit, bytes_range = range.strip().split("=")
+        if bytes_unit != "bytes":
+            raise HTTPException(status_code=416, detail="Invalid unit in Range header")
+
+        ranges = bytes_range.split("-")
+        if len(ranges) != 2:
+            raise HTTPException(status_code=416, detail="Invalid Range header format")
+
+        start = int(ranges[0])
+        if ranges[1]:
+            end = int(ranges[1])
+        else:
+            end = blob_size - 1
+
+        if start > end or end >= blob_size:
+            raise HTTPException(
+                status_code=416, detail="Requested Range Not Satisfiable"
+            )
+        content_length = end - start + 1
+        status_code = 206
+    else:
+        start = 0
+        end = blob_size - 1
+        content_length = blob_size
+        status_code = 200
 
     response_headers = {
-        "Accept-Ranges": resp.headers.get("Accept-Ranges"),
-        "Content-Length": resp.headers.get("Content-Length"),
+        "Content-Type": "audio/wav",
+        "Accept-Ranges": "bytes",
+        "Content-Length": str(content_length),
+        "Content-Range": f"bytes {start}-{end}/{blob_size}",
     }
 
+    async def iterfile():
+        stream = await blob_client.download_blob(offset=start, length=content_length)
+        async for chunk in stream.chunks():
+            yield chunk
+        await blob_storage.close()
+
     return StreamingResponse(
-        resp.aiter_bytes(),
+        iterfile(),
+        status_code=status_code,
         headers=response_headers,
-        media_type="audio/wav",
     )
 
 

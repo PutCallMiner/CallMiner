@@ -1,0 +1,42 @@
+{%- macro upload_dialog() -%}
+    <dialog id="upload">
+        <h1>Upload a new audio</h1>
+        <form action="recordings/upload"
+              enctype="multipart/form-data"
+              method="post">
+            <label>
+                <span>Agent name</span>
+                <div>
+                    <input type="text" name="agent_name" required>
+                    <span class="helper-text">Name of the agent in this recording</span>
+                </div>
+            </label>
+            <label>
+                <span>Agent email</span>
+                <div>
+                    <input type="email" name="agent_email" required>
+                    <span class="helper-text">Email of the agent in this recording</span>
+                </div>
+            </label>
+            <label>
+                <span>Tags</span>
+                <div>
+                    <input type="text" name="tags">
+                    <span class="helper-text">List of related tags, separated by commas</span>
+                </div>
+            </label>
+            <div>
+                <div>
+                    <input type="file" name="file" required accept="audio/*">
+                    <span class="icon">upload</span>
+                    <p>Select or drag and drop to upload your file</p>
+                </div>
+                <span class="helper-text">Accepts audio files</span>
+            </div>
+            <div>
+                <button class="text primary" type="reset" onclick="closeDialog('upload')">Cancel</button>
+                <button class="filled primary" type="submit">Upload</button>
+            </div>
+        </form>
+    </dialog>
+{%- endmacro -%}

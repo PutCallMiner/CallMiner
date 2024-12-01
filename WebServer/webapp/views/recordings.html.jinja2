@@ -1,4 +1,5 @@
 {% import "components.html.jinja2" as components %}
+{% import "dialogs.html.jinja2" as dialogs %}
 {%- macro component() -%}
     <div id="recordings-controls">
         <input name="search"
@@ -8,6 +9,12 @@
                hx-get=" {{ components.link(take=take) }} "
                hx-target="#recordings"
                hx-trigger="search">
+        <div id="table-toolbar">
+            <button class="outlined primary" onclick="openDialog('upload')">
+                <span class="icon">cloud_upload</span>
+                <span>Upload</span>
+            </button>
+        </div>
     </div>
     <div id="recordings-table" class="table">
         <table>
@@ -15,7 +22,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Agent</th>
+                    <th>Score</th>
+                    <th>Created On</th>
                     <th>Duration</th>
+                    <th>Tags</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,16 +33,22 @@
                     <tr>
                         <td>
                             <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
-                                {{ components.recording_url(recording.recording_url) }}<span class="icon">north_east</span>
+                                {{ recording.blob_name }}<span class="icon">north_east</span>
                             </a>
                         </td>
+                        <td>{{ components.agent(recording.agent) }}</td>
                         <td>
-                            <button class="chip">
-                                <object class="avatar"></object>
-                                Unknown
-                            </button>
+                            {%- set conformity_results = recording.conformity.results -%}
+                            {%- if conformity_results|count > 0 -%}
+                                {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
+                                {{ components.rating(score, "card") }}
+                            {%- endif -%}
                         </td>
-                        <td>{{ "???" ~ " min" }}</td>
+                        <td>{{ recording.created.strftime("%a, %d %b %Y") }}</td>
+                        <td>{{ components.time_to_min(recording.duration) }} min</td>
+                        <td>
+                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -41,7 +57,7 @@
             <div>
                 <span>Show</span>
                 <select name="take"
-                        hx-get="{{ components.link(search) }}"
+                        hx-get="{{ components.link(search=search) }}"
                         hx-target="#recordings">
                     {% for t in [5, 10, 20, 50] %}
                         <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
@@ -50,7 +66,8 @@
                 <span>results</span>
             </div>
             <div>
-                <a hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
+                <a href=""
+                   hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
                    hx-target="#recordings"
                    class="{% if skip <= 0 %}disabled{% endif %}">
                     <span class="icon">chevron_left</span><span>Previous</span>
@@ -63,7 +80,8 @@
                     {% endfor %}
                 </select>
                 <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
-                <a hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
+                <a href=""
+                   hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
                    hx-target="#recordings"
                    class="{% if skip + take + 1 > total %}disabled{% endif %}">
                     <span>Next</span><span class="icon">chevron_right</span>
@@ -79,6 +97,7 @@
             {{ component() }}
         </main>
     {% endblock %}
+    {% block dialogs %}{{ dialogs.upload_dialog() }}{% endblock %}
 {%- else -%}
     {{ component() }}
 {%- endif -%}
