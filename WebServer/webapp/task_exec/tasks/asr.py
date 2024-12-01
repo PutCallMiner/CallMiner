@@ -2,7 +2,8 @@ import base64
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from webapp.configs.globals import AZURE_SAS_TOKEN, MLFLOW_ASR_URL
+from webapp.configs.globals import MLFLOW_ASR_URL
+from webapp.crud.common import get_blob_storage_client_context
 from webapp.crud.recordings import (
     get_recording_by_id,
     update_with_duration,
@@ -16,7 +17,6 @@ from webapp.task_exec.tasks.base import (
 )
 from webapp.task_exec.utils import async_request_with_timeout
 from webapp.utils.audio import get_audio_duration
-from webapp.utils.azure import download_azure_blob
 
 
 class ASRTask(RecordingTask):
@@ -35,10 +35,13 @@ class ASRTask(RecordingTask):
         recording = await get_recording_by_id(db, recording_id)
         if recording is None:
             raise RecordingNotFoundError(recording_id)
-        audio_bytes = await download_azure_blob(
-            recording.recording_url, AZURE_SAS_TOKEN
-        )
-        duration = get_audio_duration(audio_bytes)
+        async with get_blob_storage_client_context() as storage_client:
+            blob_client = storage_client.get_blob_client(
+                "audio-records", recording.blob_name
+            )
+            blob = await blob_client.download_blob()
+            audio_bytes = await blob.readall()
+            duration = get_audio_duration(audio_bytes)
         await update_with_duration(db, recording_id, duration)
 
         # Run celery task

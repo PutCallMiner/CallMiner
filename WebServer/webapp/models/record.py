@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, BeforeValidator, Field
@@ -11,14 +12,23 @@ SpeakerClass = Literal["agent", "client"]
 SpeakerMapping = dict[int, SpeakerClass]
 
 
+class Agent(BaseModel):
+    id: int
+    name: str
+    email: str
+
+
 class RecordingBase(BaseModel):
-    recording_url: str
+    blob_name: str
     transcript: Transcript | None
     summary: str | None
     speaker_mapping: SpeakerMapping | None
     duration: int | None
     ner: NER | None
     conformity: ConformityResults | None
+    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    agent: Agent | None
+    tags: list[str] = []
 
     def get_agent_speaker_id(self) -> int:
         assert self.speaker_mapping is not None, "Speaker mapping is None"

@@ -57,7 +57,7 @@
             <ul>
                 {%- for s in seen -%}
                     {%- if s[0] == entity[1] -%}
-                        <li hx-get="#entry-{{ transcript_entries[s[1]].start_time }}"
+                        <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
                             hx-swap="none">{{ s[2] }}</li>
                     {%- endif -%}
                 {%- endfor -%}
@@ -79,26 +79,25 @@
     {%- set transcript_entries = recording.transcript.entries -%}
     {%- set conformity_results = recording.conformity.results -%}
     <div>
-        {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
-        {{ components.rating(score) }}
-        <h5>Conformity Rating</h5>
-    </div>
-    <div>
-        {%- set map = {
-            "recommendation": "Recommendation",
-            "greeting": "Greeting",
-            "client_identity_confirmation": "Client's identity confirmation",
-            "contact_for_questions": "Contact for questions"
-        } -%}
-        {%- for result in recording.conformity.results -%}
+        {%- for i in range(recording.conformity.results|count) -%}
+            {%- set result = recording.conformity.results[i] -%}
+            {%- set intent = intents[i] -%}
             {%- if result.passed -%}
-                <div hx-get="#entry-{{ transcript_entries[result.entry_id].start_time }}"
-                        hx-swap="none">
-                    <span class="icon" style="color: #3fe03f;">check_circle</span><u>{{ map[result.intent_name] }}</u>
+                <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
+                     hx-swap="none">
+                    <span class="icon" style="color: #3fe03f;">check_circle</span>
+                    <div>
+                        <span>{{ intent.intent_full_name }}</span>
+                        <span>{{ intent.intent }}</span>
+                    </div>
                 </div>
             {%- else -%}
                 <div>
-                    <span class="icon" style="color: red;">cancel</span>{{ map[result.intent_name] }}
+                    <span class="icon" style="color: red;">cancel</span>
+                    <div>
+                        <span>{{ intent.intent_full_name }}</span>
+                        <span>{{ intent.intent }}</span>
+                    </div>
                 </div>
             {%- endif -%}
         {%- endfor -%}
@@ -120,6 +119,6 @@
     {% else %}
         {{ content | upper }} not found. Please run analysis first.
     {% endif %}
-{% endmacro%}
-
+{% endmacro %}
 {{ render_content(content) }}
+

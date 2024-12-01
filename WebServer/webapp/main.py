@@ -4,7 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from webapp.crud.common import init_rec_db
 from webapp.errors import (
     AnalysisInProgressError,
-    BlobDownloadError,
     RecordingAlreadyExistsError,
     RecordingNotFoundError,
 )
@@ -31,11 +30,6 @@ def recording_exists_handler(request: Request, exc: RecordingAlreadyExistsError)
 @app.exception_handler(RecordingNotFoundError)
 def recording_not_found_handler(request: Request, exc: RecordingNotFoundError):
     raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(exc))
-
-
-@app.exception_handler(BlobDownloadError)
-def audio_download_handler(request: Request, exc: BlobDownloadError):
-    raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @app.exception_handler(AnalysisInProgressError)

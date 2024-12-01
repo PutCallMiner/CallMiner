@@ -24,14 +24,13 @@
                     <div>
                         <dt>Title</dt>
                         <dd>
-                            {{ components.recording_url(recording.recording_url) }}
+                            {{ recording.blob_name }}
                         </dd>
                     </div>
                     <div>
                         <dt>Agent</dt>
                         <dd>
-                            <object class="avatar"></object>
-                            Unknown
+                            {{ components.agent(recording.agent) }}
                         </dd>
                     </div>
                     <div>
@@ -41,15 +40,15 @@
                         </dd>
                     </div>
                     <div>
-                        <dt>Created At</dt>
+                        <dt>Created On</dt>
                         <dd>
-                            ???
+                            {{ recording.created.strftime("%a, %d %b %Y") }}
                         </dd>
                     </div>
                     <div>
                         <dt>Tags</dt>
                         <dd>
-                            <a>#???</a> <a>#???</a>
+                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
                         </dd>
                     </div>
                 </dl>
