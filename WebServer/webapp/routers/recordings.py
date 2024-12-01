@@ -47,14 +47,6 @@ async def table(
     )
 
 
-@router.get("/upload")
-async def upload_form(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="upload.html.jinja2",
-    )
-
-
 @router.post("/upload")
 async def upload(
     agent_name: Annotated[str, Form()],
