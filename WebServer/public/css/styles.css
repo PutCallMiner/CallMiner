@@ -164,7 +164,13 @@ input {
   }
 
   &:user-invalid {
+    box-shadow: 0 0 4px red;
     border-color: red;
+  }
+
+  &:user-valid {
+    box-shadow: 0 0 4px green;
+    border-color: green;
   }
 }
 
@@ -209,6 +215,12 @@ input {
 
   &:has(input:user-invalid) {
     border-color: red;
+    box-shadow: 0 0 4px red;
+  }
+
+  &:has(input:valid) {
+    border-color: green;
+    box-shadow: 0 0 4px green;
   }
 }
 
