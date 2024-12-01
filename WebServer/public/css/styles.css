@@ -581,6 +581,10 @@ a.icon-button {
   }
 }
 
+.missing-content {
+  margin: auto;
+}
+
 .progress {
   display: flex;
   flex-direction: column;
@@ -955,17 +959,19 @@ body > main#recording {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      
+
       div.analyze-row {
         /* Container styling for better layout */
         display: flex;
         align-items: center;
         gap: 1rem; /* Spacing between items */
-        background-color: var(--card); /* Light background color for subtle emphasis */
+        background-color: var(
+          --card
+        ); /* Light background color for subtle emphasis */
         padding: 0.5rem 1rem;
         box-shadow: 0 0 1px var(--border);
         border-radius: var(--small-border-radius); /* Smooth edges */
-  
+
         button {
           background-color: var(--primary); /* Brand primary blue */
           color: var(--text-contrast);
@@ -977,9 +983,11 @@ body > main#recording {
           font-weight: bold;
           transition: background-color 0.3s ease;
         }
-  
+
         button:hover {
-          background-color: var(--secondary); /* Slightly darker blue for hover effect */
+          background-color: var(
+            --secondary
+          ); /* Slightly darker blue for hover effect */
         }
 
         /* Checkbox label styling */
@@ -995,7 +1003,7 @@ body > main#recording {
           color: var(--primary);
           font-style: italic;
         }
-  
+
         input[type="checkbox"] {
           margin-right: 5px; /* Space between checkbox and text */
           accent-color: var(--primary); /* Match checkbox color with button */
@@ -1015,7 +1023,7 @@ body > main#recording {
           width: 3.25em;
           transform-origin: center;
           animation: rotate4 2s linear infinite;
-      
+
           circle {
             fill: none;
             stroke: var(--primary);
@@ -1027,12 +1035,11 @@ body > main#recording {
           }
         }
       }
-    } 
+    }
   }
 
-
   article {
-    height: calc(100% - 8rem);
+    height: calc(100% - 9rem);
     margin-block: 1rem;
     display: grid;
     grid-template-columns: 40px 1.25fr 1fr;
@@ -1104,9 +1111,9 @@ body > main#recording {
         background-color: var(--card);
         box-shadow: 0 0 1px var(--border);
         border-radius: var(--large);
-        padding-top: 2rem;
-        padding-inline: 3rem;
+        padding: 2rem 3rem;
         overflow: hidden;
+        line-height: 1.5;
 
         h3 {
           margin: 0;

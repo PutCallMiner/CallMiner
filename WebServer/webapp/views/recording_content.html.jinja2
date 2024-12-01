@@ -24,46 +24,48 @@
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro ner_details() -%}
-    {%- set transcript_entries = recording.transcript.entries -%}
-    {%- set ner_entries = recording.ner.entries -%}
-    {%- set seen = [] -%}
-    {%- for i in range(transcript_entries|count) -%}
-        {%- for entry in ner_entries[i] -%}
-            {%- set text = entry.lemmas|join(" ") -%}
-            {%- set ns = namespace(is_new=True) -%}
-            {%- for j in range(seen|count) -%}
-                {%- if seen[j][0] != entry.entity -%}
-                    {%- continue -%}
-                {%- elif text in seen[j][2] -%}
-                    {%- set ns.is_new = False -%}
-                {%- elif seen[j][2] in text -%}
-                    {% do seen.__setitem__(j, (entry.entity, i, text)) %}
-                    {%- set ns.is_new = False -%}
-                {%- endif -%}
-            {%- endfor -%}
-            {%- if ns.is_new -%}
-                {% do seen.append((entry.entity, i, text)) %}
-            {%- endif -%}
-        {%- endfor -%}
-    {%- endfor -%}
-    {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
-        {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
-            {%- continue -%}
-        {%- endif -%}
-        <details>
-            <summary>
-                <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
-            </summary>
-            <ul>
-                {%- for s in seen -%}
-                    {%- if s[0] == entity[1] -%}
-                        <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
-                            hx-swap="none">{{ s[2] }}</li>
+    <aside class="ner">
+        {%- set transcript_entries = recording.transcript.entries -%}
+        {%- set ner_entries = recording.ner.entries -%}
+        {%- set seen = [] -%}
+        {%- for i in range(transcript_entries|count) -%}
+            {%- for entry in ner_entries[i] -%}
+                {%- set text = entry.lemmas|join(" ") -%}
+                {%- set ns = namespace(is_new=True) -%}
+                {%- for j in range(seen|count) -%}
+                    {%- if seen[j][0] != entry.entity -%}
+                        {%- continue -%}
+                    {%- elif text in seen[j][2] -%}
+                        {%- set ns.is_new = False -%}
+                    {%- elif seen[j][2] in text -%}
+                        {% do seen.__setitem__(j, (entry.entity, i, text)) %}
+                        {%- set ns.is_new = False -%}
                     {%- endif -%}
                 {%- endfor -%}
-            </ul>
-        </details>
-    {%- endfor -%}
+                {%- if ns.is_new -%}
+                    {% do seen.append((entry.entity, i, text)) %}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endfor -%}
+        {%- for entity in [("People", "persName"), ("Places", "placeName"), ("Organizations", "orgName"), ("Dates", "date"), ("Time", "time")] -%}
+            {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
+                {%- continue -%}
+            {%- endif -%}
+            <details>
+                <summary>
+                    <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
+                </summary>
+                <ul>
+                    {%- for s in seen -%}
+                        {%- if s[0] == entity[1] -%}
+                            <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
+                                hx-swap="none">{{ s[2] }}</li>
+                        {%- endif -%}
+                    {%- endfor -%}
+                </ul>
+            </details>
+        {%- endfor -%}
+    </aside>
 {%- endmacro -%}
 {%- macro conformity() -%}
     {%- call(i) components.transcript(recording, "conformity") -%}
@@ -76,35 +78,49 @@
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro conformity_details() -%}
-    {%- set transcript_entries = recording.transcript.entries -%}
-    {%- set conformity_results = recording.conformity.results -%}
-    <div>
-        {%- for i in range(recording.conformity.results|count) -%}
-            {%- set result = recording.conformity.results[i] -%}
-            {%- set intent = intents[i] -%}
-            {%- if result.passed -%}
-                <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
-                     hx-swap="none">
-                    <span class="icon" style="color: #3fe03f;">check_circle</span>
-                    <div>
-                        <span>{{ intent.intent_full_name }}</span>
-                        <span>{{ intent.intent }}</span>
+    <aside class="conformity">
+        {%- set transcript_entries = recording.transcript.entries -%}
+        {%- set conformity_results = recording.conformity.results -%}
+        <div>
+            {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
+            {{ components.rating(score) }}
+            <h5>Conformity Rating</h5>
+        </div>
+        <div>
+            {%- for i in range(recording.conformity.results|count) -%}
+                {%- set result = recording.conformity.results[i] -%}
+                {%- set intent = intents[i] -%}
+                {%- if result.passed -%}
+                    <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
+                         hx-swap="none">
+                        <span class="icon" style="color: #3fe03f;">check_circle</span>
+                        <div>
+                            <span>{{ intent.intent_full_name }}</span>
+                            <span>{{ intent.intent }}</span>
+                        </div>
                     </div>
-                </div>
-            {%- else -%}
-                <div>
-                    <span class="icon" style="color: red;">cancel</span>
+                {%- else -%}
                     <div>
-                        <span>{{ intent.intent_full_name }}</span>
-                        <span>{{ intent.intent }}</span>
+                        <span class="icon" style="color: red;">cancel</span>
+                        <div>
+                            <span>{{ intent.intent_full_name }}</span>
+                            <span>{{ intent.intent }}</span>
+                        </div>
                     </div>
-                </div>
-            {%- endif -%}
-        {%- endfor -%}
-    </div>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    </aside>
 {%- endmacro -%}
-{% macro render_content(content) %}
-    {% if content == "transcript" and recording.transcript and recording.speaker_mapping %}
+{% macro render_content(content, attr_name) %}
+    {% if loading %}
+        <div class="progress">
+            <svg viewBox="25 25 50 50">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+            <p>Analysis in progress...</p>
+        </div>
+    {% elif content == "transcript" and recording.transcript and recording.speaker_mapping %}
         {{ transcript() }}
     {% elif (content == "summary") and recording.summary %}
         {{ summary() }}
@@ -117,8 +133,6 @@
     {% elif content == "conformity-details" and recording.conformity %}
         {{ conformity_details() }}
     {% else %}
-        {{ content | upper }} not found. Please run analysis first.
+        <p class="missing-content">{{ attr_name }} not found. Please run analysis first.</p>
     {% endif %}
 {% endmacro %}
-{{ render_content(content) }}
-

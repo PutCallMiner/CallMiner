@@ -100,6 +100,7 @@ async def detail(
             "partial": request.headers.get("hx-request"),
             "tab": tab,
             "delay": 0,
+            "loading": False,
             "intents": PREDEFINED_INTENTS,
         },
     )
@@ -183,36 +184,5 @@ async def analyze_status(
             "request": request,
             "recording_id": recording_id,
             "status": task_status,
-        },
-    )
-
-
-@router.get("/{recording_id}/{content}")
-async def content(
-    request: Request,
-    recording_id: str,
-    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
-    content: str = "transcript",
-) -> HTMLResponse:
-    recording = await get_recording_by_id(recording_db, recording_id)
-
-    if recording is None:
-        raise RecordingNotFoundError(recording_id)
-
-    attr = content.split("-")[0]
-    attr_name = attr.upper() if attr in ["ner"] else attr.capitalize()
-
-    if getattr(recording, attr, None) is None:
-        return HTMLResponse(
-            content=f"<p>{attr_name} not found, please run the analysis first.</p>",
-        )
-
-    return templates.TemplateResponse(
-        request=request,
-        name="recording_content.html.jinja2",
-        context={
-            "recording": recording,
-            "content": content,
-            "intents": PREDEFINED_INTENTS,
         },
     )

@@ -16,16 +16,6 @@
 {%- endmacro -%}
 {%- macro progress_circle(link, delay = 0, load = True) -%}
     {%- if load -%}
-        <div class="progress"
-             hx-get="{{ link }}"
-             hx-target="this"
-             hx-swap="outerHTML"
-             hx-trigger="{{ "load delay:" ~ (delay * 10) ~ "s" }}">
-            <svg viewBox="25 25 50 50">
-                <circle r="20" cy="50" cx="50"></circle>
-            </svg>
-            <p>Analysis in progress...</p>
-        </div>
     {%- else -%}
         {{ caller() }}
     {%- endif -%}
@@ -158,41 +148,16 @@
                 })
 
             }
-
-            {# document.querySelector("#analyze-form").addEventListener("htmx:configRequest", function (event) {
-                console.log("Running Listener");
-                const recordingId = "{{ recording_id }}";
-                const forceRerun = document.querySelector('#force_rerun').value;
-                const requiredTasks = Array.from(document.querySelectorAll('input[name="required_tasks"]:checked'))
-                    .map(input => input.value.split(",")).flat();
-
-                const payload = {
-                    recording_id: recordingId,
-                    analyze_params: {
-                        asr: {
-                            language: "pl",
-                            num_speakers: 2,
-                            whisper_prompt: null
-                        }
-                    },
-                    required_tasks: requiredTasks,
-                    force_rerun: forceRerun,
-                    task_timeout: 600
-                };
-                event.detail.headers["Content-Type"] = "application/json";
-                event.detail.body = JSON.stringify(payload);
-                console.log(event.detail);
-            }); #}
-</script>
-</div>
+        </script>
+    </div>
 {% endmacro %}
 {%- macro agent(agent) -%}
-<button class="chip" tabindex="1">
-<object class="avatar"></object>
-{% if agent %}
-{{ agent.name }}
-{% else %}
-Unknown
-{% endif %}
-</button>
+    <button class="chip" tabindex="1">
+        <object class="avatar"></object>
+        {% if agent %}
+            {{ agent.name }}
+        {% else %}
+            Unknown
+        {% endif %}
+    </button>
 {%- endmacro -%}
