@@ -50,54 +50,55 @@
                         <td>{{ components.time_to_min(recording.duration) }} min</td>
                         <td>
                             {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
-                        </tr>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <div>
+                <span>Show</span>
+                <select name="take"
+                        hx-get="{{ components.link(search=search) }}"
+                        hx-target="#recordings">
+                    {% for t in [5, 10, 20, 50] %}
+                        <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
-            <div class="pagination">
-                <div>
-                    <span>Show</span>
-                    <select name="take"
-                            hx-get="{{ components.link(search=search) }}"
-                            hx-target="#recordings">
-                        {% for t in [5, 10, 20, 50] %}
-                            <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
-                        {% endfor %}
-                    </select>
-                    <span>results</span>
-                </div>
-                <div>
-                    <a href=""
-                       hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
-                       hx-target="#recordings"
-                       class="{% if skip <= 0 %}disabled{% endif %}">
-                        <span class="icon">chevron_left</span><span>Previous</span>
-                    </a>
-                    <select name="skip"
-                            hx-get="{{ components.link(search, take) }}"
-                            hx-target="#recordings">
-                        {% for s in range(0, (total, 1)|max, take) %}
-                            <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
-                        {% endfor %}
-                    </select>
-                    <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
-                    <a href=""
-                       hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
-                       hx-target="#recordings"
-                       class="{% if skip + take + 1 > total %}disabled{% endif %}">
-                        <span>Next</span><span class="icon">chevron_right</span>
-                    </a>
-                </div>
+                </select>
+                <span>results</span>
+            </div>
+            <div>
+                <a href=""
+                   hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
+                   hx-target="#recordings"
+                   class="{% if skip <= 0 %}disabled{% endif %}">
+                    <span class="icon">chevron_left</span><span>Previous</span>
+                </a>
+                <select name="skip"
+                        hx-get="{{ components.link(search, take) }}"
+                        hx-target="#recordings">
+                    {% for s in range(0, (total, 1)|max, take) %}
+                        <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
+                    {% endfor %}
+                </select>
+                <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
+                <a href=""
+                   hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
+                   hx-target="#recordings"
+                   class="{% if skip + take + 1 > total %}disabled{% endif %}">
+                    <span>Next</span><span class="icon">chevron_right</span>
+                </a>
             </div>
         </div>
-    {%- endmacro -%}
-    {%- if not partial -%}
-        {% extends "layout.html.jinja2" %}
-        {% block content %}
-            <main id="recordings">
-                {{ component() }}
-            </main>
-        {% endblock %}
-    {%- else -%}
-        {{ component() }}
-    {%- endif -%}
+    </div>
+{%- endmacro -%}
+{%- if not partial -%}
+    {% extends "layout.html.jinja2" %}
+    {% block content %}
+        <main id="recordings">
+            {{ component() }}
+        </main>
+    {% endblock %}
+{%- else -%}
+    {{ component() }}
+{%- endif -%}
