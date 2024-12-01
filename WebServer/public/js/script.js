@@ -52,11 +52,11 @@ function updateHighlight(_, entryTime) {
 
   if (newIndex !== previousIndex) {
     if (previousIndex >= 0) {
-      entries[previousIndex].div.classList.remove("highlighted-entry");
+      entries[previousIndex].div.classList.remove("highlighted");
     }
 
     if (newIndex >= 0) {
-      entries[newIndex].div.classList.add("highlighted-entry");
+      entries[newIndex].div.classList.add("highlighted");
       entries[newIndex].div.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -90,13 +90,13 @@ function pulse(id) {
   const container = entry.parentElement;
 
   function pulseEntry() {
-    entry.classList.add("pulsing-entry");
+    entry.classList.add("pulse");
     setTimeout(() => {
-      entry.classList.remove("pulsing-entry");
+      entry.classList.remove("pulse");
     }, 1000);
   }
 
-  if (entry.classList.contains("pulsing-entry")) {
+  if (entry.classList.contains("pulse")) {
     return;
   }
 
