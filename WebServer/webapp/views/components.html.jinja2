@@ -59,7 +59,7 @@
 {%- endmacro -%}
 {%- macro format_duration(duration) -%}
     {% if duration %}
-        {{ time_to_min(duration) ~ " (min:sec)" }}
+        {{ time_to_min(duration) ~ " min" }}
     {% else %}
         -
     {% endif %}
