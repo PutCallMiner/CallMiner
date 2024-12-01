@@ -329,29 +329,45 @@ button {
   }
 }
 
-button.text-button {
-  color: var(--primary);
+button.text {
   border-radius: var(--large);
 
   &:hover,
   &:focus-visible {
     background-color: rgba(var(--hover), 0.08);
   }
-}
-
-button.filled-button {
-  cursor: pointer;
-
-  color: white;
-  border-radius: var(--large);
 
   &.primary {
-    background-color: var(--primary);
+    color: var(--primary);
   }
+}
+
+button.outlined {
+  border: 1px solid black;
+  border-radius: var(--large);
+
+  &:hover,
+  &focus-visible {
+    background-color: rgba(var(--hover), 0.08);
+  }
+
+  &.primary {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+}
+
+button.filled {
+  color: white;
+  border-radius: var(--large);
 
   &:hover,
   &:focus-visible {
     box-shadow: 0 0 1px black;
+  }
+
+  &.primary {
+    background-color: var(--primary);
   }
 }
 
@@ -843,6 +859,7 @@ body > main#recordings {
   #recordings-controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     input[type="search"] {
       max-width: 30%;
