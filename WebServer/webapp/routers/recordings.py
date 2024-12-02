@@ -100,6 +100,7 @@ async def detail(
             "partial": request.headers.get("hx-request"),
             "tab": tab,
             "delay": 0,
+            "disabled": False,
             "loading": False,
             "intents": PREDEFINED_INTENTS,
         },

@@ -1,18 +1,11 @@
-{%- macro tab_button(idx, current, is_icon = false, text = "" , title = "") -%}
-    <a href="?tab={{ idx }}"
-       class="{{ "icon-button" if is_icon else "" }} {{ "active" if idx == current else "" }}"
-       title="{{ title }}"
-       hx-get="?tab={{ idx }}"
-       hx-target="closest .tabs"
-       hx-swap="innerHTML"
-       hx-trigger="click"
-       onclick="clearEntries()">
-        {%- if is_icon -%}
-            <span class="icon">{{ text }}</span>
-        {%- else -%}
-            {{ text }}
-        {%- endif -%}
-    </a>
+{%- macro tab_button(idx, current, is_icon = false, text = "" , title = "", disabled = false) -%}
+    <button class="{{ "icon" if is_icon else "" }} {{ "active" if idx == current else "" }}"
+            title="{{ title }}"
+            {% if disabled %}disabled{% endif %}
+            hx-get="?tab={{ idx }}"
+            hx-target="closest .tabs"
+            hx-swap="innerHTML"
+            onclick="clearEntries()">{{ text }}</button>
 {%- endmacro -%}
 {%- macro progress_circle(link, delay = 0, load = True) -%}
     {%- if load -%}

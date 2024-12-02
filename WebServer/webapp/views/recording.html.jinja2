@@ -2,10 +2,10 @@
 {% import "recording_content.html.jinja2" as content with context %}
 {% import "analysis.html.jinja2" as analysis %}
 {%- macro component() %}
-    <nav class="tabs-control">
-        {{ components.tab_button(0, tab, true, "description", "Summary") }}
-        {{ components.tab_button(1, tab, true, "fingerprint", "NER") }}
-        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
+    <nav>
+        {{ components.tab_button(0, tab, true, "description", "Summary", disabled) }}
+        {{ components.tab_button(1, tab, true, "fingerprint", "NER", disabled) }}
+        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check", disabled) }}
     </nav>
     <section>
         {% if tab == 0 %}
