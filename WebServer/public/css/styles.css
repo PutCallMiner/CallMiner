@@ -348,10 +348,28 @@ button {
 
 button.text {
   border-radius: var(--large);
+  position: relative;
+  transition: background-color 0.3s ease;
+
+  &::after {
+    content: "";
+    height: 100%;
+    width: 0;
+    margin: auto;
+    position: absolute;
+    inset: 0;
+    border-radius: var(--large);
+    transition: width 0.2s ease;
+    background-color: rgba(var(--hover), 0.08);
+  }
 
   &:hover,
   &:focus-visible {
     background-color: rgba(var(--hover), 0.08);
+  }
+
+  &:active::after {
+    width: 100%;
   }
 
   &.primary {
@@ -386,9 +404,15 @@ button.icon {
 
   background-color: var(--card);
   font-size: 1.5rem;
+  transition: box-shadow 0.2s ease;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     box-shadow: 0 0 4px var(--border);
+  }
+
+  &:active {
+    box-shadow: none;
   }
 }
 
@@ -398,7 +422,11 @@ button.filled {
 
   &:hover,
   &:focus-visible {
-    box-shadow: 0 0 1px black;
+    box-shadow: 0 0 2px black;
+  }
+
+  &:active {
+    box-shadow: none;
   }
 
   &.primary {
