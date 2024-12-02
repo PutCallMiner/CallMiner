@@ -32,6 +32,8 @@
   --border: #c0c0c0;
   --card: #f2f2f6;
   --active: #ebebf4;
+  --success: #127d12;
+  --error: #de0000;
   --hover: 2, 39, 89;
 
   /* Border-radius */
@@ -163,14 +165,16 @@ input {
     border-radius: var(--small);
   }
 
-  &:user-invalid {
-    box-shadow: 0 0 4px red;
-    border-color: red;
+  &:user-invalid,
+  &:has(> input[type="file"]:user-invalid) {
+    box-shadow: 0 0 4px var(--error);
+    border-color: var(--error);
   }
 
-  &:user-valid {
-    box-shadow: 0 0 4px green;
-    border-color: green;
+  &:user-valid,
+  &:has(> input[type="file"]:valid) {
+    box-shadow: 0 0 4px var(--success);
+    border-color: var(--success);
   }
 }
 
@@ -214,13 +218,13 @@ input {
   }
 
   &:has(input:user-invalid) {
-    border-color: red;
-    box-shadow: 0 0 4px red;
+    box-shadow: 0 0 4px var(--error);
+    border-color: var(--error);
   }
 
   &:has(input:valid) {
-    border-color: green;
-    box-shadow: 0 0 4px green;
+    box-shadow: 0 0 4px var(--success);
+    border-color: var(--success);
   }
 }
 
@@ -314,6 +318,14 @@ input {
 
 .icon {
   font-family: "Material Icons";
+
+  &.success {
+    color: var(--success);
+  }
+
+  &.error {
+    color: var(--error);
+  }
 }
 
 button {
