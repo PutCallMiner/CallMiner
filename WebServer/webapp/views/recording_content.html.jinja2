@@ -90,37 +90,24 @@
             {%- for i in range(recording.conformity.results|count) -%}
                 {%- set result = recording.conformity.results[i] -%}
                 {%- set intent = intents[i] -%}
-                {%- if result.passed -%}
-                    <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
-                         hx-swap="none">
-                        <span class="icon" style="color: #3fe03f;">check_circle</span>
-                        <div>
-                            <span>{{ intent.intent_full_name }}</span>
-                            <span>{{ intent.intent }}</span>
-                        </div>
-                    </div>
-                {%- else -%}
+                <div {% if result.passed %}
+                     onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}'){%- endif -%} ">
+                    {%- if result.passed %}
+                        <span class="icon success">check_circle</span>
+                    {%- else %}
+                        <span class="icon error">cancel</span>
+                    {%- endif %}
                     <div>
-                        <span class="icon" style="color: red;">cancel</span>
-                        <div>
-                            <span>{{ intent.intent_full_name }}</span>
-                            <span>{{ intent.intent }}</span>
-                        </div>
+                        <span>{{ intent.intent_full_name }}</span>
+                        <span>{{ intent.intent }}</span>
                     </div>
-                {%- endif -%}
+                </div>
             {%- endfor -%}
         </div>
     </aside>
 {%- endmacro -%}
 {% macro render_content(content, attr_name) %}
-    {% if loading %}
-        <div class="progress">
-            <svg viewBox="25 25 50 50">
-                <circle r="20" cy="50" cx="50"></circle>
-            </svg>
-            <p>Analysis in progress...</p>
-        </div>
-    {% elif content == "transcript" and recording.transcript and recording.speaker_mapping %}
+    {% if content == "transcript" and recording.transcript and recording.speaker_mapping %}
         {{ transcript() }}
     {% elif (content == "summary") and recording.summary %}
         {{ summary() }}
@@ -132,6 +119,13 @@
         {{ conformity() }}
     {% elif content == "conformity-details" and recording.conformity %}
         {{ conformity_details() }}
+    {% elif loading %}
+        <div class="progress">
+            <svg viewBox="25 25 50 50">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+            <p>Analysis in progress...</p>
+        </div>
     {% else %}
         <p class="missing-content">{{ attr_name }} not found. Please run analysis first.</p>
     {% endif %}

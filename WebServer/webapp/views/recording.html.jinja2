@@ -1,6 +1,6 @@
 {% import "components.html.jinja2" as components %}
 {% import "recording_content.html.jinja2" as content with context %}
-{% import "_analysis_indicator.html.jinja2" as indicator %}
+{% import "analysis.html.jinja2" as analysis %}
 {%- macro component() %}
     <nav class="tabs-control">
         {{ components.tab_button(0, tab, true, "description", "Summary") }}
@@ -72,15 +72,12 @@
                 <nav>
                     <a href="/recordings"><span class="icon">arrow_back</span></a>
                 </nav>
-                <div id="recording-header">
-                    {{ components.analyze_form(recording.id) }}
-                    {{ indicator.analysis_indicator(recording.id, "in_progress") }}
-                </div>
+                <div id="recording-toolbar"></div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>
                 <audio controls id="recording-audio">
-                    <source src="{{ recording.id ~ "/audio" }}" type="audio/wav">
+                    <source src="{{ recording.id }}/audio" type="audio/wav">
                     Your browser does not support the audio element.
                 </audio>
             </footer>
