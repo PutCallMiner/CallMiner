@@ -1,6 +1,6 @@
 {%- macro upload_dialog() -%}
     <dialog id="upload">
-        <h1>Upload a new audio</h1>
+        <h1>Upload a new recording</h1>
         <form action="recordings/upload"
               enctype="multipart/form-data"
               method="post">
@@ -31,7 +31,7 @@
                     <span class="icon">upload</span>
                     <p>Select or drag and drop to upload your file</p>
                 </div>
-                <span class="helper-text">Accepts audio files</span>
+                <span class="helper-text">Accepts audio files (wav, mp3, ogg, etc.)</span>
             </div>
             <div>
                 <button class="text primary" type="reset" onclick="closeDialog('upload')">Cancel</button>
