@@ -34,9 +34,7 @@
     {%- endif -%}
 {%- endmacro -%}
 {%- macro time_to_min(secs) -%}
-    {% if secs is none %}
-        {{ "???" }}
-    {% else %}
+    {% if secs is not none %}
         {{ "%02d:%02d"|format(secs // 60000, (secs // 1000) % 60)}}
     {% endif %}
 {%- endmacro -%}

@@ -69,10 +69,8 @@
     {% block content %}
         <main id="recording">
             <header>
-                <nav>
-                    <a href="/recordings"><span class="icon">arrow_back</span></a>
-                </nav>
-                <div id="recording-toolbar"></div>
+                <a href="/recordings"><span class="icon">arrow_back</span></a>
+                <div id="recording-toolbar">{{ analysis.button(recording.id) }}</div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>

@@ -136,7 +136,6 @@ input {
 
   &[type="search"] {
     min-width: 360px;
-    max-width: calc(min(100%, 720px));
     height: 36px;
     padding-left: 36px;
     padding-right: 16px;
@@ -233,6 +232,7 @@ input {
   flex-direction: column;
   overflow-x: auto;
   overflow-y: auto;
+  flex-grow: 1;
 
   justify-content: space-between;
 
@@ -258,6 +258,7 @@ input {
 
     td,
     th {
+      padding: 1.5rem;
       border-bottom: 1px solid var(--border);
       text-align: left;
     }
@@ -282,25 +283,6 @@ input {
 
       a {
         width: 100px;
-        display: flex;
-        align-items: center;
-        color: var(--text);
-        cursor: pointer;
-        outline: none;
-        text-decoration: none;
-
-        &.disabled {
-          visibility: hidden;
-        }
-
-        span:not(.icon) {
-          text-decoration: underline;
-        }
-
-        &:hover,
-        &:focus-visible {
-          font-weight: 700;
-        }
 
         &:first-child {
           justify-content: flex-end;
@@ -325,6 +307,65 @@ input {
 
   &.error {
     color: var(--error);
+  }
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--text);
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+a.nav-link {
+  width: 150px;
+  padding: 0.5rem 1rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-transform: uppercase;
+  text-align: center;
+
+  &.active {
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom: 1px solid var(--primary);
+  }
+
+  &:hover {
+    color: var(--text);
+    font-weight: 700;
+    border-bottom: 1px solid var(--text);
+  }
+
+  &:focus-visible {
+    background-color: rgba(var(--hover), 0.08);
+  }
+}
+
+a.text {
+  display: flow;
+
+  &.disabled {
+    visibility: hidden;
+  }
+
+  span.icon {
+    font-size: 0.75rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    font-weight: 700;
+
+    span.icon {
+      display: inline-block;
+    }
   }
 }
 
@@ -821,189 +862,105 @@ form {
   }
 }
 
+.site-logo {
+  display: flex;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: var(--text);
+  padding-inline: 2rem;
+
+  img {
+    height: 3rem;
+  }
+
+  h1 {
+    margin: 0;
+    margin-inline: 1rem;
+    font-weight: 400;
+  }
+}
+
+.toolbar {
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+header {
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav {
+  height: 100%;
+
+  display: flex;
+  justify-content: start;
+  gap: 1rem;
+}
+
 /* Layout styles */
 
 body {
   height: 100vh;
   margin: 0 3rem;
-}
 
-body > header {
-  width: calc(100% - 4rem);
-  height: 6rem;
-  margin: 0;
-  padding: 0 2rem;
-
-  display: flex;
-  align-items: center;
-
-  border-bottom: 1px solid var(--text);
-
-  #site-logo {
-    display: flex;
-
-    text-decoration: none;
-    text-transform: uppercase;
-    color: var(--text);
-
-    img {
-      height: 3rem;
-    }
-
-    h1 {
-      margin: 0;
-      margin-inline: 1rem;
-
-      font-weight: 400;
-    }
+  & > header {
+    height: 6rem;
+    border-bottom: 1px solid var(--text);
   }
 
-  a:focus-visible {
-    outline: none;
-  }
-
-  nav {
-    height: 100%;
-    margin-inline-start: 3rem;
-
+  & > main {
+    height: calc(100% - 6rem);
+    margin: 0;
+    padding: 2rem 3rem;
     display: flex;
-    justify-content: start;
-    gap: 1rem;
-
-    a {
-      width: 150px;
-      padding: 0.5rem 1rem;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      text-decoration: none;
-      text-transform: uppercase;
-      text-align: center;
-      color: var(--text);
-    }
-
-    a.active {
-      color: var(--primary);
-      font-weight: 700;
-      border-bottom: 1px solid var(--primary);
-    }
-
-    a:hover {
-      color: var(--text);
-      font-weight: 700;
-      border-bottom: 1px solid var(--text);
-    }
-
-    a:focus-visible {
-      background-color: rgba(11, 87, 208, 0.05);
-    }
-  }
-
-  #toolbar {
-    display: flex;
+    flex-direction: column;
     gap: 1rem;
   }
 }
 
-body > main#recordings {
-  margin: 2rem 3rem;
-  height: calc(100% - 10rem);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  #recordings-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    input[type="search"] {
-      max-width: 30%;
-    }
-
-    #table-toolbar {
-      display: flex;
-      gap: 1rem;
-      margin-inline: 2rem;
-    }
-  }
-
-  #recordings-table {
-    flex-grow: 1;
-
-    th,
-    td {
-      padding: 1.5rem;
-    }
-
-    th:first-child,
-    td:first-child,
-    th:last-child,
-    td:last-child {
-      width: 400px;
-      overflow-x: hidden;
-      white-space: nowrap;
-    }
-
-    td {
-      a {
-        width: 100%;
-        display: flow;
-        color: var(--text);
-        outline: none;
-
-        span.icon {
-          display: none;
-          font-size: 0.75rem;
-        }
-
-        &:hover,
-        &:focus-visible {
-          font-weight: 700;
-
-          span.icon {
-            display: inline-block;
-          }
-        }
-      }
-    }
+body > main#recordings .table {
+  th:first-child,
+  td:first-child,
+  th:last-child,
+  td:last-child {
+    width: 400px;
+    overflow-x: hidden;
+    white-space: nowrap;
   }
 }
 
 body > main#recording {
-  height: calc(100% - 8rem);
-  margin: 2rem 3rem 0 3rem;
-  display: flex;
-  flex-direction: column;
-
   header {
     display: flex;
     flex-direction: row;
     height: 3rem;
     gap: 0.5rem;
+    align-items: center;
 
-    nav {
-      display: flex;
-      flex-direction: row;
-      gap: 1rem;
-      align-items: center;
+    a {
+      height: fit-content;
+      text-decoration: none;
+      color: var(--text);
 
-      a {
-        height: fit-content;
-        text-decoration: none;
-        color: var(--text);
-
-        span.icon {
-          font-size: 2rem;
-        }
+      span.icon {
+        font-size: 2rem;
       }
     }
 
-    #recording-header {
+    #recording-toolbar {
+      flex-grow: 1;
       display: flex;
       align-items: center;
+      justify-content: end;
       gap: 0.5rem;
 
       div.analyze-row {

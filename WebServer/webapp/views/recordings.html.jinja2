@@ -1,7 +1,7 @@
 {% import "components.html.jinja2" as components %}
 {% import "dialogs.html.jinja2" as dialogs %}
 {%- macro component() -%}
-    <div id="recordings-controls">
+    <header>
         <input name="search"
                type="search"
                placeholder="Search..."
@@ -9,13 +9,13 @@
                hx-get=" {{ components.link(take=take) }} "
                hx-target="#recordings"
                hx-trigger="search">
-        <div id="table-toolbar">
+        <div class="toolbar">
             <button class="filled primary" onclick="openDialog('upload')">
                 <span class="icon">add</span>
                 <span>New recording</span>
             </button>
         </div>
-    </div>
+    </header>
     <div id="recordings-table" class="table">
         <table>
             <thead>
@@ -32,7 +32,9 @@
                 {% for recording in recordings %}
                     <tr>
                         <td>
-                            <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
+                            <a href="{{ '/recordings/' ~ recording.id }}"
+                               class="text"
+                               title="Go to Details">
                                 {{ recording.blob_name }}<span class="icon">north_east</span>
                             </a>
                         </td>
@@ -69,7 +71,7 @@
                 <a href=""
                    hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
                    hx-target="#recordings"
-                   class="{% if skip <= 0 %}disabled{% endif %}">
+                   class="text {% if skip <= 0 %}disabled{% endif %}">
                     <span class="icon">chevron_left</span><span>Previous</span>
                 </a>
                 <select name="skip"
@@ -83,7 +85,7 @@
                 <a href=""
                    hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
                    hx-target="#recordings"
-                   class="{% if skip + take + 1 > total %}disabled{% endif %}">
+                   class="text {% if skip + take + 1 > total %}disabled{% endif %}">
                     <span>Next</span><span class="icon">chevron_right</span>
                 </a>
             </div>
