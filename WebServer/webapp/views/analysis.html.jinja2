@@ -17,26 +17,32 @@
     </div>
 {% endmacro %}
 {% macro button(recording_id, status = "") %}
-    <button id="analyze-button"
-            class="filled primary"
-            hx-swap="outerHTML"
-            {% if status != "" %} hx-get="/recordings/{{ recording_id }}/status?previous={{ status }}" hx-trigger="load delay:5s" disabled{% else %}hx-post="/recordings/{{ recording_id }}/analyze"{% endif %}>
-        {%- if status == 'in_progress' -%}
-            <svg viewBox="25 25 50 50">
-                <circle r="20" cy="50" cx="50"></circle>
-            </svg>
-            Analyzing...
-        {%- elif status == 'finished' -%}
-            <span class="icon">check_circle</span>
-            Analyzed
-        {%- elif status == 'failed' -%}
-            <span class="icon">cancel</span>
-            Failed
-        {%- else -%}
-            <span class="icon">search</span>
-            Analyze
-        {%- endif -%}
-    </button>
+    <div class="button-group">
+        <button id="analyze-button"
+                class="filled primary"
+                hx-target="closest .button-group"
+                hx-swap="outerHTML"
+                {% if status != "" %} hx-get="/recordings/{{ recording_id }}/status?previous={{ status }}" hx-trigger="load delay:30s" disabled{% else %}hx-post="/recordings/{{ recording_id }}/analyze"{% endif %}>
+            {%- if status == 'in_progress' -%}
+                <svg class="rotate" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50" stroke="var(--text-contrast)" stroke-width="10"></circle>
+                </svg>
+                Analyzing...
+            {%- elif status == 'finished' -%}
+                <span class="icon">check_circle</span>
+                Analyzed
+            {%- elif status == 'failed' -%}
+                <span class="icon">cancel</span>
+                Failed
+            {%- else -%}
+                <span class="icon">search</span>
+                Analyze
+            {%- endif -%}
+        </button>
+        <button class="icon"
+                onclick="openDialog('analyze')"
+                {% if status != "" %}disabled{% endif %}>more_vert</button>
+    </div>
 {% endmacro %}
 {{ button(recording_id, status) }}
 {% if reload %}

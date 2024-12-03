@@ -16,6 +16,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
+from webapp.configs.analysis import EUROTAX_PARAMS
 from webapp.configs.globals import AZURE_BLOB_STORAGE_URL, AZURE_SAS_TOKEN
 from webapp.configs.intents import PREDEFINED_INTENTS
 from webapp.configs.views import nav_links, templates
@@ -24,6 +25,7 @@ from webapp.crud.recordings import count_recordings, get_recording_by_id, get_re
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.record import Agent, RecordingBase
+from webapp.routers.api.analysis import run_recording_analysis
 from webapp.task_exec.common import TaskType
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
@@ -248,14 +250,12 @@ async def analyze(
     else:
         required_tasks = list(TaskType.__members__.values())
 
-    print(required_tasks, force_rerun)
-
-    # await run_recording_analysis(
-    #     recording_id=recording_id,
-    #     required_tasks=required_tasks,
-    #     force_rerun="selected" if force_rerun else "none",
-    #     background_tasks=background_tasks,
-    #     analyze_params=EUROTAX_PARAMS,
-    # )
+    await run_recording_analysis(
+        recording_id=recording_id,
+        required_tasks=required_tasks,
+        force_rerun="selected" if force_rerun else "none",
+        background_tasks=background_tasks,
+        analyze_params=EUROTAX_PARAMS,
+    )
 
     return RedirectResponse(url=f"/recordings/{recording_id}/status", status_code=303)

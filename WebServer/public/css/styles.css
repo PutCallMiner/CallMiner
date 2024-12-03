@@ -416,7 +416,7 @@ button {
   display: inline-flex;
   align-items: center;
 
-  &:has(span.icon) {
+  &:has(span.icon, svg) {
     gap: 0.5rem;
     padding: 0 1.5rem 0 1rem;
   }
@@ -474,7 +474,7 @@ button.outlined {
 }
 
 button.icon {
-  width: 40px;
+  height: 40px;
   padding: 0;
   border-radius: 50%;
   display: flex;
@@ -510,6 +510,11 @@ button.filled {
   &.primary {
     background-color: var(--primary);
   }
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .chip {
@@ -715,19 +720,11 @@ button.chip {
   flex-grow: 1;
   gap: 1rem;
 
-  svg:has(circle) {
+  svg.rotate {
     width: 3.25em;
-    transform-origin: center;
-    animation: rotate4 2s linear infinite;
 
     circle {
-      fill: none;
       stroke: var(--primary);
-      stroke-width: 2;
-      stroke-dasharray: 1, 200;
-      stroke-dashoffset: 0;
-      stroke-linecap: round;
-      animation: dash4 1.5s ease-in-out infinite;
     }
   }
 
@@ -735,6 +732,20 @@ button.chip {
     margin: 1rem 0;
     font-size: 1.25rem;
     font-weight: 700;
+  }
+}
+
+svg.rotate {
+  width: 1rem;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+
+  circle {
+    fill: none;
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: dash4 1.5s ease-in-out infinite;
   }
 }
 
