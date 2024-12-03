@@ -2,7 +2,16 @@ from typing import Annotated, Optional
 
 from azure.core.credentials import AzureSasCredential
 from azure.storage.blob.aio import BlobServiceClient
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
@@ -15,6 +24,7 @@ from webapp.crud.recordings import count_recordings, get_recording_by_id, get_re
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.record import Agent, RecordingBase
+from webapp.task_exec.common import TaskType
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -47,7 +57,7 @@ async def table(
     )
 
 
-@router.post("/upload")
+@router.post("")
 async def upload(
     agent_name: Annotated[str, Form()],
     agent_email: Annotated[str, Form()],
@@ -99,8 +109,6 @@ async def detail(
             "recording": recording,
             "partial": request.headers.get("hx-request"),
             "tab": tab,
-            "delay": 0,
-            "disabled": False,
             "loading": False,
             "intents": PREDEFINED_INTENTS,
         },
@@ -171,19 +179,83 @@ async def audio(
     )
 
 
-@router.get("/{recording_id}/analyze_status")
-async def analyze_status(
+@router.get("/{recording_id}/status")
+async def status(
     request: Request,
     recording_id: str,
     tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    previous: str = "",
 ) -> HTMLResponse:
     task_status = await get_key_value(tasks_db, recording_id)
+    # task_status = "in_progress"
+
+    if previous == "in_progress" and task_status == "in_progress":
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis.html.jinja2",
+            context={
+                "request": request,
+                "recording_id": recording_id,
+                "status": task_status,
+            },
+        )
+
+    recording = await get_recording_by_id(recording_db, recording_id)
+
+    if recording is None:
+        raise RecordingNotFoundError(recording_id)
+
     return templates.TemplateResponse(
         request=request,
-        name="_analysis_indicator.html.jinja2",
+        name="analysis.html.jinja2",
         context={
-            "request": request,
+            "recording": recording,
+            "tab": 0,
+            "partial": True,
+            "reload": True,
+            "loading": task_status == "in_progress",
+            "intents": PREDEFINED_INTENTS,
+            "status": (
+                "" if task_status is None or task_status == previous else task_status
+            ),
             "recording_id": recording_id,
-            "status": task_status,
         },
     )
+
+
+@router.post("/{recording_id}/analyze")
+async def analyze(
+    recording_id: str,
+    background_tasks: BackgroundTasks,
+    transcript: Annotated[str, Form()] = "",
+    summary: Annotated[str, Form()] = "",
+    ner: Annotated[str, Form()] = "",
+    conformity: Annotated[str, Form()] = "",
+    force_rerun: Annotated[bool, Form()] = False,
+) -> RedirectResponse:
+    required_tasks = []
+    if force_rerun:
+        required_tasks.append(TaskType.ASR)
+        required_tasks.append(TaskType.SPEAKER_CLASS)
+
+        if summary:
+            required_tasks.append(TaskType.SUMMARY)
+        if ner:
+            required_tasks.append(TaskType.NER)
+        if conformity:
+            required_tasks.append(TaskType.CONFORMITY)
+    else:
+        required_tasks = list(TaskType.__members__.values())
+
+    print(required_tasks, force_rerun)
+
+    # await run_recording_analysis(
+    #     recording_id=recording_id,
+    #     required_tasks=required_tasks,
+    #     force_rerun="selected" if force_rerun else "none",
+    #     background_tasks=background_tasks,
+    #     analyze_params=EUROTAX_PARAMS,
+    # )
+
+    return RedirectResponse(url=f"/recordings/{recording_id}/status", status_code=303)

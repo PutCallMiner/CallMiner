@@ -183,6 +183,13 @@ input {
     box-shadow: 0 0 4px var(--success);
     border-color: var(--success);
   }
+
+  &[type="checkbox"],
+  &[type="radio"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
 }
 
 *:has(> input[type="file"]) {
@@ -792,7 +799,7 @@ button.chip {
   }
 
   &.grow {
-    flex: 1 1 auto;
+    flex: 1 1 0;
   }
 
   &.dimmed {
@@ -955,6 +962,7 @@ form {
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
+    cursor: pointer;
 
     &:has(input[required]) > span::after {
       content: "*";
@@ -1035,6 +1043,7 @@ nav {
   grid-template-columns: 40px 1.25fr 1fr;
   gap: 2rem;
   min-height: 0;
+  flex-grow: 1;
 
   nav {
     flex-direction: column;
@@ -1183,4 +1192,8 @@ dialog#upload form {
 
 dialog#analyze form {
   width: 375px;
+
+  label {
+    align-items: center;
+  }
 }

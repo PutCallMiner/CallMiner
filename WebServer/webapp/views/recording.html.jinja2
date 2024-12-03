@@ -1,6 +1,5 @@
 {% import "components.html.jinja2" as components %}
 {% import "recording_content.html.jinja2" as content with context %}
-{% import "analysis.html.jinja2" as analysis with context %}
 {% import "dialogs.html.jinja2" as dialogs with context %}
 {%- macro component() %}
     <nav>
@@ -60,6 +59,7 @@
     {% endif %}
 {%- endmacro %}
 {% if not partial %}
+    {% import "analysis.html.jinja2" as analysis %}
     {% extends "layout.html.jinja2" %}
     {% block content %}
         <main id="recording">
@@ -67,7 +67,9 @@
                 <a class="icon" href="/recordings">arrow_back</a>
                 <div class="toolbar">
                     {{ analysis.button(recording.id) }}
-                    <button class="icon" onclick="openDialog('analyze')">more_vert</button>
+                    <button class="icon"
+                            onclick="openDialog('analyze')"
+                            {% if loading %}disabled{% endif %}>more_vert</button>
                 </div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
