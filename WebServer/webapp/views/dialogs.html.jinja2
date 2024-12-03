@@ -40,3 +40,44 @@
         </form>
     </dialog>
 {%- endmacro -%}
+{%- macro analyze_dialog() -%}
+    <dialog id="analyze">
+        <h1>Advanced analysis</h1>
+        <form action="recordings/{{ recording.id }}/analyze"
+              enctype="multipart/form-data"
+              method="post">
+            <div>
+                <label>
+                    <input type="checkbox" name="transcript" checked disabled>
+                    <span>Transcript</span>
+                </label>
+                <span class="helper-text">Transcribe the recording. Always required.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="ner" name="analysis">
+                    <span>Named Entity Recognition</span>
+                </label>
+                <span class="helper-text">Extract entities from the transcript.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="summary" name="analysis">
+                    <span>Summary</span>
+                </label>
+                <span class="helper-text">Generate a summary of the conversation.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="conformity" name="analysis">
+                    <span>Conformity check</span>
+                </label>
+                <span class="helper-text">Check if the conversation follows the script.</span>
+            </div>
+            <div>
+                <button class="text primary" type="reset" onclick="closeDialog('analyze')">Cancel</button>
+                <button class="filled primary" type="submit">Analyze</button>
+            </div>
+        </form>
+    </dialog>
+{%- endmacro -%}
