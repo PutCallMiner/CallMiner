@@ -88,25 +88,23 @@
             {{ components.rating(score, large = true) }}
             <h5>Conformity Rating</h5>
         </div>
-        <div>
-            {%- for i in range(recording.conformity.results|count) -%}
-                {%- set result = recording.conformity.results[i] -%}
-                {%- set intent = intents[i] -%}
-                <div class="card description"
-                     {% if result.passed %}
-                     onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}'){%- endif -%} ">
-                    {%- if result.passed %}
-                        <span class="icon success">check_circle</span>
-                    {%- else %}
-                        <span class="icon error">cancel</span>
-                    {%- endif %}
-                    <div>
-                        <span>{{ intent.intent_full_name }}</span>
-                        <p>{{ intent.intent }}</p>
-                    </div>
+        {%- for i in range(recording.conformity.results|count) -%}
+            {%- set result = recording.conformity.results[i] -%}
+            {%- set intent = intents[i] -%}
+            <div class="card description"
+                 {% if result.passed %}
+                 onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}'){%- endif -%} ">
+                {%- if result.passed %}
+                    <span class="icon success">check_circle</span>
+                {%- else %}
+                    <span class="icon error">cancel</span>
+                {%- endif %}
+                <div>
+                    <span>{{ intent.intent_full_name }}</span>
+                    <p>{{ intent.intent }}</p>
                 </div>
-            {%- endfor -%}
-        </div>
+            </div>
+        {%- endfor -%}
     </aside>
 {%- endmacro -%}
 {% macro render_content(content, attr_name) %}

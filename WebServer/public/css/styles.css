@@ -27,7 +27,7 @@
   --text-contrast: #ffffff;
   --background: #e7ecf1;
   --primary: #022759;
-  --secondary: #8fc0ff;
+  --secondary: #d2e6ff;
   --accent: #ff5c82;
   --border: #c0c0c0;
   --card: #f2f2f6;
@@ -110,7 +110,7 @@ small {
 
   &::-webkit-scrollbar-thumb {
     cursor: pointer;
-    background-color: var(--secondary);
+    background-color: var(--border);
     border-radius: var(--large);
     background-clip: content-box;
     border: 3px solid transparent;
@@ -757,7 +757,7 @@ button.chip {
 *:has(> .card) {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -794,7 +794,15 @@ button.chip {
 
   &.grow {
     overflow: hidden;
-    flex: 1 1 0;
+    flex: 1 1 auto;
+  }
+
+  &.dimmed {
+    background-color: rgba(var(--hover), 0.04);
+  }
+
+  &.secondary {
+    background-color: var(--secondary);
   }
 
   &.centered {
@@ -840,12 +848,8 @@ dl {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  flex: 1 1 0;
   gap: 1rem;
-  max-width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: inherit;
+  margin: 0;
 
   div {
     display: flex;
@@ -1056,6 +1060,7 @@ nav {
   }
 
   aside {
+    padding: 0.5rem 1rem;
     min-height: 0;
     grid-column: 3;
   }

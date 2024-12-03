@@ -18,45 +18,39 @@
     </section>
     {% if tab == 0 %}
         <aside class="details">
-            <div class="card grow">
-                <h3>Details</h3>
-                <dl>
-                    <div>
-                        <dt>Title</dt>
-                        <dd>
-                            {{ recording.blob_name }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Agent</dt>
-                        <dd>
-                            {{ components.agent(recording.agent) }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Duration</dt>
-                        <dd>
-                            {{ components.format_duration(recording.duration) }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Created On</dt>
-                        <dd>
-                            {{ recording.created.strftime("%a, %d %b %Y") }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Tags</dt>
-                        <dd>
-                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-            <div class="card grow">
-                <h3>Summary</h3>
-                {{ content.render_content('summary', 'Summary') }}
-            </div>
+            <dl class="card grow dimmed">
+                <div>
+                    <dt>Title</dt>
+                    <dd>
+                        {{ recording.blob_name }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Agent</dt>
+                    <dd>
+                        {{ components.agent(recording.agent) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd>
+                        {{ components.format_duration(recording.duration) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Created On</dt>
+                    <dd>
+                        {{ recording.created.strftime("%a, %d %b %Y") }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Tags</dt>
+                    <dd>
+                        {% for tag in recording.tags %}<a class="text">#{{ tag }}</a>{% endfor %}
+                    </dd>
+                </div>
+            </dl>
+            <div class="card grow secondary">{{ content.render_content('summary', 'Summary') }}</div>
         </aside>
     {% elif tab == 1 %}
         {{ content.render_content('ner-details', 'NER') }}
