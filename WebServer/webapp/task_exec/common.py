@@ -1,15 +1,13 @@
 from enum import StrEnum, auto
-from functools import cache
+from functools import lru_cache
 from typing import TypeAlias
 
-from webapp.task_exec.tasks import (
-    ASRTask,
-    ConformityCheckTask,
-    NERTask,
-    RecordingTask,
-    SpeakerClassifyTask,
-    SummarizeTask,
-)
+from webapp.task_exec.tasks.asr import ASRTask
+from webapp.task_exec.tasks.base import RecordingTask
+from webapp.task_exec.tasks.classify_speakers import SpeakerClassifyTask
+from webapp.task_exec.tasks.conformity_check import ConformityCheckTask
+from webapp.task_exec.tasks.ner import NERTask
+from webapp.task_exec.tasks.summarize import SummarizeTask
 from webapp.task_exec.utils import DAG
 
 
@@ -21,7 +19,16 @@ class TaskType(StrEnum):
     CONFORMITY = auto()
 
 
-@cache
+TASK_TYPE_TO_DB_ENTRY = {
+    TaskType.ASR: "transcript",
+    TaskType.CONFORMITY: "conformity",
+    TaskType.NER: "ner",
+    TaskType.SPEAKER_CLASS: "speaker_mapping",
+    TaskType.SUMMARY: "summary",
+}
+
+
+@lru_cache
 def get_task_by_type(task_type: TaskType):
     component_to_task: dict[TaskType, type[RecordingTask]] = {
         TaskType.ASR: ASRTask,
@@ -64,3 +71,7 @@ class Scheduler:
             else:
                 schedule.append([task_type])
         return schedule
+
+    @classmethod
+    def get_downstream_tasks(cls, task_type: TaskType) -> set[TaskType]:
+        return cls.dep_dag.get_ancestors(task_type)

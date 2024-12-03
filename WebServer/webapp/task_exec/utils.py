@@ -33,12 +33,12 @@ class DAG(Generic[T]):
         self._graph_data = graph_data
 
     @cached_property
-    def inverse(self) -> GraphDict[T]:
+    def inverse(self) -> "DAG[T]":
         inv_graph: GraphDict[T] = {key: set() for key in self._graph_data.keys()}
         for key, vals in self._graph_data.items():
             for val in vals:
                 inv_graph[val].add(key)
-        return inv_graph
+        return DAG(inv_graph)
 
     @cached_property
     def topological_order(self):
@@ -56,3 +56,8 @@ class DAG(Generic[T]):
             all_deps.update(self._graph_data[task_t])
             queue.extend(self._graph_data[task_t] - all_deps)
         return all_deps
+
+    def get_ancestors(self, node: T) -> set[T]:
+        ancestors = self.inverse.get_all_descendants({node})
+        ancestors.remove(node)
+        return ancestors

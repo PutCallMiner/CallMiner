@@ -4,8 +4,14 @@ from typing import Iterable, Literal
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from webapp.configs.globals import logger
+from webapp.crud import recordings as crud
 from webapp.models.analysis import AnalyzeParams
-from webapp.task_exec.common import Scheduler, TaskType, get_task_by_type
+from webapp.task_exec.common import (
+    TASK_TYPE_TO_DB_ENTRY,
+    Scheduler,
+    TaskType,
+    get_task_by_type,
+)
 
 RerunMode = Literal["none", "selected", "all"]
 
@@ -28,6 +34,15 @@ class RecordingProcessor:
         task = get_task_by_type(task_t)()
         logger.info(f"[id: {self.recording_id}] Running '{task_t}' task.")
         await task.run(self.db, self.recording_id, analyze_params, task_timeout)
+        downstream_tasks = Scheduler.get_downstream_tasks(task_t)
+        logger.info(
+            f"[id: {self.recording_id}] Deleting downstream task results {downstream_tasks}"
+        )
+        await crud.delete_analysis_elements(
+            self.db,
+            self.recording_id,
+            (TASK_TYPE_TO_DB_ENTRY[task] for task in downstream_tasks),
+        )
 
     async def run_with_dependencies(
         self,
