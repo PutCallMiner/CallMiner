@@ -51,15 +51,17 @@
             {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
                 {%- continue -%}
             {%- endif -%}
-            <details>
+            <details class="card">
                 <summary>
                     <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
                 </summary>
                 <ul>
                     {%- for s in seen -%}
                         {%- if s[0] == entity[1] -%}
-                            <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
-                                hx-swap="none">{{ s[2] }}</li>
+                            <li>
+                                <a class="text"
+                                   onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')">{{ s[2] }}</a>
+                            </li>
                         {%- endif -%}
                     {%- endfor -%}
                 </ul>
@@ -81,16 +83,17 @@
     <aside class="conformity">
         {%- set transcript_entries = recording.transcript.entries -%}
         {%- set conformity_results = recording.conformity.results -%}
-        <div>
+        <div class="card transparent centered">
             {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
-            {{ components.rating(score) }}
+            {{ components.rating(score, large = true) }}
             <h5>Conformity Rating</h5>
         </div>
         <div>
             {%- for i in range(recording.conformity.results|count) -%}
                 {%- set result = recording.conformity.results[i] -%}
                 {%- set intent = intents[i] -%}
-                <div {% if result.passed %}
+                <div class="card description"
+                     {% if result.passed %}
                      onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}'){%- endif -%} ">
                     {%- if result.passed %}
                         <span class="icon success">check_circle</span>
@@ -99,7 +102,7 @@
                     {%- endif %}
                     <div>
                         <span>{{ intent.intent_full_name }}</span>
-                        <span>{{ intent.intent }}</span>
+                        <p>{{ intent.intent }}</p>
                     </div>
                 </div>
             {%- endfor -%}

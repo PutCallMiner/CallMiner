@@ -7,7 +7,7 @@
         {{ components.tab_button(1, tab, true, "fingerprint", "NER", disabled) }}
         {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check", disabled) }}
     </nav>
-    <section>
+    <section class="transcript">
         {% if tab == 0 %}
             {{ content.render_content('transcript', 'Transcript') }}
         {% elif tab == 1 %}
@@ -18,7 +18,7 @@
     </section>
     {% if tab == 0 %}
         <aside class="details">
-            <div>
+            <div class="card grow">
                 <h3>Details</h3>
                 <dl>
                     <div>
@@ -53,7 +53,7 @@
                     </div>
                 </dl>
             </div>
-            <div>
+            <div class="card grow">
                 <h3>Summary</h3>
                 {{ content.render_content('summary', 'Summary') }}
             </div>
@@ -69,8 +69,8 @@
     {% block content %}
         <main id="recording">
             <header>
-                <a href="/recordings"><span class="icon">arrow_back</span></a>
-                <div id="recording-toolbar">{{ analysis.button(recording.id) }}</div>
+                <a class="icon" href="/recordings">arrow_back</a>
+                <div class="toolbar">{{ analysis.button(recording.id) }}</div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>

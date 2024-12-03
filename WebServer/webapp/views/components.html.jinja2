@@ -53,8 +53,9 @@
         </div>
     {% endfor %}
 {%- endmacro -%}
-{%- macro rating(score, background = "secondary") -%}
-    <div class="rating" style="background-color: var(--{{ background }});">
+{%- macro rating(score, background = "secondary", large = false) -%}
+    <div class="rating {{ 'large' if large else '' }}"
+         style="background-color: var(--{{ background }})">
         <div style="{{ 'background-image: conic-gradient(var(--primary) ' ~ score ~ '%, transparent 0 100%);
                     ' }}">
             <span>{{ score }}</span>
