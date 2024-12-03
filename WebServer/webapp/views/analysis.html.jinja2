@@ -37,8 +37,8 @@
         {%- endif -%}
     </button>
 {% endmacro %}
-{% if partial %}
-    {{ button(recording_id, status) }}
+{{ button(recording_id, status) }}
+{% if reload %}
     <article id="recording-details" hx-swap-oob="outerHTML">
         {% import "recording.html.jinja2" as recording with context %}
         {{ recording.component() }}

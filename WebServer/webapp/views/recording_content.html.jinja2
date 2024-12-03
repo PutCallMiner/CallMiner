@@ -119,7 +119,7 @@
         {{ conformity() }}
     {% elif content == "conformity-details" and recording.conformity %}
         {{ conformity_details() }}
-    {% elif loading %}
+    {% elif loading and content in currently_analyzed %}
         <div class="progress">
             <svg viewBox="25 25 50 50">
                 <circle r="20" cy="50" cx="50"></circle>
@@ -127,6 +127,6 @@
             <p>Analysis in progress...</p>
         </div>
     {% else %}
-        <p class="missing-content">{{ attr_name }} not found. Please run analysis first.</p>
+        <p class="progress">{{ attr_name }} not found. Please run analysis first.</p>
     {% endif %}
 {% endmacro %}

@@ -261,6 +261,16 @@ input {
       padding: 1.5rem;
       border-bottom: 1px solid var(--border);
       text-align: left;
+      overflow-x: hidden;
+      white-space: nowrap;
+
+      &:has(a) {
+        min-width: 400px;
+      }
+
+      &:has(a:not(:only-of-type)) a {
+        padding-inline: 1.5rem;
+      }
     }
   }
 
@@ -362,6 +372,7 @@ a.text {
   &:hover,
   &:focus-visible {
     font-weight: 700;
+    text-decoration: underline;
 
     span.icon {
       display: inline-block;
@@ -668,10 +679,6 @@ button.chip {
   }
 }
 
-.missing-content {
-  margin: auto;
-}
-
 .progress {
   display: flex;
   flex-direction: column;
@@ -924,17 +931,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-  }
-}
-
-body > main#recordings .table {
-  th:first-child,
-  td:first-child,
-  th:last-child,
-  td:last-child {
-    width: 400px;
-    overflow-x: hidden;
-    white-space: nowrap;
   }
 }
 
