@@ -94,10 +94,12 @@ async def upload(
 async def detail(
     request: Request,
     recording_id: str,
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     tab: int = 0,
 ) -> HTMLResponse:
-    recording = await get_recording_by_id(db, recording_id)
+    recording = await get_recording_by_id(recording_db, recording_id)
+    task_status = await get_key_value(tasks_db, recording_id)
 
     if recording is None:
         raise RecordingNotFoundError(recording_id)
@@ -110,8 +112,8 @@ async def detail(
             "current": 1,
             "recording": recording,
             "partial": request.headers.get("hx-request"),
+            "loading": task_status == "in_progress",
             "tab": tab,
-            "loading": False,
             "intents": PREDEFINED_INTENTS,
         },
     )
@@ -190,7 +192,6 @@ async def status(
     previous: str = "",
 ) -> HTMLResponse:
     task_status = await get_key_value(tasks_db, recording_id)
-    # task_status = "in_progress"
 
     if previous == "in_progress" and task_status == "in_progress":
         return templates.TemplateResponse(
@@ -230,7 +231,6 @@ async def status(
 async def analyze(
     recording_id: str,
     background_tasks: BackgroundTasks,
-    transcript: Annotated[str, Form()] = "",
     summary: Annotated[str, Form()] = "",
     ner: Annotated[str, Form()] = "",
     conformity: Annotated[str, Form()] = "",
