@@ -42,7 +42,7 @@
     <dialog id="analyze">
         <h1>Rerun analysis</h1>
         <form hx-post="/recordings/{{ recording.id }}/analyze"
-              hx-target="#analyze-button"
+              hx-target=".button-group:has(#analyze-button)"
               hx-swap="outerHTML">
             <div>
                 <label>

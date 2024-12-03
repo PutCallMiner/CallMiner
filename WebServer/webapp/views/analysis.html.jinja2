@@ -1,28 +1,10 @@
-{% macro analysis_indicator(recording_id, status = "") %}
-    <div id="analysis-indicator"
-         hx-get="/recordings/{{ recording_id }}/analyze_status/"
-         hx-trigger="{% if status == 'in_progress' %}every 3s{% else %}click from:#analyze-button{% endif %}"
-         hx-swap="outerHTML">
-        {% if status == "in_progress" %}
-            <svg viewBox="25 25 50 50">
-                <circle r="20" cy="50" cx="50"></circle>
-            </svg>
-        {% elif status == "finished" %}
-            <img src="/public/assets/checkmark.svg" />
-        {% elif status == "failed" %}
-            <img src="/public/assets/red_x.svg" />
-        {% else %}
-            <div class="empty"></div>
-        {% endif %}
-    </div>
-{% endmacro %}
 {% macro button(recording_id, status = "") %}
     <div class="button-group">
         <button id="analyze-button"
                 class="filled primary"
                 hx-target="closest .button-group"
                 hx-swap="outerHTML"
-                {% if status != "" %} hx-get="/recordings/{{ recording_id }}/status?previous={{ status }}" hx-trigger="load delay:30s" disabled{% else %}hx-post="/recordings/{{ recording_id }}/analyze"{% endif %}>
+                {% if status != "" %} hx-get="/recordings/{{ recording_id }}/status?previous={{ status }}" hx-trigger="load delay:3s" disabled{% else %}hx-post="/recordings/{{ recording_id }}/analyze"{% endif %}>
             {%- if status == 'in_progress' -%}
                 <svg class="rotate" viewBox="25 25 50 50">
                     <circle r="20" cy="50" cx="50" stroke="var(--text-contrast)" stroke-width="10"></circle>
