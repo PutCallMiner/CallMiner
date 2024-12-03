@@ -228,26 +228,23 @@ input {
 }
 
 .table {
-  display: flex;
-  flex-direction: column;
   overflow-x: auto;
   overflow-y: auto;
   flex-grow: 1;
-
-  justify-content: space-between;
-
   background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--standard);
 
-  &::-webkit-scrollbar-track {
-    margin: 5px 0;
-    border-left: 1px solid var(--border);
-  }
-
   table {
     border-collapse: collapse;
     table-layout: fixed;
+    min-width: 100%;
+    min-height: 100%;
+
+    &::-webkit-scrollbar-track {
+      margin: 5px 0;
+      border-left: 1px solid var(--border);
+    }
 
     thead {
       position: sticky;
@@ -269,39 +266,48 @@ input {
       }
 
       &:has(a:not(:only-of-type)) a {
-        padding-inline: 1.5rem;
+        padding-inline: 0.25rem;
       }
     }
-  }
 
-  .pagination {
-    position: sticky;
-    bottom: 0;
-    padding: 16px 0;
-    z-index: 999;
+    tfoot {
+      position: sticky;
+      bottom: 0;
+      padding: 1rem 0;
+      z-index: 999;
+      background-color: var(--card);
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-    background-color: var(--card);
+      td {
+        border: none;
+      }
 
-    div {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      a {
-        width: 100px;
+      td > div {
+        width: calc(50% - 2rem);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
 
         &:first-child {
-          justify-content: flex-end;
-          padding-right: 4px;
+          justify-content: end;
         }
 
         &:last-child {
-          justify-content: flex-start;
-          padding-left: 4px;
+          justify-content: start;
+        }
+
+        a {
+          padding-inline: 0 !important;
+          width: 100px;
+
+          &:first-child {
+            text-align: end;
+            padding-right: 4px;
+          }
+
+          &:last-child {
+            text-align: start;
+            padding-left: 4px;
+          }
         }
       }
     }
@@ -359,8 +365,6 @@ a.nav-link {
 }
 
 a.text {
-  display: flow;
-
   &.disabled {
     visibility: hidden;
   }
@@ -572,16 +576,6 @@ button.chip {
   height: 24px;
   width: 24px;
   background: url("../assets/account.svg") no-repeat center;
-}
-
-.tag {
-  padding: 0.25rem;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-    font-weight: 700;
-  }
 }
 
 .transcript-entry {
