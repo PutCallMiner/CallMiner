@@ -4,8 +4,7 @@
             {% if disabled %}disabled{% endif %}
             hx-get="?tab={{ idx }}"
             hx-target="closest .tabs"
-            hx-swap="innerHTML"
-            onclick="clearEntries()">{{ text }}</button>
+            hx-swap="innerHTML">{{ text }}</button>
 {%- endmacro -%}
 {%- macro link(search = "", take = 20, skip = 0) -%}
     {%- if search != "" or take != 20 or skip != 0 -%}

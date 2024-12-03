@@ -7,7 +7,7 @@
         {{ components.tab_button(1, tab, true, "fingerprint", "NER", disabled) }}
         {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check", disabled) }}
     </nav>
-    <section class="transcript">
+    <section class="transcript" hx-on::load="setupEntries()">
         {% if tab == 0 %}
             {{ content.render_content('transcript', 'Transcript') }}
         {% elif tab == 1 %}
@@ -74,6 +74,7 @@
                 </audio>
             </footer>
         </main>
+        <script src="/public/js/audio.js"></script>
     {% endblock %}
 {% else %}
     {{ component() }}

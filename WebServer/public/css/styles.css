@@ -793,7 +793,6 @@ button.chip {
   }
 
   &.grow {
-    overflow: hidden;
     flex: 1 1 auto;
   }
 
