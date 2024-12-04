@@ -18,16 +18,17 @@
     </head>
     <body>
         <header>
-            <a href="/" title="Go to Dashboard" id="site-logo" tabindex="-1">
+            <a href="/" title="Go to Dashboard" class="site-logo" tabindex="-1">
                 <img src="/public/assets/logo.svg" alt="CallMiner" />
                 <h1>CallMiner</h1>
             </a>
             <nav>
                 {% for nav_link in nav_links %}
                     <a href="{{ nav_link.url }}"
-                       class="{{ 'active' if loop.index0==current else '' }}">{{ nav_link.title }}</a>
+                       class="nav-link {{ 'active' if loop.index0==current else '' }}">{{ nav_link.title }}</a>
                 {% endfor %}
             </nav>
+            <div class="toolbar"></div>
         </header>
         {% block content %}
             <main>

@@ -1,91 +1,83 @@
 {% import "components.html.jinja2" as components %}
 {% import "recording_content.html.jinja2" as content with context %}
+{% import "dialogs.html.jinja2" as dialogs with context %}
 {%- macro component() %}
-    <nav class="tabs-control">
-        {{ components.tab_button(0, tab, true, "description", "Summary") }}
-        {{ components.tab_button(1, tab, true, "fingerprint", "NER") }}
-        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check") }}
+    <nav>
+        {{ components.tab_button(0, tab, true, "description", "Summary", disabled) }}
+        {{ components.tab_button(1, tab, true, "fingerprint", "NER", disabled) }}
+        {{ components.tab_button(2, tab, true, "check_circle", "Conformity Check", disabled) }}
     </nav>
-    <section>
+    <section class="transcript" hx-on::load="setupEntries()">
         {% if tab == 0 %}
-            {{ content.transcript() }}
+            {{ content.render_content('transcript', 'Transcript') }}
         {% elif tab == 1 %}
-            {{ content.ner() }}
+            {{ content.render_content('ner', 'NER') }}
         {% elif tab == 2 %}
-            {{ content.conformity() }}
+            {{ content.render_content('conformity', 'Conformity check') }}
         {% endif %}
     </section>
     {% if tab == 0 %}
         <aside class="details">
-            <div>
-                <h3>Details</h3>
-                <dl>
-                    <div>
-                        <dt>Title</dt>
-                        <dd>
-                            {{ recording.blob_name }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Agent</dt>
-                        <dd>
-                            {{ components.agent(recording.agent) }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Duration</dt>
-                        <dd>
-                            {{ components.time_to_min(recording.duration) }} min
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Created On</dt>
-                        <dd>
-                            {{ recording.created.strftime("%a, %d %b %Y") }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Tags</dt>
-                        <dd>
-                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-            <div>
-                <h3>Summary</h3>
-                {{ content.summary() }}
-            </div>
+            <dl class="card grow dimmed">
+                <div>
+                    <dt>Title</dt>
+                    <dd>
+                        {{ recording.blob_name }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Agent</dt>
+                    <dd>
+                        {{ components.agent(recording.agent) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd>
+                        {{ components.format_duration(recording.duration) }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Created On</dt>
+                    <dd>
+                        {{ recording.created.strftime("%a, %d %b %Y") }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Tags</dt>
+                    <dd>
+                        {% for tag in recording.tags %}<a class="text">#{{ tag }}</a>{% endfor %}
+                    </dd>
+                </div>
+            </dl>
+            <div class="card grow secondary">{{ content.render_content('summary', 'Summary') }}</div>
         </aside>
     {% elif tab == 1 %}
-        <aside class="ner">
-            {{ content.ner_details() }}
-        </aside>
+        {{ content.render_content('ner-details', 'NER') }}
     {% elif tab == 2 %}
-        <aside class="conformity">
-            {{ content.conformity_details() }}
-        </aside>
+        {{ content.render_content('conformity-details', 'Conformity check') }}
     {% endif %}
 {%- endmacro %}
 {% if not partial %}
+    {% import "analysis.html.jinja2" as analysis %}
     {% extends "layout.html.jinja2" %}
     {% block content %}
         <main id="recording">
             <header>
-                <nav>
-                    <a href="/recordings"><span class="icon">arrow_back</span></a>
-                </nav>
-                <div></div>
+                <a class="icon" href="/recordings">arrow_back</a>
+                <div class="toolbar">{{ analysis.button(recording.id, status) }}</div>
             </header>
             <article id="recording-details" class="tabs">{{ component() }}</article>
             <footer>
                 <audio controls id="recording-audio">
-                    <source src="{{ recording.id ~ "/audio" }}" type="audio/wav">
+                    <source src="{{ recording.id }}/audio" type="audio/wav">
                     Your browser does not support the audio element.
                 </audio>
             </footer>
         </main>
+        <script src="/public/js/audio.js"></script>
     {% endblock %}
+    {% block dialogs %}{{ dialogs.analyze_dialog() }}{% endblock %}
 {% else %}
     {{ component() }}
 {% endif %}

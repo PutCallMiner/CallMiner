@@ -1,9 +1,7 @@
 {%- macro upload_dialog() -%}
     <dialog id="upload">
-        <h1>Upload a new audio</h1>
-        <form action="recordings/upload"
-              enctype="multipart/form-data"
-              method="post">
+        <h1>Upload a new recording</h1>
+        <form action="/recordings" enctype="multipart/form-data" method="post">
             <label>
                 <span>Agent name</span>
                 <div>
@@ -31,11 +29,53 @@
                     <span class="icon">upload</span>
                     <p>Select or drag and drop to upload your file</p>
                 </div>
-                <span class="helper-text">Accepts audio files</span>
+                <span class="helper-text">Accepts audio files (wav, mp3, ogg, etc.)</span>
             </div>
             <div>
                 <button class="text primary" type="reset" onclick="closeDialog('upload')">Cancel</button>
                 <button class="filled primary" type="submit">Upload</button>
+            </div>
+        </form>
+    </dialog>
+{%- endmacro -%}
+{%- macro analyze_dialog() -%}
+    <dialog id="analyze">
+        <h1>Rerun analysis</h1>
+        <form hx-post="/recordings/{{ recording.id }}/analyze"
+              hx-target=".button-group:has(#analyze-button)"
+              hx-swap="outerHTML">
+            <div>
+                <label>
+                    <input type="checkbox" name="transcript" value="on" checked disabled>
+                    <span>Transcript</span>
+                </label>
+                <span class="helper-text">Transcribe the recording. Always required.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="ner" name="analysis">
+                    <span>Named Entity Recognition</span>
+                </label>
+                <span class="helper-text">Extract entities from the transcript.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="summary" name="analysis">
+                    <span>Summary</span>
+                </label>
+                <span class="helper-text">Generate a summary of the conversation.</span>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="conformity" name="analysis">
+                    <span>Conformity check</span>
+                </label>
+                <span class="helper-text">Check if the conversation follows the script.</span>
+            </div>
+            <input type="hidden" name="force_rerun" value="true">
+            <div>
+                <button class="text primary" type="reset" onclick="closeDialog('analyze')">Cancel</button>
+                <button class="filled primary" type="submit" onclick="closeDialog('analyze')">Analyze</button>
             </div>
         </form>
     </dialog>

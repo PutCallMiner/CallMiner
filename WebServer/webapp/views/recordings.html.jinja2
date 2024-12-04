@@ -1,7 +1,7 @@
 {% import "components.html.jinja2" as components %}
 {% import "dialogs.html.jinja2" as dialogs %}
 {%- macro component() -%}
-    <div id="recordings-controls">
+    <header>
         <input name="search"
                type="search"
                placeholder="Search..."
@@ -9,14 +9,14 @@
                hx-get=" {{ components.link(take=take) }} "
                hx-target="#recordings"
                hx-trigger="search">
-        <div id="table-toolbar">
-            <button class="outlined primary" onclick="openDialog('upload')">
-                <span class="icon">cloud_upload</span>
-                <span>Upload</span>
+        <div class="toolbar">
+            <button class="filled primary" onclick="openDialog('upload')">
+                <span class="icon">add</span>
+                <span>New recording</span>
             </button>
         </div>
-    </div>
-    <div id="recordings-table" class="table">
+    </header>
+    <div class="table">
         <table>
             <thead>
                 <tr>
@@ -32,7 +32,9 @@
                 {% for recording in recordings %}
                     <tr>
                         <td>
-                            <a href="{{ '/recordings/' ~ recording.id }}" title="Go to Details">
+                            <a href="{{ '/recordings/' ~ recording.id }}"
+                               class="text"
+                               title="Go to Details">
                                 {{ recording.blob_name }}<span class="icon">north_east</span>
                             </a>
                         </td>
@@ -45,49 +47,51 @@
                             {%- endif -%}
                         </td>
                         <td>{{ recording.created.strftime("%a, %d %b %Y") }}</td>
-                        <td>{{ components.time_to_min(recording.duration) }} min</td>
+                        <td>{{ components.format_duration(recording.duration) }}</td>
                         <td>
-                            {% for tag in recording.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+                            {% for tag in recording.tags %}<a class="text">#{{ tag }}</a>{% endfor %}
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
+            <tfoot>
+                <td colspan="100%">
+                    <div>
+                        <span>Show</span>
+                        <select name="take"
+                                hx-get="{{ components.link(search=search) }}"
+                                hx-target="#recordings">
+                            {% for t in [5, 10, 20, 50] %}
+                                <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                        <span>results</span>
+                    </div>
+                    <div>
+                        <a href=""
+                           hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
+                           hx-target="#recordings"
+                           class="text {% if skip <= 0 %}disabled{% endif %}">
+                            <span class="icon">chevron_left</span><span>Previous</span>
+                        </a>
+                        <select name="skip"
+                                hx-get="{{ components.link(search, take) }}"
+                                hx-target="#recordings">
+                            {% for s in range(0, (total, 1)|max, take) %}
+                                <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
+                            {% endfor %}
+                        </select>
+                        <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
+                        <a href=""
+                           hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
+                           hx-target="#recordings"
+                           class="text {% if skip + take + 1 > total %}disabled{% endif %}">
+                            <span>Next</span><span class="icon">chevron_right</span>
+                        </a>
+                    </div>
+                </td>
+            </tfoot>
         </table>
-        <div class="pagination">
-            <div>
-                <span>Show</span>
-                <select name="take"
-                        hx-get="{{ components.link(search=search) }}"
-                        hx-target="#recordings">
-                    {% for t in [5, 10, 20, 50] %}
-                        <option value="{{ t }}" {% if t==take %}selected{% endif %}>{{ t }}</option>
-                    {% endfor %}
-                </select>
-                <span>results</span>
-            </div>
-            <div>
-                <a href=""
-                   hx-get="{{ components.link(search, take, (skip-take, 0) | max) }}"
-                   hx-target="#recordings"
-                   class="{% if skip <= 0 %}disabled{% endif %}">
-                    <span class="icon">chevron_left</span><span>Previous</span>
-                </a>
-                <select name="skip"
-                        hx-get="{{ components.link(search, take) }}"
-                        hx-target="#recordings">
-                    {% for s in range(0, (total, 1)|max, take) %}
-                        <option value="{{ s }}" {% if s==skip %}selected{% endif %}>{{ s // take + 1 }}</option>
-                    {% endfor %}
-                </select>
-                <span>of {{ ((total, 1)|max / take)|round(method="ceil") |int }}</span>
-                <a href=""
-                   hx-get="{{ components.link(search, take, (skip + take, total) | min) }}"
-                   hx-target="#recordings"
-                   class="{% if skip + take + 1 > total %}disabled{% endif %}">
-                    <span>Next</span><span class="icon">chevron_right</span>
-                </a>
-            </div>
-        </div>
     </div>
 {%- endmacro -%}
 {%- if not partial -%}

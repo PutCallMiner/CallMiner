@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Iterable
 
 import bson
 import bson.errors
@@ -131,5 +131,15 @@ async def update_with_conformity(
     update_result = await db["recordings"].update_one(
         filter={"_id": bson.ObjectId(recording_id)},
         update={"$set": {"conformity": conformity.model_dump()}},
+    )
+    return update_result
+
+
+async def delete_analysis_elements(
+    db: AsyncIOMotorDatabase, recording_id: PyObjectId, elem_names: Iterable[str]
+):
+    update_data = {elem_name: None for elem_name in elem_names}
+    update_result = await db["recordings"].update_one(
+        filter={"_id": bson.ObjectId(recording_id)}, update={"$set": update_data}
     )
     return update_result

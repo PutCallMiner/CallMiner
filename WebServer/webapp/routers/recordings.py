@@ -2,11 +2,21 @@ from typing import Annotated, Optional
 
 from azure.core.credentials import AzureSasCredential
 from azure.storage.blob.aio import BlobServiceClient
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
 
+from webapp.configs.analysis import EUROTAX_PARAMS
 from webapp.configs.globals import AZURE_BLOB_STORAGE_URL, AZURE_SAS_TOKEN
 from webapp.configs.intents import PREDEFINED_INTENTS
 from webapp.configs.views import nav_links, templates
@@ -15,7 +25,8 @@ from webapp.crud.recordings import count_recordings, get_recording_by_id, get_re
 from webapp.crud.redis_manage import get_key_value
 from webapp.errors import RecordingNotFoundError
 from webapp.models.record import Agent, RecordingBase
-from webapp.models.task_status import TaskStatus
+from webapp.routers.api.analysis import run_recording_analysis
+from webapp.task_exec.common import TaskType
 
 router = APIRouter(prefix="/recordings", tags=["Jinja", "Recordings"])
 
@@ -48,7 +59,7 @@ async def table(
     )
 
 
-@router.post("/upload")
+@router.post("")
 async def upload(
     agent_name: Annotated[str, Form()],
     agent_email: Annotated[str, Form()],
@@ -83,14 +94,17 @@ async def upload(
 async def detail(
     request: Request,
     recording_id: str,
-    db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    tasks_db: Annotated[Redis, Depends(get_tasks_db)],
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     tab: int = 0,
 ) -> HTMLResponse:
-    recording = await get_recording_by_id(db, recording_id)
+    recording = await get_recording_by_id(recording_db, recording_id)
+    task_status = await get_key_value(tasks_db, recording_id)
 
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
+    partial = request.headers.get("hx-request")
     return templates.TemplateResponse(
         request=request,
         name=("recording.html.jinja2"),
@@ -98,9 +112,13 @@ async def detail(
             "nav_links": nav_links,
             "current": 1,
             "recording": recording,
-            "partial": request.headers.get("hx-request"),
+            "partial": partial,
+            "status": (
+                task_status
+                if partial or (task_status is None or task_status == "in_progress")
+                else ""
+            ),
             "tab": tab,
-            "delay": 0,
             "intents": PREDEFINED_INTENTS,
         },
     )
@@ -170,37 +188,78 @@ async def audio(
     )
 
 
-@router.get("/{recording_id}/{content}")
-async def content(
+@router.get("/{recording_id}/status")
+async def status(
     request: Request,
     recording_id: str,
-    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
     tasks_db: Annotated[Redis, Depends(get_tasks_db)],
-    content: str = "transcript",
-    delay: int = 0,
+    recording_db: Annotated[AsyncIOMotorDatabase, Depends(get_rec_db)],
+    previous: str = "",
 ) -> HTMLResponse:
+    task_status = await get_key_value(tasks_db, recording_id)
+
+    if previous == "in_progress" and task_status == "in_progress":
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis.html.jinja2",
+            context={
+                "request": request,
+                "recording_id": recording_id,
+                "status": task_status,
+            },
+        )
+
     recording = await get_recording_by_id(recording_db, recording_id)
 
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
-    attr = content.split("-")[0]
-    attr_name = attr.upper() if attr in ["ner"] else attr.capitalize()
-
-    if getattr(recording, attr, None) is None:
-        status = await get_key_value(tasks_db, recording.id)
-        if status != TaskStatus.IN_PROGRESS:
-            return HTMLResponse(
-                content=f"<p>{attr_name} not found, please run the analysis first.</p>",
-            )
-
     return templates.TemplateResponse(
         request=request,
-        name="recording_content.html.jinja2",
+        name="analysis.html.jinja2",
         context={
             "recording": recording,
-            "content": content,
-            "delay": delay + 1,
+            "tab": 0,
+            "partial": True,
+            "reload": True,
             "intents": PREDEFINED_INTENTS,
+            "status": (
+                "" if task_status is None or task_status == previous else task_status
+            ),
+            "recording_id": recording_id,
         },
     )
+
+
+@router.post("/{recording_id}/analyze")
+async def analyze(
+    recording_id: str,
+    background_tasks: BackgroundTasks,
+    summary: Annotated[str, Form()] = "",
+    ner: Annotated[str, Form()] = "",
+    conformity: Annotated[str, Form()] = "",
+    force_rerun: Annotated[bool, Form()] = False,
+) -> RedirectResponse:
+    required_tasks = []
+    if force_rerun:
+        required_tasks.append(TaskType.ASR)
+        required_tasks.append(TaskType.SPEAKER_CLASS)
+
+        if summary:
+            required_tasks.append(TaskType.SUMMARY)
+        if ner:
+            required_tasks.append(TaskType.NER)
+        if conformity:
+            required_tasks.append(TaskType.CONFORMITY)
+    else:
+        required_tasks = list(TaskType.__members__.values())
+
+    await run_recording_analysis(
+        recording_id=recording_id,
+        required_tasks=required_tasks,
+        force_rerun="selected" if force_rerun else "none",
+        background_tasks=background_tasks,
+        analyze_params=EUROTAX_PARAMS,
+    )
+
+    return RedirectResponse(url=f"/recordings/{recording_id}/status", status_code=303)

@@ -1,36 +1,30 @@
 {% import "components.html.jinja2" as components %}
 {%- macro transcript() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/transcript?delay=" ~ delay, delay=delay, load=(not recording.transcript or not recording.speaker_mapping)) -%}
-        {%- call(i) components.transcript(recording) -%}
-            {{ recording.transcript.entries[i].text }}
-        {%- endcall -%}
+    {%- call(i) components.transcript(recording) -%}
+        {{ recording.transcript.entries[i].text }}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro summary() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/summary?delay=" ~ delay, delay=delay, load=(not recording.summary)) -%}
-        <p>{{ recording.summary }}</p>
-    {%- endcall -%}
+    <p>{{ recording.summary }}</p>
 {%- endmacro -%}
 {%- macro ner() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/ner?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
-        {%- call(i) components.transcript(recording) -%}
-            {%- set entries = recording.ner.entries[i] -%}
-            {%- set text = recording.transcript.entries[i].text -%}
-            {% if recording.ner.entries[i]|count == 0 %}
-                {{ text }}
-            {% else %}
-                {%- for i in range(entries|count) -%}
-                    {%- set start_char = 0 if i == 0 else entries[i - 1].end_char -%}
-                    {{- text[start_char:entries[i].start_char] -}}
-                    <mark style="background-color: var(--ner-{{ entries[i].entity }});">{{- text[entries[i].start_char:entries[i].end_char] -}}</mark>
-                {%- endfor -%}
-                {{- text[entries[-1].end_char:] -}}
-            {% endif %}
-        {%- endcall -%}
+    {%- call(i) components.transcript(recording) -%}
+        {%- set entries = recording.ner.entries[i] -%}
+        {%- set text = recording.transcript.entries[i].text -%}
+        {% if recording.ner.entries[i]|count == 0 %}
+            {{ text }}
+        {% else %}
+            {%- for i in range(entries|count) -%}
+                {%- set start_char = 0 if i == 0 else entries[i - 1].end_char -%}
+                {{- text[start_char:entries[i].start_char] -}}
+                <mark style="background-color: var(--ner-{{ entries[i].entity }});">{{- text[entries[i].start_char:entries[i].end_char] -}}</mark>
+            {%- endfor -%}
+            {{- text[entries[-1].end_char:] -}}
+        {% endif %}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro ner_details() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/ner-details?delay=" ~ delay, delay=delay, load=(not recording.ner)) -%}
+    <aside class="ner">
         {%- set transcript_entries = recording.transcript.entries -%}
         {%- set ner_entries = recording.ner.entries -%}
         {%- set seen = [] -%}
@@ -57,79 +51,83 @@
             {%- if not seen|selectattr(0, "equalto", entity[1])|list -%}
                 {%- continue -%}
             {%- endif -%}
-            <details>
+            <details class="card">
                 <summary>
                     <span><span class="circle" style="background-color: var(--ner-{{ entity[1] }});"></span>{{ entity[0] }}</span>
                 </summary>
                 <ul>
                     {%- for s in seen -%}
                         {%- if s[0] == entity[1] -%}
-                            <li onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')"
-                                hx-swap="none">{{ s[2] }}</li>
+                            <li>
+                                <a class="text"
+                                   onclick="pulse('entry-{{ transcript_entries[s[1]].start_time }}')">{{ s[2] }}</a>
+                            </li>
                         {%- endif -%}
                     {%- endfor -%}
                 </ul>
             </details>
         {%- endfor -%}
-    {%- endcall -%}
+    </aside>
 {%- endmacro -%}
 {%- macro conformity() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/conformity?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
-        {%- call(i) components.transcript(recording, "conformity") -%}
-            {%- for result in recording.conformity.results -%}
-                {%- if result.entry_id == i -%}
-                    <span class="icon">check_circle</span>
-                {%- endif -%}
-            {%- endfor -%}
-            {{ recording.transcript.entries[i].text }}
-        {%- endcall -%}
+    {%- call(i) components.transcript(recording, "conformity") -%}
+        {%- for result in recording.conformity.results -%}
+            {%- if result.entry_id == i -%}
+                <span class="icon">check_circle</span>
+            {%- endif -%}
+        {%- endfor -%}
+        {{ recording.transcript.entries[i].text }}
     {%- endcall -%}
 {%- endmacro -%}
 {%- macro conformity_details() -%}
-    {%- call components.progress_circle(link=recording.id ~ "/conformity-details?delay=" ~ delay, delay=delay, load=(not recording.conformity)) -%}
+    <aside class="conformity">
         {%- set transcript_entries = recording.transcript.entries -%}
         {%- set conformity_results = recording.conformity.results -%}
-        <div>
+        <div class="card transparent centered">
             {%- set score = (100 * conformity_results|selectattr("passed", "true")|list|count / conformity_results|count)|int -%}
-            {{ components.rating(score) }}
+            {{ components.rating(score, large = true) }}
             <h5>Conformity Rating</h5>
         </div>
-        <div>
-            {%- for i in range(recording.conformity.results|count) -%}
-                {%- set result = recording.conformity.results[i] -%}
-                {%- set intent = intents[i] -%}
-                {%- if result.passed -%}
-                    <div onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}')"
-                         hx-swap="none">
-                        <span class="icon" style="color: #3fe03f;">check_circle</span>
-                        <div>
-                            <span>{{ intent.intent_full_name }}</span>
-                            <span>{{ intent.intent }}</span>
-                        </div>
-                    </div>
-                {%- else -%}
-                    <div>
-                        <span class="icon" style="color: red;">cancel</span>
-                        <div>
-                            <span>{{ intent.intent_full_name }}</span>
-                            <span>{{ intent.intent }}</span>
-                        </div>
-                    </div>
-                {%- endif -%}
-            {%- endfor -%}
-        </div>
-    {%- endcall %}
+        {%- for i in range(recording.conformity.results|count) -%}
+            {%- set result = recording.conformity.results[i] -%}
+            {%- set intent = intents[i] -%}
+            <div class="card description"
+                 {% if result.passed %}
+                 onclick="pulse('entry-{{ transcript_entries[result.entry_id].start_time }}'){%- endif -%} ">
+                {%- if result.passed %}
+                    <span class="icon success">check_circle</span>
+                {%- else %}
+                    <span class="icon error">cancel</span>
+                {%- endif %}
+                <div>
+                    <span>{{ intent.intent_full_name }}</span>
+                    <p>{{ intent.intent }}</p>
+                </div>
+            </div>
+        {%- endfor -%}
+    </aside>
 {%- endmacro -%}
-{% if content == "transcript" %}
-    {{ transcript() }}
-{% elif content == "summary" %}
-    {{ summary() }}
-{% elif content == "ner" %}
-    {{ ner() }}
-{% elif content == "ner-details" %}
-    {{ ner_details() }}
-{% elif content == "conformity" %}
-    {{ conformity() }}
-{%- elif content == "conformity-details" -%}
-    {{ conformity_details() }}
-{% endif %}
+{% macro render_content(content, attr_name) %}
+    {% if content == "transcript" and recording.transcript and recording.speaker_mapping %}
+        {{ transcript() }}
+    {% elif (content == "summary") and recording.summary %}
+        {{ summary() }}
+    {% elif content == "ner" and recording.ner %}
+        {{ ner() }}
+    {% elif content == "ner-details" and recording.ner %}
+        {{ ner_details() }}
+    {% elif content == "conformity" and recording.conformity %}
+        {{ conformity() }}
+    {% elif content == "conformity-details" and recording.conformity %}
+        {{ conformity_details() }}
+    {% elif status == "in_progress" %}
+        <div class="progress">
+            <svg class="rotate" viewBox="25 25 50 50">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+            <p>Analysis in progress...</p>
+        </div>
+    {% else %}
+        <p class="progress">{{ attr_name }} not found. Please run analysis first.</p>
+    {% endif %}
+{% endmacro %}
