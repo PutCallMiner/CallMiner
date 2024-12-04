@@ -120,7 +120,7 @@
         {{ conformity() }}
     {% elif content == "conformity-details" and recording.conformity %}
         {{ conformity_details() }}
-    {% elif loading %}
+    {% elif status == "in_progress" %}
         <div class="progress">
             <svg class="rotate" viewBox="25 25 50 50">
                 <circle r="20" cy="50" cx="50"></circle>

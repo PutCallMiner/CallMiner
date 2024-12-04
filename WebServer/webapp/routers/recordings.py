@@ -104,6 +104,7 @@ async def detail(
     if recording is None:
         raise RecordingNotFoundError(recording_id)
 
+    partial = request.headers.get("hx-request")
     return templates.TemplateResponse(
         request=request,
         name=("recording.html.jinja2"),
@@ -111,8 +112,12 @@ async def detail(
             "nav_links": nav_links,
             "current": 1,
             "recording": recording,
-            "partial": request.headers.get("hx-request"),
-            "loading": task_status == "in_progress",
+            "partial": partial,
+            "status": (
+                task_status
+                if partial or (task_status is None or task_status == "in_progress")
+                else ""
+            ),
             "tab": tab,
             "intents": PREDEFINED_INTENTS,
         },
@@ -217,7 +222,6 @@ async def status(
             "tab": 0,
             "partial": True,
             "reload": True,
-            "loading": task_status == "in_progress",
             "intents": PREDEFINED_INTENTS,
             "status": (
                 "" if task_status is None or task_status == previous else task_status
