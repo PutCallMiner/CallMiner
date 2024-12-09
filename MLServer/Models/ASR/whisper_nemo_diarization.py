@@ -6,7 +6,7 @@ import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, cast
 
 import wget  # type: ignore
 import whisperx  # type: ignore
@@ -369,6 +369,40 @@ class DiarizationPipeline:
         del punct_model
         return ssm
 
+    @staticmethod
+    def _fill_missing_start_end(
+        word_ts: list[SingleWordSegment], global_start: float, global_end: float
+    ) -> None:
+        def find_prev(idx: int, field: Literal["start", "end"]) -> tuple[float, int]:
+            len_before = 0 if field == "start" else len(word_ts[idx]["word"])
+            for word_d in word_ts[:idx][::-1]:
+                if "end" in word_d:
+                    return word_d["end"], len_before
+                len_before += len(word_d["word"])
+                if "start" in word_d:
+                    return word_d["start"], len_before
+            return global_start, len_before
+
+        def find_next(idx: int, field: Literal["start", "end"]) -> tuple[float, int]:
+            len_after = 0 if field == "end" else len(word_ts[idx]["word"])
+            for word_d in word_ts[idx + 1 :]:
+                if "start" in word_d:
+                    return word_d["start"], len_after
+                len_after += len(word_d["word"])
+                if "end" in word_d:
+                    return word_d["end"], len_after
+            return global_end, len_after
+
+        for i, word_dict in enumerate(word_ts):
+            for field in ("start", "end"):
+                if field not in word_dict:
+                    field = cast(Literal["start", "end"], field)
+                    prev_time, len_before = find_prev(i, field)
+                    next_time, len_after = find_next(i, field)
+                    word_dict[field] = prev_time + (
+                        next_time - prev_time
+                    ) * len_before / (len_before + len_after)
+
     def run(
         self, audio: str | Path, diar_params: DiarizationParams | None = None
     ) -> list[SentenceDict]:
@@ -379,18 +413,11 @@ class DiarizationPipeline:
         result_aligned = self._align(audio, transcribe_results)
 
         word_ts = result_aligned["word_segments"]
-        # NOTE: this filling in of missing "start"/"end" is just patchwork solution and may be incorrect
-        for i, word_dict in enumerate(word_ts):
-            if "start" not in word_dict.keys():
-                if i == 0:
-                    word_dict["start"] = result_aligned["segments"][0]["start"]
-                else:
-                    word_dict["start"] = word_ts[i - 1]["end"]
-            if "end" not in word_dict.keys():
-                if i == len(word_ts):
-                    word_dict["end"] = result_aligned["segments"][-1]["end"]
-                else:
-                    word_dict["end"] = word_ts[i + 1]["start"]
+        self._fill_missing_start_end(
+            word_ts,
+            result_aligned["segments"][0]["start"],
+            result_aligned["segments"][-1]["end"],
+        )
 
         rttm_filepath = (
             self.results_dir / "diarized" / "pred_rttms" / f"{audio.stem}.rttm"
